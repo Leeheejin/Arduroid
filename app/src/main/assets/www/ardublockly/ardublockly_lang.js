@@ -13,16 +13,19 @@ var Ardublockly = Ardublockly || {};
 Ardublockly.LANGUAGE_NAME = {
   'fr': 'Français',
   'en': 'English',
+  'ko': '한국어',
   'es': 'Español',
   'nl': 'Nederlands',
-  'pt': 'Português'
+  'pt': 'Português',
+  'it': 'Italiano',
+  'ru': 'Русский'
 };
 
 /**
  * Selected language, default English.
  * @type {string}
  */
-Ardublockly.LANG = 'en';
+Ardublockly.LANG = 'ko';
 
 /**
  * We keep a local copy of the default language in case translations cannot
@@ -122,7 +125,7 @@ Ardublockly.injectLanguageJsSources = function(langKey) {
 
   // Retrieve and inject Ardublockly translations synchronously
   var appLangJsLoad = document.createElement('script');
-  var request = ArdublocklyServer.createAjaxRequest();
+  var request = ArdublocklyServer.createRequest();
   var appLangJdPath = 'msg/' + langKey + '.js';
   try {
     request.open('GET', appLangJdPath, false);

@@ -1,6 +1,6 @@
 var Ardublockly = Ardublockly || {};
 Ardublockly.LOCALISED_TEXT = {
-  translationLanguage: "English",
+  translationLanguage: "ÇÑ±¹¾î",
   title: "Ardublockly",
   blocks: "Blocks",
   /* Menu */
@@ -91,15 +91,15 @@ Ardublockly.LOCALISED_TEXT = {
   arduinoSourceCode: "Arduino Source Code",
   blocksXml: "Blocks XML",
   /* Toolbox Categories*/
-  catLogic: "ë…¼ë¦¬",
-    catLoops: "ë°˜ë³µ",
-    catMath: "ì—°ì‚°",
-    catText: "í…ìŠ¤íŠ¸",
-    catVariables: "ë³€ìˆ˜",
-    catFunctions: "í•¨ìˆ˜",
-    catInputOutput: "ì…/ì¶œë ¥",
-    catTime: "ì‹œê°„",
-    catAudio: "ì†Œë¦¬",
-    catMotors: "ëª¨í„°",
-    catComms: "Comms",
+ catLogic: "³í¸®",
+   catLoops: "¹İº¹",
+   catMath: "¿¬»ê",
+   catText: "ÅØ½ºÆ®",
+   catVariables: "º¯¼ö",
+   catFunctions: "ÇÔ¼ö",
+   catInputOutput: "ÀÔ/Ãâ·Â",
+   catTime: "½Ã°£",
+   catAudio: "¼Ò¸®",
+   catMotors: "¸ğÅÍ",
+  catComms: "Comms",
 };

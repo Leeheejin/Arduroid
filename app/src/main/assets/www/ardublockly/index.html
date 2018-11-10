@@ -13,13 +13,11 @@
   <link rel="stylesheet" href="ardublockly.css" media="screen,projection">
 
   <!-- Ardublockly - These three files contain the compress version -->
-
-  <script src="../blockly/blockly_compressed.js"></script>
+  <!--script src="../blockly/blockly_compressed.js"></script>
   <script src="../blockly/blocks_compressed.js"></script>
-  <script src="../blockly/arduino_compressed.js"></script>
-
+  <script src="../blockly/arduino_compressed.js"></script--!>
   <!-- To use the uncompressed version comment out the above and comment in the ones below -->
-  <!--script src="../blockly/blockly_uncompressed.js"></script>
+  <script src="../blockly/blockly_uncompressed.js"></script>
   <script src="../blockly/blocks/logic.js"></script>
   <script src="../blockly/blocks/loops.js"></script>
   <script src="../blockly/blocks/math.js"></script>
@@ -54,16 +52,16 @@
   <script src="../blockly/generators/arduino/text.js"></script>
   <script src="../blockly/generators/arduino/time.js"></script>
   <script src="../blockly/generators/arduino/tone.js"></script>
-  <script src="../blockly/generators/arduino/variables.js"></script-->
+  <script src="../blockly/generators/arduino/variables.js"></script>
 
   <!-- Default language js files, user selection appended to head on load -->
-  <script src="../blockly/msg/js/en.js"></script>
+  <script src="../blockly/msg/js/ko.js"></script>
   <script src="msg/en.js"></script>
 </head>
 
 <body>
-  <!-- Horizontal Navigation bar 인비지블 -->
-  <nav class="nav-fixed arduino_teal" style="display:none">
+  <!-- Horizontal Navigation bar -->
+  <nav class="nav-fixed arduino_teal">
     <div class="nav-wrapper container">
       <a class="show-on-large button-collapse" href="#" data-activates="slide-out" id="button-collapse"><i class="mdi-navigation-menu"></i></a>
       <a id="logo-container" class="brand-logo">
@@ -115,8 +113,9 @@
   </ul>
 
   <!-- Content -->
-     <div class="row" style="padding: 0">
-      <div class="col s12 m12 l8" style="position:relative;">
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m12 l8" style="position:relative">
         <!-- Toolbox visibility button -->
         <a id="button_toggle_toolbox" class="waves-effect waves-light btn-flat button_toggle_toolbox_off" style="display: none"><i id="button_toggle_toolbox_icon" class="mdi-action-visibility-off"></i></a>
         <!-- Arduino IDE action buttons -->
@@ -170,7 +169,7 @@
           </div>
         </div>
       </div>
-      <div class="col s12 m12 l4" style="display:none"> <!-- 인비지블 -->
+      <div class="col s12 m12 l4">
         <ul class="collapsible z-depth-1" data-collapsible="accordion">
           <li>
             <div class="collapsible-header active">
@@ -197,7 +196,7 @@
   </div>
 
   <!-- IDE Output content -->
-  <div class="ide_output_wrapper" style="display:none"> <!-- 인비지블 -->
+  <div class="ide_output_wrapper">
     <ul class="collapsible ide_output_collapsible" data-collapsible="expandable">
       <li>
         <div id="ide_output_collapsible_header" class="collapsible-header ide_output_header_normal">
@@ -218,11 +217,11 @@
       <h4><span class="translatable_settings">Settings</span></h4>
       <div class="modal_section">
         <label><span class="translatable_compilerLocation">Compiler Location</span>:</label>
-        <input type="text" id="settings_compiler_location" readonly>
+        <input type="text" id="settings_compiler_location">
       </div>
       <div class="modal_section">
         <label><span class="translatable_sketchFolder">Sketch Folder</span>:</label>
-        <input type="text" id="settings_sketch_location" readonly>
+        <input type="text" id="settings_sketch_location">
       </div>
       <div class="modal_section">
         <label><span class="translatable_arduinoBoard">Arduino Board</span>:</label>
@@ -289,8 +288,8 @@
     </div>
   </div>
 
-  <!-- Local Modal to be shown if Ardublockly Server is not running. 인비지블 -->
-  <div id="not_running_dialog" class="modal" style="display:none">
+  <!-- Local Modal to be shown if Ardublockly Server is not running. -->
+  <div id="not_running_dialog" class="modal">
     <div class="modal-content">
       <div>
         <h4 id="gen_alert_title"><span class="translatable_noServerTitle">Ardublockly app not running</span></h4>

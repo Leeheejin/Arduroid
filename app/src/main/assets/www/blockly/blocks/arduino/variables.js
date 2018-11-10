@@ -29,10 +29,11 @@ Blockly.Blocks['variables_set_type'] = {
     this.setColour(Blockly.Blocks.variables.HUE);
     this.appendValueInput('VARIABLE_SETTYPE_INPUT');
     this.appendDummyInput()
-        .appendField(Blockly.Msg.ARD_VAR_AS)
+        .appendField(Blockly.Msg.ARD_VAR_AS_1)
         .appendField(new Blockly.FieldDropdown(
                          Blockly.Types.getValidTypeArray()),
-                     'VARIABLE_SETTYPE_TYPE');
+                     'VARIABLE_SETTYPE_TYPE')
+         .appendField(Blockly.Msg.ARD_VAR_AS_2) ;
     this.setInputsInline(true);
     this.setOutput(true);
     this.setTooltip(Blockly.Msg.ARD_VAR_AS_TIP);
