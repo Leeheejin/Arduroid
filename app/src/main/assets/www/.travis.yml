@@ -1,0 +1,79 @@
+os: osx
+osx_image: beta-xcode6.1
+language: node_js
+node_js: '6'
+
+before_install:
+  # OS extra info
+  - sw_vers
+  - uname -a
+  - python --version
+  - python -c "import struct; print(struct.calcsize('P') * 8)"
+
+  # Install Python 2 and 3 with pip and check versions
+  - brew update
+  - brew install python
+  - brew unlink python && brew link python
+  - brew install python3
+  - brew unlink python3 && brew link python3
+  - brew install libcouchbase
+  - PATH=/usr/local/bin:$PATH
+  - echo $PATH
+  - python --version
+  - python -c "import struct; print(struct.calcsize('P') * 8)"
+  - pip --version
+  - python3 --version
+  - python3 -c "import struct; print(struct.calcsize('P') * 8)"
+  - pip3 --version
+
+  # Install Python packages (built with Python 3, tests for 2 and 3)
+  - pip install mock
+  - pip3 install mkdocs
+  - pip3 install pyinstaller
+  - pyinstaller --version
+  - pip freeze
+  - pip3 freeze
+
+  # Travis make takes > 10 minutes, so need to increase wait
+  - brew unlink node
+  - travis_wait brew install node
+  - node --version
+  - node -p "process.arch"
+  - npm --version
+
+# Build and pack Ardublockly
+install:
+  - cd blockly && python build.py && cd ../
+  - python3 package/build_docs.py
+  - python3 package/build_pyinstaller.py mac
+  - cd package/electron && npm install && cd ../../
+  - cd package/electron && npm run release && cd ../../
+  - python3 package/pack_ardublockly.py
+  - du -sk releases/
+
+# Run the tests in both Python 2 and 3
+script:
+  - python  ardublocklyserver/tests/sketchcreator_test.py
+  - python3 ardublocklyserver/tests/sketchcreator_test.py
+  - python  ardublocklyserver/tests/compilersettings_test.py
+  - python3 ardublocklyserver/tests/compilersettings_test.py
+
+# Deploy the build version in an S3 bucket
+deploy:
+  provider: s3
+  access_key_id: AKIAIBDOPX6GSMBDEFPQ
+  secret_access_key:
+    secure: QNNNIgHpcTYJZS1K4w8iPqJWq1Xhx8ICoVJ79QURS5Vi4ppnP0smuW13+XdmjoZyoceSoR4iOcKX7o4HXDozsejy3ft72tXgNntVQoOOKYxnV1zKYHc7Q6ID6L3GlPKV2EQid30CM4bP0mm4P8ntuemUOwhqm4mjRwDxAMpxsEbXgNAHAMifn40g5u2rHuwo64+UUll6m2Ues6mekAlwq6YQKn0numrcHRZX9F3kMLyrSHO671EkyfVsBbZpk7+HIEXmgXgPb4juefcxUlhYQFvnlBPyyTG1ec0BE2un714vZe+Gq0w1UYQbIpsAvM1HDWQKa2S9m2gz1TXC5YXOKAfoenyFsrgvdT00zpxVrTLAGhmIgtxsbAYXVPRg/6g5E+DW/JJ2xBfMJyw3j/82vexkHpvQcut9zZ74CE2H0CtyNXHvwdcwMs+qoja6tLw1dvFD7yrTo2T/jCOxFoGYjneF3Syuh8GpALSGGUJDnyFiK0yD2B0r2567csFj5Sc0CO/ExFwfG9zmiVtkm0Xpfq09VcZFjVnJ4k8QyNvrHmnGB/H7P6CskSA1X9gGIyk36Cu17XyyrtIuM+UUIdnrZhWCI3zA/2UVawkEjA+zhpbKFKsxIe37bPpIpNM+OyMLppZzzpcaRAynh6a/8Hcc+ckh4zMg7qWu7VXyYvjSkl0=
+  bucket: ardublockly-builds
+  skip_cleanup: true
+  local-dir: releases
+  upload-dir: mac
+  acl: public_read
+  on:
+    repo: carlosperate/ardublockly
+    all_branches: true
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
