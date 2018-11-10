@@ -1,6 +1,6 @@
 var Ardublockly = Ardublockly || {};
 Ardublockly.LOCALISED_TEXT = {
-  translationLanguage: "English",
+  translationLanguage: "한국어",
   title: "Ardublockly",
   blocks: "Blocks",
   /* Menu */
@@ -94,12 +94,12 @@ Ardublockly.LOCALISED_TEXT = {
   catLogic: "논리",
   catLoops: "반복",
   catMath: "연산",
-  catText: "텍스트",
+  catText: "Text",
   catVariables: "변수",
-  catFunctions: "함수",
-  catInputOutput: "입/출력",
+  catFunctions: "Functions",
+  catInputOutput: "입출력",
   catTime: "시간",
-  catAudio: "소리",
-  catMotors: "모터",
+  catAudio: "Audio",
+  catMotors: "Motors",
   catComms: "Comms",
 };

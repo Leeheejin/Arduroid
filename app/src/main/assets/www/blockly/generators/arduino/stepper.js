@@ -25,27 +25,37 @@ goog.require('Blockly.Arduino');
  * @return {string} Empty string as no code goes into 'loop()'.
  */
 Blockly.Arduino['stepper_config'] = function(block) {
-  var pin1 = block.getFieldValue('STEPPER_PIN1');
-  var pin2 = block.getFieldValue('STEPPER_PIN2');
   var pinType = Blockly.Arduino.PinTypes.STEPPER;
   var stepperName = block.getFieldValue('STEPPER_NAME');
+  var numberOfPins = block.getFieldValue('STEPPER_NUMBER_OF_PINS');
   var stepperSteps = Blockly.Arduino.valueToCode(block, 'STEPPER_STEPS',
       Blockly.Arduino.ORDER_ATOMIC) || '360';
   var stepperSpeed = Blockly.Arduino.valueToCode(block, 'STEPPER_SPEED',
       Blockly.Arduino.ORDER_ATOMIC) || '90';
-  
+  var pins = [block.getFieldValue('STEPPER_PIN1'),
+              block.getFieldValue('STEPPER_PIN2')];
+  if (numberOfPins === 'FOUR') {
+    pins.push(block.getFieldValue('STEPPER_PIN3'));
+    pins.push(block.getFieldValue('STEPPER_PIN4'));
+  }
+
+  var pinArray = 'int ' + stepperName + '[' + pins.length +'] = {';
+  var globalCode = 'Stepper stepper_' + stepperName + '(' + stepperSteps + ', ';
+  for (var i = 0; i < pins.length; i++) {
+    Blockly.Arduino.reservePin(block, pins[i], pinType, 'Stepper');
+    pinArray += pins[i] + ', ';
+    globalCode += pins[i] + ', ';
+  }
+  pinArray = pinArray.slice(0, -2) + '};';
+  globalCode = globalCode.slice(0, -2) + ');';
+
   //stepper is a variable containing the used pins
   Blockly.Arduino.addVariable(stepperName,
-      'int ' + stepperName + '[2] = {' + pin1 + ', ' + pin2 + '};', true);
-  stepperName = 'stepper_' + stepperName
-
-  Blockly.Arduino.reservePin(block, pin1, pinType, 'Stepper');
-  Blockly.Arduino.reservePin(block, pin2, pinType, 'Stepper');
+      pinArray, true);
+  stepperName = 'stepper_' + stepperName;
 
   Blockly.Arduino.addInclude('stepper', '#include <Stepper.h>');
 
-  var globalCode = 'Stepper ' + stepperName + '(' + stepperSteps + ', ' +
-      pin1 + ', ' + pin2 + ');';
   Blockly.Arduino.addDeclaration(stepperName, globalCode);
 
   var setupCode = stepperName + '.setSpeed(' + stepperSpeed + ');';

@@ -5,7 +5,7 @@
  * @fileoverview Front end code relevant only to the Desktop version of
 *                Ardublockly.
  */
-'use strict';
+//'use strict';
 
 /** Create a namespace for the application. */
 var Ardublockly = Ardublockly || {};
@@ -28,7 +28,8 @@ Ardublockly.isRunningElectron = function() {
  */
 (function loadJsInElectron(){
   if (Ardublockly.isRunningElectron()) {
-    var projectLocator = require('electron').remote.require('./projectlocator.js');
+    var projectLocator = require('electron').remote.require(
+        './projectlocator.js');
     var projectRoot = projectLocator.getProjectRootPath();
     window.$ = window.jQuery = require(projectRoot +
         '/ardublockly/js_libs/jquery-2.1.3.min.js');
@@ -72,6 +73,108 @@ Ardublockly.htmlPrompt = function(message, defaultValue, callback) {
   window.location.hash = '';
 };
 
+/**
+ * Add click listeners to the Compiler and Sketch input fields to launch the 
+ * Electron file/folder browsers.
+ */
+Ardublockly.bindSettingsPathInputs = function() {
+  var dialog = require('electron').remote.dialog;
+
+  // Compiler path
+  var compilerEl = document.getElementById('settings_compiler_location');
+  compilerEl.readOnly = true;
+  Ardublockly.bindClick_(compilerEl, function() {
+    dialog.showOpenDialog({
+      title: 'Select the Arduino IDE executable',
+      buttonLabel: 'Select',
+      properties: ['openFile']
+    }, function (files) {
+      if (files && files[0]) {
+        ArdublocklyServer.setCompilerLocation(files[0], function(jsonObj) {
+          Ardublockly.setCompilerLocationHtml(
+              ArdublocklyServer.jsonToHtmlTextInput(jsonObj));
+        });
+      }
+    })
+  });
+  // Sketch path
+  var sketchEl = document.getElementById('settings_sketch_location');
+  sketchEl.readOnly = true;
+  Ardublockly.bindClick_(sketchEl, function() {
+    dialog.showOpenDialog({
+      title: 'Select the Arduino IDE executable',
+      buttonLabel: 'Select',
+      properties: ['openDirectory']
+    }, function (folders) {
+      if (folders && folders[0]) {
+        ArdublocklyServer.setSketchLocation(folders[0], function(jsonObj) {
+          Ardublockly.setSketchLocationHtml(
+              ArdublocklyServer.jsonToHtmlTextInput(jsonObj));
+        });
+      }
+    })
+  });
+};
+
+/** Wraps the console.log warn and errors to send data to logging file. */
+Ardublockly.redirectConsoleLogging = function() {
+  var winston = require('electron').remote.require('winston');
+  var consoleLog = console.log;
+  var consoleWarning = console.warning;
+  var consoleError = console.error;
+
+  // This is magic from Stack Overflow
+  // http://stackoverflow.com/questions/14172455/get-name-and-line-of-calling-function-in-node-js
+  Object.defineProperty(global, '__stack', {
+    get: function() {
+      var orig = Error.prepareStackTrace;
+      Error.prepareStackTrace = function(_, stack) {
+        return stack;
+      };
+      var err = new Error;
+      Error.captureStackTrace(err, arguments.callee);
+      var stack = err.stack;
+      Error.prepareStackTrace = orig;
+      return stack;
+    }
+  });
+  Object.defineProperty(global, '__stackfilename', {
+    get: function() {
+      return __stack[2].getFileName();
+    }
+  });
+  Object.defineProperty(global, '__line', {
+    get: function() {
+      return __stack[2].getLineNumber();
+    }
+  });
+  Object.defineProperty(global, '__function', {
+    get: function() {
+      return __stack[2].getFunctionName();
+    }
+  });
+
+  // Wrapping console logging
+  console.log = function(logMessage){
+      consoleLog.apply(console, arguments);
+      var tagRenderer = '[Renderer "' + __stackfilename + ':' + __function +
+                        '():L' + __line + '"] ';
+      winston.info(tagRenderer + logMessage);
+  };
+  console.warning = function(warnMessage){
+     consoleWarning.apply(console, arguments);
+     var tagRenderer = '[Renderer "' + __stackfilename + ':' + __function +
+                        '():L' + __line + '"] ';
+     winston.warn(tagRenderer + warnMessage);
+  };
+  console.error = function(errMessage){
+     consoleError.apply(console, arguments);
+     var tagRenderer = '[Renderer "' + __stackfilename + ':' + __function +
+                        '():L' + __line + '"] ';
+     winston.error(tagRenderer + errMessage);
+  };
+};
+
 /** Initialize Ardublockly code required for Electron on page load. */
 window.addEventListener('load', function load(event) {
   window.removeEventListener('load', load, false);
@@ -80,9 +183,14 @@ window.addEventListener('load', function load(event) {
     Ardublockly.containerFullWidth();
     Ardublockly.hideSideMenuButton();
 
+    // Open the file or directory browsers when clicking on the Settings inputs
+    Ardublockly.bindSettingsPathInputs();
+
     // Prevent browser zoom changes like pinch-to-zoom
     var webFrame = require('electron').webFrame;
     webFrame.setZoomLevelLimits(1, 1);
+
+    Ardublockly.redirectConsoleLogging();
 
     // Electron does not offer a prompt, so replace Blocks version with modal
     // Original signature: function(message, opt_defaultInput, opt_callback)
