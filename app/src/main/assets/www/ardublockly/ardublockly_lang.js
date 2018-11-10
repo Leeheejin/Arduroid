@@ -12,13 +12,10 @@ var Ardublockly = Ardublockly || {};
 /** Lookup for names of supported languages. Keys in ISO 639 format. */
 Ardublockly.LANGUAGE_NAME = {
   'fr': 'Français',
-  'ko': '한국어',
-  'en': 'english',
+  'en': 'English',
   'es': 'Español',
   'nl': 'Nederlands',
-  'pt': 'Português',
-  'it': 'Italiano',
-  'ru': 'Русский'
+  'pt': 'Português'
 };
 
 /**
@@ -125,7 +122,7 @@ Ardublockly.injectLanguageJsSources = function(langKey) {
 
   // Retrieve and inject Ardublockly translations synchronously
   var appLangJsLoad = document.createElement('script');
-  var request = ArdublocklyServer.createRequest();
+  var request = ArdublocklyServer.createAjaxRequest();
   var appLangJdPath = 'msg/' + langKey + '.js';
   try {
     request.open('GET', appLangJdPath, false);

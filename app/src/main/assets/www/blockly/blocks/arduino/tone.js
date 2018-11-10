@@ -35,18 +35,8 @@ Blockly.Blocks['io_tone'] = {
     this.setTooltip(Blockly.Msg.ARD_TONE_TIP);
     this.setHelpUrl('https://www.arduino.cc/en/Reference/tone');
   },
-  /**
-   * Called whenever anything on the workspace changes.
-   * It checks frequency values and sets a warning if out of range.
-   * @this Blockly.Block
-   */
-  onchange: function(event) {
-    if (!this.workspace || event.type == Blockly.Events.MOVE ||
-        event.type == Blockly.Events.UI) {
-        return;  // Block deleted or irrelevant event
-    }
-    var freq = Blockly.Arduino.valueToCode(
-        this, "FREQUENCY", Blockly.Arduino.ORDER_ATOMIC)
+  onchange: function() {
+    var freq = Blockly.Arduino.valueToCode(this, "FREQUENCY", Blockly.Arduino.ORDER_ATOMIC)
     if (freq < 31 || freq > 65535) {
       this.setWarningText(Blockly.Msg.ARD_TONE_WARNING, 'io_tone');
     } else {
@@ -64,8 +54,7 @@ Blockly.Blocks['io_notone'] = {
     this.appendDummyInput()
         .appendField(Blockly.Msg.ARD_NOTONE)
         .appendField(new Blockly.FieldDropdown(
-            Blockly.Arduino.Boards.selected.digitalPins), "TONEPIN")
-            .appendField(Blockly.Msg.ARD_NOTONE_1);
+            Blockly.Arduino.Boards.selected.digitalPins), "TONEPIN");
     this.setPreviousStatement(true);
     this.setNextStatement(true);
     this.setColour(Blockly.Blocks.tone.HUE);

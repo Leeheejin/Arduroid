@@ -34,7 +34,6 @@ goog.require('Blockly.Types');
  * Common HSV hue for all blocks in this category.
  */
 Blockly.Blocks.math.HUE = 230;
-Blockly.Blocks.math.HUE1 = 30;
 
 Blockly.Blocks['math_number'] = {
   /**
@@ -43,7 +42,7 @@ Blockly.Blocks['math_number'] = {
    */
   init: function() {
     this.setHelpUrl(Blockly.Msg.MATH_NUMBER_HELPURL);
-    this.setColour(Blockly.Blocks.math.HUE1);
+    this.setColour(Blockly.Blocks.math.HUE);
     this.appendDummyInput()
         .appendField(
             new Blockly.FieldTextInput(
@@ -94,10 +93,10 @@ Blockly.Blocks['math_arithmetic'] = {
              [Blockly.Msg.MATH_POWER_SYMBOL, 'POWER']]
         },
         {
-                "type": "input_value",
-                "name": "B",
-                "check": Blockly.Types.NUMBER.checkList
-              }
+          "type": "input_value",
+          "name": "B",
+          "check": Blockly.Types.NUMBER.checkList
+        }
       ],
       "inputsInline": true,
       "output": Blockly.Types.NUMBER.output,
