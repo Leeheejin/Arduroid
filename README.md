@@ -14,10 +14,19 @@ A application of platform that helps block style coding without personal compute
 **Badges will go here**
 
 - devDependencies
-- issues (waffle.io maybe)
+- issues
+- stars
+- release version
 - license
 
-[![Plat Form](https://img.shields.io/badge/Platform-Android-lightgrey.svg)![AppVeyor](https://img.shields.io/appveyor/ci/:user/:repo.svg)](https://github.com/doo3721/seoulpeople)[![GitHub issues](https://img.shields.io/github/issues/badges/shields.svg)](https://github.com/doo3721/seoulpeople)![License: CC BY 4.0](https://img.shields.io/badge/license-CC%20BY%204.0%20%2F%20Apache--2.0-blue.svg)
+[![Plat Form](https://img.shields.io/badge/Platform-Android-lightgrey.svg)
+![AppVeyor](https://img.shields.io/github/issues/badges/shields.svg)](https://github.com/Leeheejin/Arduroid)
+[![GitHub issues](https://img.shields.io/github/issues/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/issues)
+[![GitHub stars](https://img.shields.io/github/stars/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/stargazers)
+[![GitHub release](https://img.shields.io/badge/release-v1.2-green.svg)](https://github.com/Leeheejin/Arduroid)
+![License: CC BY 4.0](https://img.shields.io/badge/license-CC%20BY%204.0%20%2F%20Apache--2.0-blue.svg)
+
+
 
 ---
 
@@ -25,6 +34,13 @@ A application of platform that helps block style coding without personal compute
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your mobile device for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+
+### Example
+
+you can release apk file on your IDE, or just see the below video!
+
+
+![build-test](https://j.gifs.com/qYOpX3.gif)
 
 ---
 
@@ -38,7 +54,7 @@ These instructions will get you a copy of the project up and running on your mob
 
 ## Usage
 
-Not yet :)
+Just drag block! and edit sentence! if you have arduino device, even can upload your source code on yours!
 
 ---
 
@@ -72,7 +88,7 @@ Not yet :)
 
 | Sungeun Kim | HeeJin Lee |
 | :---: |:---:|
-| [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)  | [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)  |
+|  <img src="https://avatars3.githubusercontent.com/u/44923146?s=460&v=4" width="50%"></img> | <img src="https://avatars1.githubusercontent.com/u/9789023?s=460&v=4" width="50%"></img>  |
 | [github.com/seongeunK](https://github.com/seongeunK "https://github.com/seongeunK") | [github.com/Leeheejin](https://github.com/Leeheejin "https://github.com/Leeheejin") |
 
 - You can see team member and github profile
@@ -89,12 +105,19 @@ Not yet :)
 ---
 
 
-## License
-
-This project is licensed under the Apache License 2.0 and CC BY 4.0 - see the [LICENSE.md](LICENSE.md) file for details
-
----
-
 ## To do
 
 you can check weekly Todo list - see the [Todo.md](Todo.md "Todo.md") file for details
+
+---
+
+
+## License
+
+Copyright (c) 2016 carlosperate https://github.com/carlosperate/
+
+Unless stated otherwise, the source code of this projects is licensed under the Apache License, Version 2.0 (the "License"); you may not use any of the licensed files within this project except in compliance with the License.
+
+The full document can be found in the LICENSE file.
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
