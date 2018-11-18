@@ -16,7 +16,6 @@
  * @fileoverview Utilities for working with IE control ranges.
  *
  * @author robbyw@google.com (Robby Walker)
- * @suppress {strictMissingProperties}
  */
 
 
@@ -454,7 +453,7 @@ goog.dom.ControlRangeIterator.prototype.isLast = function() {
 
 /**
  * Move to the next position in the selection.
- * Throws `goog.iter.StopIteration` when it passes the end of the range.
+ * Throws {@code goog.iter.StopIteration} when it passes the end of the range.
  * @return {Node} The node at the next position.
  * @override
  */
@@ -476,12 +475,11 @@ goog.dom.ControlRangeIterator.prototype.next = function() {
 
 /** @override */
 goog.dom.ControlRangeIterator.prototype.copyFrom = function(other) {
-  var that = /** @type {!goog.dom.ControlRangeIterator} */ (other);
-  this.elements_ = that.elements_;
-  this.startNode_ = that.startNode_;
-  this.endNode_ = that.endNode_;
+  this.elements_ = other.elements_;
+  this.startNode_ = other.startNode_;
+  this.endNode_ = other.endNode_;
 
-  goog.dom.ControlRangeIterator.superClass_.copyFrom.call(this, that);
+  goog.dom.ControlRangeIterator.superClass_.copyFrom.call(this, other);
 };
 
 

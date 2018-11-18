@@ -188,7 +188,6 @@ goog.ui.HsvPalette.prototype.getAlpha = function() {
 /**
  * Updates the text entry field.
  * @protected
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.HsvPalette.prototype.updateInput = function() {
   var parsed;
@@ -521,7 +520,6 @@ goog.ui.HsvPalette.prototype.handleMouseUp = function(e) {
  * Handles input events on the hex value input field.
  * @param {goog.events.Event} e Event object.
  * @protected
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.HsvPalette.prototype.handleInput = function(e) {
   if (/^#?[0-9a-f]{6}$/i.test(this.inputElement.value)) {

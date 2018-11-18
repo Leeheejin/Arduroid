@@ -36,7 +36,10 @@ function tearDown() {
 }
 
 function testEmojiWithEmoticonsPlugin() {
-  var plugin = new goog.editor.plugins.Emoticons();
+  runEmojiTestWithPlugin(new goog.editor.plugins.Emoticons());
+}
+
+function runEmojiTestWithPlugin(plugin) {
   var field = new goog.editor.Field('testField');
   field.registerPlugin(plugin);
   field.makeEditable();
@@ -60,20 +63,20 @@ function testEmojiWithEmoticonsPlugin() {
   var range = field.getRange();
   assertNotNull('must have a selection', range);
   assertTrue('range must be a cursor', range.isCollapsed());
-
-  if (!goog.userAgent.IE) {
-    var webkitValid = (2 == range.getStartOffset());
-    var otherValid =
-        (2 ==
-         goog.array.indexOf(
-             range.getContainerElement().childNodes, range.getStartNode()));
-
-    assertTrue('range starts after image', webkitValid || otherValid);
+  if (goog.userAgent.WEBKIT) {
+    assertEquals('range starts after image', 2, range.getStartOffset());
+  } else if (goog.userAgent.GECKO) {
+    assertEquals(
+        'range starts after image', 2,
+        goog.array.indexOf(
+            range.getContainerElement().childNodes, range.getStartNode()));
   }
-
-  assertEquals(
-      'range must be around image', img.parentElement,
-      range.getContainerElement());
+  // Firefox 3.6 is still tested, and would fail here - treitel December 2012
+  if (!(goog.userAgent.GECKO && !goog.userAgent.isVersionOrHigher(2))) {
+    assertEquals(
+        'range must be around image', img.parentElement,
+        range.getContainerElement());
+  }
 }
 
 function assertUriEquals(expected, actual) {

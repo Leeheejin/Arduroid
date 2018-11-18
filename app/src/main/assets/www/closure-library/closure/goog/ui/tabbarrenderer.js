@@ -14,7 +14,7 @@
 
 /**
  * @fileoverview Default renderer for {@link goog.ui.TabBar}s.  Based on the
- * original `TabPane` code.
+ * original {@code TabPane} code.
  *
  * @author attila@google.com (Attila Bodis)
  * @author eae@google.com (Emil A. Eklund)
@@ -26,20 +26,18 @@ goog.require('goog.a11y.aria.Role');
 goog.require('goog.object');
 goog.require('goog.ui.ContainerRenderer');
 
-goog.forwardDeclare('goog.ui.Container');
-
 
 
 /**
- * Default renderer for {@link goog.ui.TabBar}s, based on the `TabPane`
+ * Default renderer for {@link goog.ui.TabBar}s, based on the {@code TabPane}
  * code.  The tab bar's DOM structure is determined by its orientation and
  * location relative to tab contents.  For example, a horizontal tab bar
  * located above tab contents looks like this:
- *
- *    <div class="goog-tab-bar goog-tab-bar-horizontal goog-tab-bar-top">
- *      ...(tabs here)...
- *    </div>
- *
+ * <pre>
+ *   <div class="goog-tab-bar goog-tab-bar-horizontal goog-tab-bar-top">
+ *     ...(tabs here)...
+ *   </div>
+ * </pre>
  * @constructor
  * @extends {goog.ui.ContainerRenderer}
  */
@@ -137,7 +135,6 @@ goog.ui.TabBarRenderer.prototype.createClassByLocationMap_ = function() {
    * and string concatenation.
    * @type {Object}
    * @private
-   * @suppress {missingRequire} goog.ui.TabBar
    */
   this.classByLocation_ = goog.object.create(
       goog.ui.TabBar.Location.TOP, goog.getCssName(baseClass, 'top'),

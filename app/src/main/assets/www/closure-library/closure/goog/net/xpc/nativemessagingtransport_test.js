@@ -130,13 +130,13 @@ function testDisposeWithDom() {
 
 
 function testBogusMessages() {
-  var e = createMockEvent('origin_unknown', 'bogus_message');
+  var e = createMockEvent('bogus_message');
   assertFalse(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
 
-  e = createMockEvent('origin_unknown', 'bogus|message');
+  e = createMockEvent('bogus|message');
   assertFalse(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
 
-  e = createMockEvent('origin_unknown', 'bogus|message:data');
+  e = createMockEvent('bogus|message:data');
   assertFalse(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
 }
 
@@ -158,8 +158,7 @@ function testSendingMessagesToUnconnectedInnerPeer() {
       2 /* opt_protocolVersion */);
 
   // Test a valid message.
-  var e = createMockEvent(
-      'origin_unknown', 'test_channel|test_service:test_payload');
+  var e = createMockEvent('test_channel|test_service:test_payload');
   assertTrue(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
   assertEquals('test_service', serviceResult);
   assertEquals('test_payload', payloadResult);
@@ -167,16 +166,8 @@ function testSendingMessagesToUnconnectedInnerPeer() {
       'Ensure channel name has not been changed.', 'test_channel',
       t.channel_.name);
 
-  // Test that sending a SETUP message from an untrusted origin doesn't update
-  // the channel name.  This is a regression test for b/33746803.
-  var e = createMockEvent('untrusted_origin', 'new_channel|tp:SETUP');
-  assertFalse(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
-  assertEquals(
-      'Channel name should not change from untrusted origin', 'test_channel',
-      t.channel_.name);
-
   // Test updating a stale inner peer.
-  var e = createMockEvent('trusted_origin', 'new_channel|tp:SETUP');
+  var e = createMockEvent('new_channel|tp:SETUP');
   assertTrue(goog.net.xpc.NativeMessagingTransport.messageReceived_(e));
   assertEquals('tp', serviceResult);
   assertEquals('SETUP', payloadResult);
@@ -283,16 +274,10 @@ function checkSignalConnected(
 }
 
 
-/**
- * Creates a Mock Event object used to test browser events.
- * @param {string} origin The URI origin, or '*', of the event.
- * @param {string} data The data to associate with the event.
- * @return {Object} The created object representing a browser event.
- */
-function createMockEvent(origin, data) {
+function createMockEvent(data) {
   var event = {};
   event.getBrowserEvent = function() {
-    return {origin: origin, data: data};
+    return { data: data }
   };
   return event;
 }
@@ -301,7 +286,6 @@ function createMockEvent(origin, data) {
 function getTestChannel(opt_domHelper) {
   var cfg = {};
   cfg[goog.net.xpc.CfgFields.CHANNEL_NAME] = 'test_channel';
-  cfg[goog.net.xpc.CfgFields.PEER_HOSTNAME] = 'trusted_origin';
   return new goog.net.xpc.CrossPageChannel(
       cfg, opt_domHelper, undefined /* opt_domHelper */,
       false /* opt_oneSidedHandshake */, 2 /* opt_protocolVersion */);

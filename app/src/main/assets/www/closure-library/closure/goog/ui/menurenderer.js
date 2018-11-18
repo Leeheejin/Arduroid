@@ -29,8 +29,6 @@ goog.require('goog.dom.TagName');
 goog.require('goog.ui.ContainerRenderer');
 goog.require('goog.ui.Separator');
 
-goog.forwardDeclare('goog.ui.Menu');
-
 
 
 /**

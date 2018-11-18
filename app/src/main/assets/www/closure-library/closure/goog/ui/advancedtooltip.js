@@ -265,7 +265,7 @@ goog.ui.AdvancedTooltip.prototype.isCoordinateActive_ = function(coord) {
 /**
  * Called by timer from mouse out handler. Hides tooltip if cursor is still
  * outside element and tooltip.
- * @param {?Element|undefined} el Anchor when hide timer was started.
+ * @param {Element} el Anchor when hide timer was started.
  * @override
  */
 goog.ui.AdvancedTooltip.prototype.maybeHide = function(el) {
@@ -359,6 +359,6 @@ goog.ui.AdvancedTooltip.prototype.getHideDelayMs = function() {
 /**
  * Forces the recalculation of the hotspot on the next mouse over event.
  * @deprecated Not ever necessary to call this function. Hot spot is calculated
- *     as necessary.
+ *     as neccessary.
  */
 goog.ui.AdvancedTooltip.prototype.resetHotSpot = goog.nullFunction;

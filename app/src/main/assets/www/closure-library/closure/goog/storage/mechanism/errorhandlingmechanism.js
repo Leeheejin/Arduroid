@@ -111,7 +111,6 @@ goog.storage.mechanism.ErrorHandlingMechanism.prototype.get = function(key) {
   } catch (e) {
     this.errorHandler_(
         e, goog.storage.mechanism.ErrorHandlingMechanism.Operation.GET, key);
-    return null;
   }
 };
 

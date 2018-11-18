@@ -63,7 +63,7 @@ function testLeavesPWhenRemovingLists() {
   assertEquals(
       'LEAVES_P_WHEN_REMOVING_LISTS incorrect for ' + navigator.userAgent,
       goog.editor.BrowserFeature.LEAVES_P_WHEN_REMOVING_LISTS,
-      !!goog.dom.getElementsByTagName(goog.dom.TagName.P, root).length);
+      !!root.getElementsByTagName(goog.dom.TagName.P).length);
 }
 
 function testActiveElement() {

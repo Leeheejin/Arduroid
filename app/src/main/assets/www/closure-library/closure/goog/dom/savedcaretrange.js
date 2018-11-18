@@ -27,8 +27,6 @@ goog.require('goog.dom.SavedRange');
 goog.require('goog.dom.TagName');
 goog.require('goog.string');
 
-goog.forwardDeclare('goog.dom.AbstractRange');
-goog.forwardDeclare('goog.dom.Range');
 
 
 /**
@@ -82,7 +80,7 @@ goog.inherits(goog.dom.SavedCaretRange, goog.dom.SavedRange);
  * Gets the range that this SavedCaretRage represents, without selecting it
  * or removing the carets from the DOM.
  * @return {goog.dom.AbstractRange?} An abstract range.
- * @suppress {missingRequire,undefinedNames} circular dependency
+ * @suppress {missingRequire} circular dependency
  */
 goog.dom.SavedCaretRange.prototype.toAbstractRange = function() {
   var range = null;
@@ -156,7 +154,7 @@ goog.dom.SavedCaretRange.prototype.restoreInternal = function() {
         focusOffset--;
       }
     }
-    /** @suppress {missingRequire,undefinedNames} circular dependency */
+    /** @suppress {missingRequire} circular dependency */
     range = goog.dom.Range.createFromNodes(
         anchorNode, anchorOffset, focusNode, focusOffset);
     range = this.removeCarets(range);

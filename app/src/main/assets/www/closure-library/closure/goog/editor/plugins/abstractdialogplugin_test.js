@@ -15,7 +15,6 @@
 goog.provide('goog.editor.plugins.AbstractDialogPluginTest');
 goog.setTestOnly('goog.editor.plugins.AbstractDialogPluginTest');
 
-goog.require('goog.dom');
 goog.require('goog.dom.SavedRange');
 goog.require('goog.dom.TagName');
 goog.require('goog.editor.Field');
@@ -23,7 +22,6 @@ goog.require('goog.editor.plugins.AbstractDialogPlugin');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.functions');
-goog.require('goog.html.SafeHtml');
 goog.require('goog.testing.MockClock');
 goog.require('goog.testing.MockControl');
 goog.require('goog.testing.PropertyReplacer');
@@ -88,7 +86,7 @@ function tearDown() {
 /**
  * Creates a concrete instance of goog.ui.editor.AbstractDialog by adding
  * a plain implementation of createDialogControl().
- * @param {goog.dom.DomHelper} domHelper The dom helper to be used to
+ * @param {goog.dom.DomHelper} dialogDomHelper The dom helper to be used to
  *     create the dialog.
  * @return {goog.ui.editor.AbstractDialog} The created dialog.
  */
@@ -125,7 +123,7 @@ function createDialogPlugin() {
 /**
  * Sets up the mock event handler to expect an OPENED event.
  */
-function expectOpened(/** number= */ opt_times) {
+function expectOpened(opt_times) {
   mockOpenedHandler.handleEvent(
       new goog.testing.mockmatchers.ArgumentMatcher(function(arg) {
         return arg.type ==
@@ -142,7 +140,7 @@ function expectOpened(/** number= */ opt_times) {
 /**
  * Sets up the mock event handler to expect a CLOSED event.
  */
-function expectClosed(/** number= */ opt_times) {
+function expectClosed(opt_times) {
   mockClosedHandler.handleEvent(
       new goog.testing.mockmatchers.ArgumentMatcher(function(arg) {
         return arg.type ==
@@ -199,7 +197,7 @@ function testExecAndDisposeReuse() {
  * Tests the flow of calling execCommand (which opens the dialog) and
  * then hiding it (simulating that a user did somthing to cause the dialog to
  * close).
- * @param {boolean=} opt_reuse Whether to set the plugin to reuse its dialog.
+ * @param {boolean} reuse Whether to set the plugin to reuse its dialog.
  */
 function testExecAndHide(opt_reuse) {
   setUpMockRange();
@@ -251,7 +249,7 @@ function testExecAndHideReuse() {
  * user can't do another execCommand before closing the first dialog. But
  * since the API makes it possible, I thought it would be good to guard
  * against and unit test.
- * @param {boolean=} opt_reuse Whether to set the plugin to reuse its dialog.
+ * @param {boolean} reuse Whether to set the plugin to reuse its dialog.
  */
 function testExecTwice(opt_reuse) {
   setUpMockRange();
@@ -324,7 +322,7 @@ function testExecTwiceReuse() {
 function testRestoreSelection() {
   setUpRealEditableField();
 
-  fieldObj.setSafeHtml(false, goog.html.SafeHtml.htmlEscape('12345'));
+  fieldObj.setHtml(false, '12345');
   var elem = fieldObj.getElement();
   var helper = new goog.testing.editor.TestHelper(elem);
   helper.select('12345', 1, '12345', 4);  // Selects '234'.
@@ -352,7 +350,7 @@ function testRestoreSelection() {
  * it.
  */
 function setUpRealEditableField() {
-  fieldElem = goog.dom.createElement(goog.dom.TagName.DIV);
+  fieldElem = document.createElement(goog.dom.TagName.DIV);
   fieldElem.id = 'myField';
   document.body.appendChild(fieldElem);
   fieldObj = new goog.editor.Field('myField', document);

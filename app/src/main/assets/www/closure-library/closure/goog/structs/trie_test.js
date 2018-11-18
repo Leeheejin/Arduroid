@@ -160,7 +160,7 @@ function testRemoveKeyFromTrie() {
       'a' in trie.childNodes_);
 
   trie.add('xyza', 'value');
-  trie.remove('xyza');
+  trie.remove('xyza', 'value');
   assertFalse('Should not have "x"', 'x' in trie.childNodes_);
 
   trie.add('xyza', null);

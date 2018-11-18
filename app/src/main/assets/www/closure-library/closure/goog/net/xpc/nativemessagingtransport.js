@@ -334,9 +334,7 @@ goog.net.xpc.NativeMessagingTransport.messageReceived_ = function(msgEvt) {
         !staleChannel.isConnected() &&
         service == goog.net.xpc.TRANSPORT_SERVICE_ &&
         (transportMessageType == goog.net.xpc.SETUP ||
-         transportMessageType == goog.net.xpc.SETUP_NTPV2) &&
-        staleChannel.isMessageOriginAcceptable(
-            msgEvt.getBrowserEvent().origin)) {
+         transportMessageType == goog.net.xpc.SETUP_NTPV2)) {
       // Inner peer received SETUP message but channel names did not match.
       // Start using the channel name sent from outer peer. The channel name
       // of the inner peer can easily become out of date, as iframe's and their

@@ -23,7 +23,6 @@ goog.require('goog.color');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events.BrowserEvent');
-goog.require('goog.html.testing');
 goog.require('goog.labs.userAgent.util');
 goog.require('goog.math.Box');
 goog.require('goog.math.Coordinate');
@@ -42,21 +41,16 @@ goog.require('goog.userAgentTestUtil.UserAgents');
 
 goog.setTestOnly('goog.style_test');
 
-// Delay running the tests after page load. This test has some asynchronous
-// behavior that interacts with page load detection.
-goog.testing.jsunit.AUTO_RUN_DELAY_IN_MS = 500;
-
 // IE before version 6 will always be border box in compat mode.
 var isBorderBox = goog.dom.isCss1CompatMode() ?
     (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('6')) :
     true;
 var EPSILON = 2;
-var expectedFailures;
+var expectedFailures = new goog.testing.ExpectedFailures();
 var $ = goog.dom.getElement;
 var mockUserAgent;
 
 function setUpPage() {
-  expectedFailures = new goog.testing.ExpectedFailures();
   // TODO(b/25875505): Fix unreported assertions (go/failonunreportedasserts).
   goog.testing.TestCase.getActiveTestCase().failOnUnreportedAsserts = false;
 
@@ -417,7 +411,7 @@ function testGetClientPositionOfOffscreenElement() {
 }
 
 function testGetClientPositionOfOrphanElement() {
-  var orphanElem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var orphanElem = document.createElement(goog.dom.TagName.DIV);
   var pos = goog.style.getClientPosition(orphanElem);
   assertEquals(0, pos.x);
   assertEquals(0, pos.y);
@@ -846,12 +840,7 @@ function testGetSizeSvgDocument() {
   var doc = goog.dom.getFrameContentDocument(frame);
   var rect = doc.getElementById('rect');
   var dims = goog.style.getSize(rect);
-  if (goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher(53)) {
-    // Firefox >= 53 auto-scales iframe SVG content to fit the frame
-    // b/38432885 | https://bugzilla.mozilla.org/show_bug.cgi?id=1366126
-    assertEquals(75, dims.width);
-    assertEquals(75, dims.height);
-  } else if (!goog.userAgent.EDGE_OR_IE) {
+  if (!goog.userAgent.EDGE_OR_IE) {
     assertEquals(50, dims.width);
     assertEquals(50, dims.height);
   } else {
@@ -913,7 +902,7 @@ function hasWebkitTransform() {
 }
 
 function testGetSizeOfOrphanElement() {
-  var orphanElem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var orphanElem = document.createElement(goog.dom.TagName.DIV);
   var size = goog.style.getSize(orphanElem);
   assertEquals(0, size.width);
   assertEquals(0, size.height);
@@ -934,14 +923,13 @@ function testGetBounds() {
   assertEquals(pos.y, rect.top);
 }
 
-function testInstallSafeStyleSheet() {
+function testInstallStyles() {
   var el = $('installTest0');
   var originalBackground = goog.style.getBackgroundColor(el);
 
   // Uses background-color because it's easy to get the computed value
-  var result = goog.style.installSafeStyleSheet(
-      goog.html.testing.newSafeStyleSheetForTest(
-          '#installTest0 { background-color: rgb(255, 192, 203); }'));
+  var result = goog.style.installStyles(
+      '#installTest0 { background-color: rgb(255, 192, 203); }');
 
   assertColorRgbEquals('rgb(255,192,203)', goog.style.getBackgroundColor(el));
 
@@ -949,20 +937,18 @@ function testInstallSafeStyleSheet() {
   assertEquals(originalBackground, goog.style.getBackgroundColor(el));
 }
 
-function testSetSafeStyleSheet() {
+function testSetStyles() {
   var el = $('installTest1');
 
   // Change to pink
-  var ss = goog.style.installSafeStyleSheet(
-      goog.html.testing.newSafeStyleSheetForTest(
-          '#installTest1 { background-color: rgb(255, 192, 203); }'));
+  var ss = goog.style.installStyles(
+      '#installTest1 { background-color: rgb(255, 192, 203); }');
 
   assertColorRgbEquals('rgb(255,192,203)', goog.style.getBackgroundColor(el));
 
   // Now change to orange
-  goog.style.setSafeStyleSheet(ss,
-      goog.html.testing.newSafeStyleSheetForTest(
-          '#installTest1 { background-color: rgb(255, 255, 0); }'));
+  goog.style.setStyles(
+      ss, '#installTest1 { background-color: rgb(255, 255, 0); }');
   assertColorRgbEquals('rgb(255,255,0)', goog.style.getBackgroundColor(el));
 }
 
@@ -990,13 +976,9 @@ function testIsUnselectable() {
   assertEquals(
       goog.userAgent.IE || goog.userAgent.OPERA,
       goog.style.isUnselectable($('unselectable-ie')));
-  // Note: Firefox can go either way here - newer versions see -webkit-*
-  // properties and automatically add Moz* to the style object.
-  if (!goog.userAgent.GECKO) {
-    assertEquals(
-        goog.userAgent.WEBKIT || goog.userAgent.EDGE,
-        goog.style.isUnselectable($('unselectable-webkit')));
-  }
+  assertEquals(
+      goog.userAgent.WEBKIT || goog.userAgent.EDGE,
+      goog.style.isUnselectable($('unselectable-webkit')));
 }
 
 function testSetUnselectable() {
@@ -1293,7 +1275,7 @@ function testGetPaddingBox() {
 }
 
 function testGetPaddingBoxUnattached() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   var box = goog.style.getPaddingBox(el);
   if (goog.userAgent.WEBKIT) {
     assertTrue(isNaN(box.top));
@@ -2137,67 +2119,6 @@ function testScrollIntoContainerViewStandard() {
       goog.dom.getElement('item4'), container, true);
   assertEquals('scroll position is rounded down', 66, container.scrollTop);
   goog.dom.getElement('item4').style.height = '';
-}
-
-function testScrollIntoContainerViewSvg() {
-  if (!goog.dom.isCss1CompatMode()) {
-    return;
-  }
-
-  var svgEl = document.createElementNS &&
-      document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  if (!svgEl || svgEl.getAttribute('transform') == '' ||
-      (goog.userAgent.WEBKIT && !goog.userAgent.isVersionOrHigher(534.8))) {
-    // SVG not supported, or getBoundingClientRect not supported on SVG
-    // elements.
-    return;
-  }
-
-  var assertEqualsForSvgPos = function(expected, actual) {
-    if (goog.userAgent.EDGE_OR_IE) {
-      // The bounding size is 1 larger than the SVG element in IE. The scrollTop
-      // value maybe 1 less or 1 more than the expected value depending on the
-      // scroll direction.
-      assertRoughlyEquals(expected, actual, 1);
-    } else {
-      assertEquals(expected, actual);
-    }
-  };
-
-  var svgItem1 = goog.dom.getElement('svg-item1');
-  var svgItem2 = goog.dom.getElement('svg-item2');
-  var svgItem3 = goog.dom.getElement('svg-item3');
-
-  // Scroll the minimum amount to make the elements visible.
-  var container = goog.dom.getElement('svg-container');
-  goog.style.scrollIntoContainerView(svgItem1, container);
-  assertEquals(0, container.scrollTop);
-  goog.style.scrollIntoContainerView(svgItem2, container);
-  assertEqualsForSvgPos(50, container.scrollTop);
-  goog.style.scrollIntoContainerView(svgItem3, container);
-  assertEqualsForSvgPos(150, container.scrollTop);
-  goog.style.scrollIntoContainerView(svgItem2, container);
-  assertEqualsForSvgPos(100, container.scrollTop);
-
-  // Center the element in the first argument.
-  goog.style.scrollIntoContainerView(svgItem2, container, true);
-  assertEqualsForSvgPos(75, container.scrollTop);
-  goog.style.scrollIntoContainerView(svgItem3, container, true);
-  assertEqualsForSvgPos(175, container.scrollTop);
-
-  // The element is higher than the container.
-  svgItem3.setAttribute('height', 200);
-  goog.style.scrollIntoContainerView(svgItem3, container);
-  assertEqualsForSvgPos(200, container.scrollTop);
-  goog.style.scrollIntoContainerView(svgItem3, container, true);
-  assertEqualsForSvgPos(225, container.scrollTop);
-
-  // Scroll to non-integer position.
-  svgItem3.setAttribute('height', 75);
-  goog.style.scrollIntoContainerView(svgItem3, container, true);
-  // Scroll position is rounded down from 162.5
-  assertEqualsForSvgPos(162, container.scrollTop);
-  svgItem3.setAttribute('height', 100);
 }
 
 function testOffsetParent() {

@@ -23,8 +23,6 @@ goog.provide('goog.graphics.ext.Image');
 
 goog.require('goog.graphics.ext.Element');
 
-goog.forwardDeclare('goog.graphics.ext.Group');
-
 
 
 /**

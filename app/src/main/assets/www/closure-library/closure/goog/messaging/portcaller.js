@@ -128,7 +128,7 @@ goog.messaging.PortCaller.prototype.connectionGranted_ = function(message) {
     // close any future ports.
     port.close();
   } else if (!args['success']) {
-    throw new Error(args['message']);
+    throw Error(args['message']);
   } else {
     port.start();
     var channel = new goog.messaging.PortChannel(port);

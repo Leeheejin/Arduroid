@@ -17,7 +17,6 @@ goog.setTestOnly('goog.ui.media.MediaTest');
 
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.html.testing');
 goog.require('goog.math.Size');
 goog.require('goog.testing.jsunit');
 goog.require('goog.ui.ControlRenderer');
@@ -48,9 +47,7 @@ function testBasicElements() {
       'http://thumb.com/big.jpg', new goog.math.Size(800, 600));
   model.setThumbnails([thumb1, thumb2]);
   model.setPlayer(
-      new goog.ui.media.MediaModel.Player(
-          goog.html.testing.newTrustedResourceUrlForTest(
-              'http://media/player.swf')));
+      new goog.ui.media.MediaModel.Player('http://media/player.swf'));
   var control = new goog.ui.media.Media(model, renderer);
   control.render();
 
@@ -110,9 +107,7 @@ function testSetAriaLabel() {
       'http://thumb.com/big.jpg', new goog.math.Size(800, 600));
   model.setThumbnails([thumb1, thumb2]);
   model.setPlayer(
-      new goog.ui.media.MediaModel.Player(
-          goog.html.testing.newTrustedResourceUrlForTest(
-              'http://media/player.swf')));
+      new goog.ui.media.MediaModel.Player('http://media/player.swf'));
   var control = new goog.ui.media.Media(model, renderer);
   assertNull(
       'Media must not have aria label by default', control.getAriaLabel());

@@ -32,8 +32,6 @@ goog.require('goog.style');
 goog.require('goog.ui.ControlRenderer');
 goog.require('goog.userAgent');
 
-goog.forwardDeclare('goog.ui.DimensionPicker');
-
 
 
 /**
@@ -187,9 +185,7 @@ goog.ui.DimensionPickerRenderer.prototype.addElementContents_ = function(
       goog.dom.TagName.DIV, goog.getCssName(this.getCssClass(), 'highlighted'));
   element.appendChild(
       palette.getDomHelper().createDom(
-          goog.dom.TagName.DIV, {
-            'style': 'width:100%;height:100%;touch-action:none;'
-          },
+          goog.dom.TagName.DIV, {'style': 'width:100%;height:100%'},
           mouseCatcherDiv, unhighlightedDiv, highlightedDiv));
 
   // Lastly we add a div to store the text version of the current state.
@@ -305,8 +301,7 @@ goog.ui.DimensionPickerRenderer.prototype.setHighlightedSize = function(
    * dimension picker, as text that can be spoken by a screen reader.
    */
   var MSG_DIMENSION_PICKER_HIGHLIGHTED_DIMENSIONS = goog.getMsg(
-      '{$numCols} by {$numRows}',
-      {'numCols': String(columns), 'numRows': String(rows)});
+      '{$numCols} by {$numRows}', {'numCols': columns, 'numRows': rows});
   this.announcer_.say(
       MSG_DIMENSION_PICKER_HIGHLIGHTED_DIMENSIONS,
       goog.a11y.aria.LivePriority.ASSERTIVE);

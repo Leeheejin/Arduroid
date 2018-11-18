@@ -50,9 +50,7 @@ function setUp() {
   goog.ui.FormPost.prototype.createDom = function() {
     originalCreateDom.apply(this, arguments);
 
-    this.getElement().submit = function() {
-      submits++;
-    };
+    this.getElement().submit = function() { submits++ };
   };
   parameters = {'foo': 'bar', 'baz': 1, 'array': [0, 'yes']};
 }
@@ -79,8 +77,7 @@ function testPostWithDefaults() {
 
 function expectUrlAndParameters_(url, target, parameters) {
   var form = formPost.getElement();
-  assertEquals(
-      'element must be a form', String(goog.dom.TagName.FORM), form.tagName);
+  assertEquals('element must be a form', goog.dom.TagName.FORM, form.tagName);
   assertEquals('form must be hidden', 'none', form.style.display);
   assertEquals('form method must be POST', 'POST', form.method.toUpperCase());
   assertEquals('submits', 1, submits);

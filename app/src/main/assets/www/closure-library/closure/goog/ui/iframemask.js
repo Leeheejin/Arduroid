@@ -28,7 +28,6 @@ goog.require('goog.Timer');
 goog.require('goog.dom');
 goog.require('goog.dom.iframe');
 goog.require('goog.events.EventHandler');
-goog.require('goog.structs.Pool');
 goog.require('goog.style');
 
 

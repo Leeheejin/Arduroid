@@ -85,7 +85,7 @@ goog.inherits(goog.structs.SimplePool, goog.Disposable);
 
 
 /**
- * Sets the `createObject` function which is used for creating a new
+ * Sets the {@code createObject} function which is used for creating a new
  * object in the pool.
  * @param {Function} createObjectFn Create object function which returns the
  *     newly created object.
@@ -96,7 +96,7 @@ goog.structs.SimplePool.prototype.setCreateObjectFn = function(createObjectFn) {
 
 
 /**
- * Sets the `disposeObject` function which is used for disposing of an
+ * Sets the {@code disposeObject} function which is used for disposing of an
  * object in the pool.
  * @param {Function} disposeObjectFn Dispose object function which takes the
  *     object to dispose as a parameter.
@@ -141,8 +141,7 @@ goog.structs.SimplePool.prototype.releaseObject = function(obj) {
  */
 goog.structs.SimplePool.prototype.createInitial_ = function(initialCount) {
   if (initialCount > this.maxCount_) {
-    throw new Error(
-        '[goog.structs.SimplePool] Initial cannot be greater than max');
+    throw Error('[goog.structs.SimplePool] Initial cannot be greater than max');
   }
   for (var i = 0; i < initialCount; i++) {
     this.freeQueue_.push(this.createObject());

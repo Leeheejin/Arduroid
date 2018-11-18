@@ -32,7 +32,9 @@ goog.require('goog.storage.CollectableStorage');
 goog.require('goog.storage.ErrorCode');
 goog.require('goog.storage.ExpiringStorage');
 
-goog.forwardDeclare('goog.storage.mechanism.IterableMechanism');
+
+goog.scope(function() {
+var storage = goog.labs.storage;
 
 
 
@@ -48,9 +50,8 @@ goog.forwardDeclare('goog.storage.mechanism.IterableMechanism');
  * @extends {goog.storage.CollectableStorage}
  * @final
  */
-goog.labs.storage.BoundedCollectableStorage = function(mechanism, maxItems) {
-  goog.labs.storage.BoundedCollectableStorage.base(
-      this, 'constructor', mechanism);
+storage.BoundedCollectableStorage = function(mechanism, maxItems) {
+  storage.BoundedCollectableStorage.base(this, 'constructor', mechanism);
 
   /**
    * A maximum number of items that should be stored.
@@ -59,8 +60,7 @@ goog.labs.storage.BoundedCollectableStorage = function(mechanism, maxItems) {
   this.maxItems_ = maxItems;
 };
 goog.inherits(
-    goog.labs.storage.BoundedCollectableStorage,
-    goog.storage.CollectableStorage);
+    storage.BoundedCollectableStorage, goog.storage.CollectableStorage);
 
 
 /**
@@ -68,8 +68,7 @@ goog.inherits(
  * @const
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.KEY_LIST_KEY_ =
-    'bounded-collectable-storage';
+storage.BoundedCollectableStorage.KEY_LIST_KEY_ = 'bounded-collectable-storage';
 
 
 /**
@@ -78,19 +77,18 @@ goog.labs.storage.BoundedCollectableStorage.KEY_LIST_KEY_ =
  * @return {!Array<string>} a list of unexpired keys.
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.rebuildIndex_ =
-    function() {
+storage.BoundedCollectableStorage.prototype.rebuildIndex_ = function() {
   var keys = [];
   goog.iter.forEach(
       /** @type {goog.storage.mechanism.IterableMechanism} */ (this.mechanism)
           .__iterator__(true),
       function(key) {
-        if (goog.labs.storage.BoundedCollectableStorage.KEY_LIST_KEY_ == key) {
+        if (storage.BoundedCollectableStorage.KEY_LIST_KEY_ == key) {
           return;
         }
 
         var wrapper;
-
+        /** @preserveTry */
         try {
           wrapper = this.getWrapper(key, true);
         } catch (ex) {
@@ -123,11 +121,9 @@ goog.labs.storage.BoundedCollectableStorage.prototype.rebuildIndex_ =
  * @return {!Array<string>} a list of keys if index exist, otherwise undefined.
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.getKeys_ = function(
-    rebuild) {
-  var keys =
-      goog.labs.storage.BoundedCollectableStorage.superClass_.get.call(
-          this, goog.labs.storage.BoundedCollectableStorage.KEY_LIST_KEY_) ||
+storage.BoundedCollectableStorage.prototype.getKeys_ = function(rebuild) {
+  var keys = storage.BoundedCollectableStorage.superClass_.get.call(
+                 this, storage.BoundedCollectableStorage.KEY_LIST_KEY_) ||
       null;
   if (!keys || !goog.isArray(keys)) {
     if (rebuild) {
@@ -146,10 +142,9 @@ goog.labs.storage.BoundedCollectableStorage.prototype.getKeys_ = function(
  * @param {Array<string>} keys a list of keys to save.
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.setKeys_ = function(
-    keys) {
-  goog.labs.storage.BoundedCollectableStorage.superClass_.set.call(
-      this, goog.labs.storage.BoundedCollectableStorage.KEY_LIST_KEY_, keys);
+storage.BoundedCollectableStorage.prototype.setKeys_ = function(keys) {
+  storage.BoundedCollectableStorage.superClass_.set.call(
+      this, storage.BoundedCollectableStorage.KEY_LIST_KEY_, keys);
 };
 
 
@@ -162,7 +157,7 @@ goog.labs.storage.BoundedCollectableStorage.prototype.setKeys_ = function(
  * @return {!Array<string>} a keys sequence after removing keysToRemove.
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.removeSubsequence_ = function(
+storage.BoundedCollectableStorage.removeSubsequence_ = function(
     keys, keysToRemove) {
   if (keysToRemove.length == 0) {
     return goog.array.clone(keys);
@@ -195,17 +190,16 @@ goog.labs.storage.BoundedCollectableStorage.removeSubsequence_ = function(
  * @return {!Array<string>} keys left after removing oversize data.
  * @private
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.collectOversize_ =
-    function(keys, maxSize) {
+storage.BoundedCollectableStorage.prototype.collectOversize_ = function(
+    keys, maxSize) {
   if (keys.length <= maxSize) {
     return goog.array.clone(keys);
   }
   var keysToRemove = goog.array.slice(keys, 0, keys.length - maxSize);
   goog.array.forEach(keysToRemove, function(key) {
-    goog.labs.storage.BoundedCollectableStorage.superClass_.remove.call(
-        this, key);
+    storage.BoundedCollectableStorage.superClass_.remove.call(this, key);
   }, this);
-  return goog.labs.storage.BoundedCollectableStorage.removeSubsequence_(
+  return storage.BoundedCollectableStorage.removeSubsequence_(
       keys, keysToRemove);
 };
 
@@ -216,12 +210,11 @@ goog.labs.storage.BoundedCollectableStorage.prototype.collectOversize_ =
  * @param {boolean=} opt_strict Also remove invalid keys.
  * @override
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.collect = function(
-    opt_strict) {
+storage.BoundedCollectableStorage.prototype.collect = function(opt_strict) {
   var keys = this.getKeys_(true);
   var keysToRemove = this.collectInternal(keys, opt_strict);
-  keys = goog.labs.storage.BoundedCollectableStorage.removeSubsequence_(
-      keys, keysToRemove);
+  keys =
+      storage.BoundedCollectableStorage.removeSubsequence_(keys, keysToRemove);
   this.setKeys_(keys);
 };
 
@@ -231,12 +224,12 @@ goog.labs.storage.BoundedCollectableStorage.prototype.collect = function(
  * @param {boolean=} opt_skipExpired skip removing expired items first.
  * @param {boolean=} opt_strict Also remove invalid keys.
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.collectOversize =
-    function(opt_skipExpired, opt_strict) {
+storage.BoundedCollectableStorage.prototype.collectOversize = function(
+    opt_skipExpired, opt_strict) {
   var keys = this.getKeys_(true);
   if (!opt_skipExpired) {
     var keysToRemove = this.collectInternal(keys, opt_strict);
-    keys = goog.labs.storage.BoundedCollectableStorage.removeSubsequence_(
+    keys = storage.BoundedCollectableStorage.removeSubsequence_(
         keys, keysToRemove);
   }
   keys = this.collectOversize_(keys, this.maxItems_);
@@ -254,9 +247,9 @@ goog.labs.storage.BoundedCollectableStorage.prototype.collectOversize =
  *     time is not provided, the value will persist as long as possible.
  * @override
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.set = function(
+storage.BoundedCollectableStorage.prototype.set = function(
     key, value, opt_expiration) {
-  goog.labs.storage.BoundedCollectableStorage.base(
+  storage.BoundedCollectableStorage.base(
       this, 'set', key, value, opt_expiration);
   var keys = this.getKeys_(true);
   goog.array.remove(keys, key);
@@ -265,7 +258,7 @@ goog.labs.storage.BoundedCollectableStorage.prototype.set = function(
     keys.push(key);
     if (keys.length >= this.maxItems_) {
       var keysToRemove = this.collectInternal(keys);
-      keys = goog.labs.storage.BoundedCollectableStorage.removeSubsequence_(
+      keys = storage.BoundedCollectableStorage.removeSubsequence_(
           keys, keysToRemove);
       keys = this.collectOversize_(keys, this.maxItems_);
     }
@@ -280,8 +273,8 @@ goog.labs.storage.BoundedCollectableStorage.prototype.set = function(
  * @param {string} key The key to remove.
  * @override
  */
-goog.labs.storage.BoundedCollectableStorage.prototype.remove = function(key) {
-  goog.labs.storage.BoundedCollectableStorage.base(this, 'remove', key);
+storage.BoundedCollectableStorage.prototype.remove = function(key) {
+  storage.BoundedCollectableStorage.base(this, 'remove', key);
 
   var keys = this.getKeys_(false);
   if (goog.isDef(keys)) {
@@ -289,3 +282,5 @@ goog.labs.storage.BoundedCollectableStorage.prototype.remove = function(key) {
     this.setKeys_(keys);
   }
 };
+
+});  // goog.scope

@@ -23,8 +23,6 @@ goog.require('goog.asserts');
 goog.require('goog.proto2.Descriptor');
 goog.require('goog.proto2.FieldDescriptor');
 
-goog.forwardDeclare('goog.proto2.LazyDeserializer');  // circular reference
-
 
 
 /**
@@ -141,10 +139,7 @@ goog.proto2.Message.prototype.initializeForLazyDeserializer = function(
 goog.proto2.Message.prototype.setUnknown = function(tag, value) {
   goog.asserts.assert(
       !this.fields_[tag], 'Field is not unknown in this message');
-  goog.asserts.assert(
-      tag >= 1, 'Tag ' + tag + ' has value "' + value + '" in descriptor ' +
-          this.getDescriptor().getName());
-
+  goog.asserts.assert(tag >= 1, 'Tag is not valid');
   goog.asserts.assert(value !== null, 'Value cannot be null');
 
   this.values_[tag] = value;
@@ -327,7 +322,7 @@ goog.proto2.Message.prototype.clear = function(field) {
 /**
  * Compares this message with another one ignoring the unknown fields.
  * @param {?} other The other message.
- * @return {boolean} Whether they are equal. Returns false if the `other`
+ * @return {boolean} Whether they are equal. Returns false if the {@code other}
  *     argument is a different type of message or not a message.
  */
 goog.proto2.Message.prototype.equals = function(other) {

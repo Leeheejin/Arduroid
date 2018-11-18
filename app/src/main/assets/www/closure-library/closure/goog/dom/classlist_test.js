@@ -25,19 +25,15 @@ goog.require('goog.dom.classlist');
 goog.require('goog.testing.ExpectedFailures');
 goog.require('goog.testing.jsunit');
 
-var expectedFailures;
+var expectedFailures = new goog.testing.ExpectedFailures();
 var classlist = goog.dom.classlist;
-
-function setUpPage() {
-  expectedFailures = new goog.testing.ExpectedFailures();
-}
 
 function tearDown() {
   expectedFailures.handleTearDown();
 }
 
 function testGet() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   assertTrue(classlist.get(el).length == 0);
   el.className = 'C';
   assertElementsEquals(['C'], classlist.get(el));
@@ -66,7 +62,7 @@ function testContainsCaseSensitive() {
 }
 
 function testAddNotAddingMultiples() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   classlist.add(el, 'A');
   assertEquals('A', el.className);
   classlist.add(el, 'A');
@@ -76,7 +72,7 @@ function testAddNotAddingMultiples() {
 }
 
 function testAddCaseSensitive() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   classlist.add(el, 'A');
   assertTrue(classlist.contains(el, 'A'));
   assertFalse(classlist.contains(el, 'a'));
@@ -87,7 +83,7 @@ function testAddCaseSensitive() {
 }
 
 function testAddAll() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo goog-bar';
 
   goog.dom.classlist.addAll(elem, ['goog-baz', 'foo']);
@@ -99,7 +95,7 @@ function testAddAll() {
 
 function testAddAllEmpty() {
   var classes = 'foo bar';
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = classes;
 
   goog.dom.classlist.addAll(elem, []);
@@ -107,21 +103,21 @@ function testAddAllEmpty() {
 }
 
 function testRemove() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   el.className = 'A B C';
   classlist.remove(el, 'B');
   assertEquals('A C', el.className);
 }
 
 function testRemoveCaseSensitive() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   el.className = 'A B C';
   classlist.remove(el, 'b');
   assertEquals('A B C', el.className);
 }
 
 function testRemoveAll() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['bar', 'foo']);
@@ -131,7 +127,7 @@ function testRemoveAll() {
 }
 
 function testRemoveAllOne() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['bar']);
@@ -141,7 +137,7 @@ function testRemoveAllOne() {
 }
 
 function testRemoveAllSomeNotPresent() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['a', 'bar']);
@@ -151,7 +147,7 @@ function testRemoveAllSomeNotPresent() {
 }
 
 function testRemoveAllCaseSensitive() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar baz';
 
   goog.dom.classlist.removeAll(elem, ['BAR', 'foo']);
@@ -182,7 +178,7 @@ function testEnable() {
 }
 
 function testEnableNotAddingMultiples() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   classlist.enable(el, 'A', true);
   assertEquals('A', el.className);
   classlist.enable(el, 'A', true);
@@ -192,7 +188,7 @@ function testEnableNotAddingMultiples() {
 }
 
 function testEnableAllRemove() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar baz';
 
   // Test removing some classes (some not present).
@@ -204,7 +200,7 @@ function testEnableAllRemove() {
 }
 
 function testEnableAllAdd() {
-  var elem = goog.dom.createElement(goog.dom.TagName.DIV);
+  var elem = document.createElement(goog.dom.TagName.DIV);
   elem.className = 'foo bar';
 
   // Test adding some classes (some duplicate).
@@ -260,7 +256,7 @@ function testToggle() {
 }
 
 function testAddRemoveString() {
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   el.className = 'A';
 
   classlist.addRemove(el, 'A', 'B');

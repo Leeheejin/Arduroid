@@ -17,7 +17,6 @@
  *
  */
 
-goog.setTestOnly('goog.testing.proto2');
 goog.provide('goog.testing.proto2');
 
 goog.require('goog.proto2.Message');
@@ -133,7 +132,7 @@ goog.testing.proto2.assertEquals = function(
 /**
  * Helper function to quickly build protocol buffer messages from JSON objects.
  * @param {function(new:MessageType)} messageCtor A constructor that
- *     creates a `goog.proto2.Message` subclass instance.
+ *     creates a {@code goog.proto2.Message} subclass instance.
  * @param {!Object} json JSON object which uses field names as keys.
  * @return {MessageType} The deserialized protocol buffer.
  * @template MessageType

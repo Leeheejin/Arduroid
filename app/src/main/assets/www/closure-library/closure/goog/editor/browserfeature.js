@@ -20,7 +20,6 @@
 goog.provide('goog.editor.BrowserFeature');
 
 goog.require('goog.editor.defines');
-goog.require('goog.labs.userAgent.browser');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 goog.require('goog.userAgent.product.isVersion');
@@ -107,7 +106,7 @@ goog.editor.BrowserFeature = {
 
   // Whether hitting the tab key will fire a keypress event.
   // see http://www.quirksmode.org/js/keys.html
-  // TODO(sdh): This is fixed in IE8 and higher.
+  // TODO(user): This is fixed in IE8 and higher.
   TAB_FIRES_KEYPRESS: !goog.userAgent.IE,
 
   // Has a standards mode quirk where width=100% doesn't do the right thing,
@@ -201,8 +200,8 @@ goog.editor.BrowserFeature = {
 
   // Whether to use keydown for key listening (uses keypress otherwise). Taken
   // from goog.events.KeyHandler.
-  USES_KEYDOWN:
-      !goog.userAgent.WEBKIT || goog.userAgent.isVersionOrHigher('525'),
+  USES_KEYDOWN: goog.userAgent.IE || goog.userAgent.EDGE ||
+      goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher('525'),
 
   // Whether this browser converts spaces to non-breaking spaces when calling
   // execCommand's RemoveFormat.
@@ -259,9 +258,6 @@ goog.editor.BrowserFeature = {
        goog.userAgent.isVersionOrHigher('533')) ||
       (goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher('2.0')) ||
       (goog.userAgent.IE && goog.userAgent.isVersionOrHigher('10')) ||
-      // TODO(user): Remove when b/27923889 is fixed.
-      (goog.userAgent.OPERA &&
-       goog.labs.userAgent.browser.isVersionOrHigher('15')) ||
       goog.userAgent.EDGE,
 
   // Version of Opera that supports the opera-defaultBlock execCommand to change

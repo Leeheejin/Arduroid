@@ -48,7 +48,7 @@ goog.require('goog.debug.TextFormatter');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.json');
-goog.require('goog.json.NativeJsonProcessor');
+goog.require('goog.json.EvalJsonProcessor');
 goog.require('goog.log');
 goog.require('goog.net.BrowserTestChannel');
 goog.require('goog.net.ChannelDebug');
@@ -71,15 +71,10 @@ goog.require('goog.structs.CircularBuffer');
  *        of the first browser channel test.
  * @param {boolean=} opt_secondTestResults Previously determined results
  *        of the second browser channel test.
- * @param {boolean=} opt_asyncTest Whether to perform the test requests
- *        asynchronously. While the test is performed, we'll assume the worst
- *        (connection is buffered), in order to avoid delaying the connection
- *        until the test is performed.
  * @constructor
  */
 goog.net.BrowserChannel = function(
-    opt_clientVersion, opt_firstTestResults, opt_secondTestResults,
-    opt_asyncTest) {
+    opt_clientVersion, opt_firstTestResults, opt_secondTestResults) {
   /**
    * The application specific version that is passed to the server.
    * @type {?string}
@@ -119,11 +114,12 @@ goog.net.BrowserChannel = function(
   this.channelDebug_ = new goog.net.ChannelDebug();
 
   /**
-   * Parser for a response payload. The parser should return an array.
+   * Parser for a response payload. Defaults to use
+   * {@code goog.json.unsafeParse}. The parser should return an array.
    * @type {!goog.string.Parser}
    * @private
    */
-  this.parser_ = new goog.json.NativeJsonProcessor();
+  this.parser_ = new goog.json.EvalJsonProcessor(null, true);
 
   /**
    * An array of results for the first browser channel test call.
@@ -141,14 +137,6 @@ goog.net.BrowserChannel = function(
   this.secondTestResults_ = goog.isDefAndNotNull(opt_secondTestResults) ?
       opt_secondTestResults :
       null;
-
-  /**
-   * Whether to perform the test requests asynchronously. While the test is
-   * performed, we'll assume the worst (connection is buffered), in order to
-   * avoid delaying the connection until the test is performed.
-   * @private {boolean}
-   */
-  this.asyncTest_ = opt_asyncTest || false;
 };
 
 
@@ -170,7 +158,7 @@ goog.net.BrowserChannel.QueuedMap = function(mapId, map, opt_context) {
 
   /**
    * The map itself.
-   * @type {Object}
+   * @type {Object|goog.structs.Map}
    */
   this.map = map;
 
@@ -759,7 +747,7 @@ goog.net.BrowserChannel.Stat = {
 
   /**
    * Event indicating that the second piece of test data was received and it was
-   * received separately from the first.
+   * recieved separately from the first.
    */
   TEST_STAGE_TWO_DATA_TWO: 7,
 
@@ -823,6 +811,14 @@ goog.net.BrowserChannel.Stat = {
   /** ActiveX is blocked by the machine's admin settings. */
   ACTIVE_X_BLOCKED: 22
 };
+
+
+/**
+ * The normal response for forward channel requests.
+ * Used only before version 8 of the protocol.
+ * @type {string}
+ */
+goog.net.BrowserChannel.MAGIC_RESPONSE_COOKIE = 'y2f%';
 
 
 /**
@@ -944,13 +940,7 @@ goog.net.BrowserChannel.prototype.connect = function(
     this.extraParams_['OAID'] = opt_oldArrayId;
   }
 
-  if (this.asyncTest_) {
-    goog.net.BrowserChannel.setTimeout(
-        goog.bind(this.connectTest_, this, testPath), 100);
-    this.connectChannel_();
-  } else {
-    this.connectTest_(testPath);
-  }
+  this.connectTest_(testPath);
 };
 
 
@@ -1191,12 +1181,12 @@ goog.net.BrowserChannel.prototype.setAllowChunkedMode = function(
  * structure of key/value pairs. These maps are then encoded in a format
  * suitable for the wire and then reconstituted as a Map data structure that
  * the server can process.
- * @param {Object} map  The map to send.
+ * @param {Object|goog.structs.Map} map  The map to send.
  * @param {?Object=} opt_context The context associated with the map.
  */
 goog.net.BrowserChannel.prototype.sendMap = function(map, opt_context) {
   if (this.state_ == goog.net.BrowserChannel.State.CLOSED) {
-    throw new Error('Invalid operation: sending map when state is closed');
+    throw Error('Invalid operation: sending map when state is closed');
   }
 
   // We can only send 1000 maps per POST, but typically we should never have
@@ -1207,7 +1197,7 @@ goog.net.BrowserChannel.prototype.sendMap = function(map, opt_context) {
     // what's causing them. Afterwards can change to warning().
     this.channelDebug_.severe(
         'Already have ' + goog.net.BrowserChannel.MAX_MAPS_PER_REQUEST_ +
-        ' queued maps upon queueing ' + this.parser_.stringify(map));
+        ' queued maps upon queueing ' + goog.json.serialize(map));
   }
 
   this.outgoingMaps_.push(
@@ -1335,7 +1325,9 @@ goog.net.BrowserChannel.prototype.hasOutstandingRequests = function() {
 
 
 /**
- * Sets a new parser for the response payload.
+ * Sets a new parser for the response payload. A custom parser may be set to
+ * avoid using eval(), for example. By default, the parser uses
+ * {@code goog.json.unsafeParse}.
  * @param {!goog.string.Parser} parser Parser.
  */
 goog.net.BrowserChannel.prototype.setParser = function(parser) {
@@ -1589,7 +1581,7 @@ goog.net.BrowserChannel.prototype.dequeueOutgoingMaps_ = function() {
       mapId -= offset;
     }
     try {
-      goog.object.forEach(map, function(value, key, coll) {
+      goog.structs.forEach(map, function(value, key, coll) {
         sb.push('req' + mapId + '_' + key + '=' + encodeURIComponent(value));
       });
     } catch (ex) {
@@ -1751,10 +1743,7 @@ goog.net.BrowserChannel.prototype.testConnectionFinished = function(
 
   this.useChunked_ = this.allowChunkedMode_ && useChunked;
   this.lastStatusCode_ = testChannel.getLastStatusCode();
-  // When using asynchronous test, the channel is already open by connect().
-  if (!this.asyncTest_) {
-    this.connectChannel_();
-  }
+  this.connectChannel_();
 };
 
 
@@ -1814,7 +1803,7 @@ goog.net.BrowserChannel.prototype.onRequestData = function(
         this.channelDebug_.debug('Bad POST response data returned');
         this.signalError_(goog.net.BrowserChannel.Error.BAD_RESPONSE);
       }
-    } else if (responseText != goog.net.ChannelDebug.MAGIC_RESPONSE_COOKIE) {
+    } else if (responseText != goog.net.BrowserChannel.MAGIC_RESPONSE_COOKIE) {
       this.channelDebug_.debug(
           'Bad data returned - missing/invald ' +
           'magic cookie');
@@ -2176,7 +2165,7 @@ goog.net.BrowserChannel.prototype.onInput_ = function(respArray) {
  */
 goog.net.BrowserChannel.prototype.ensureInState_ = function(var_args) {
   if (!goog.array.contains(arguments, this.state_)) {
-    throw new Error('Unexpected channel state: ' + this.state_);
+    throw Error('Unexpected channel state: ' + this.state_);
   }
 };
 
@@ -2356,7 +2345,7 @@ goog.net.BrowserChannel.prototype.createDataUri = function(
       hostName = locationPage.hostname;
     }
 
-    var port = opt_overridePort || +locationPage.port;
+    var port = opt_overridePort || locationPage.port;
 
     uri = goog.Uri.create(locationPage.protocol, null, hostName, port, path);
   }
@@ -2388,7 +2377,7 @@ goog.net.BrowserChannel.prototype.createDataUri = function(
  */
 goog.net.BrowserChannel.prototype.createXhrIo = function(hostPrefix) {
   if (hostPrefix && !this.supportsCrossDomainXhrs_) {
-    throw new Error('Can\'t create secondary domain capable XhrIo object.');
+    throw Error('Can\'t create secondary domain capable XhrIo object.');
   }
   var xhr = new goog.net.XhrIo();
   xhr.setWithCredentials(this.supportsCrossDomainXhrs_);
@@ -2415,7 +2404,7 @@ goog.net.BrowserChannel.prototype.isActive = function() {
  */
 goog.net.BrowserChannel.setTimeout = function(fn, ms) {
   if (!goog.isFunction(fn)) {
-    throw new Error('Fn must not be null and must be a function');
+    throw Error('Fn must not be null and must be a function');
   }
   return goog.global.setTimeout(function() {
     goog.net.BrowserChannel.onStartExecution();

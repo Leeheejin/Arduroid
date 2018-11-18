@@ -189,9 +189,6 @@ function verifySendSuccess(sendMethod) {
     assertEquals(0, xhr.status);
     assertEquals('', xhr.responseText);
     assertEquals(xhr.getResponseHeader('dummyHeader'), 'dummyHeaderValue');
-    assertEquals(
-        xhr.getAllResponseHeaders(),
-        'dummyHeader: dummyHeaderValue\r\ndummyHeader2: dummyHeaderValue2');
     xhr.onreadystatechange = function() {
       assertEquals(xhr.readyState, goog.net.FetchXmlHttp.RequestState.LOADING);
       assertEquals(0, xhr.status);
@@ -250,9 +247,8 @@ function testSend_error() {
  * Verifies the send method in case of failure to fetch the url.
  */
 function testSend_failToFetch() {
-  var failedPromise = new Promise(function() {
-    throw new Error('failed to fetch');
-  });
+  var failedPromise =
+      new Promise(function() { throw Error('failed to fetch'); });
   fetchMock(new Request('https://www.google.com', {
     headers: new Headers(),
     method: 'GET'
@@ -281,7 +277,6 @@ function testSend_failToFetch() {
 function createSuccessResponse() {
   var headers = new Headers();
   headers.set('dummyHeader', 'dummyHeaderValue');
-  headers.set('dummyHeader2', 'dummyHeaderValue2');
   return new Response(
       'responseBody' /* opt_body */, {status: 200, headers: headers});
 }

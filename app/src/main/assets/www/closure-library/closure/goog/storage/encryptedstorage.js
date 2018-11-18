@@ -39,8 +39,6 @@ goog.require('goog.storage.CollectableStorage');
 goog.require('goog.storage.ErrorCode');
 goog.require('goog.storage.RichStorage');
 
-goog.forwardDeclare('goog.storage.mechanism.IterableMechanism');
-
 
 
 /**
@@ -114,7 +112,7 @@ goog.storage.EncryptedStorage.prototype.hashKeyWithSecret_ = function(key) {
 goog.storage.EncryptedStorage.prototype.encryptValue_ = function(
     salt, key, value) {
   if (!(salt.length > 0)) {
-    throw new Error('Non-empty salt must be provided');
+    throw Error('Non-empty salt must be provided');
   }
   var sha1 = new goog.crypt.Sha1();
   sha1.update(goog.crypt.stringToByteArray(key));
@@ -181,9 +179,9 @@ goog.storage.EncryptedStorage.prototype.getWrapper = function(
     throw goog.storage.ErrorCode.INVALID_VALUE;
   }
   var json = this.decryptValue_(salt, key, value);
-
+  /** @preserveTry */
   try {
-    wrapper[goog.storage.RichStorage.DATA_KEY] = JSON.parse(json);
+    wrapper[goog.storage.RichStorage.DATA_KEY] = goog.json.parse(json);
   } catch (e) {
     throw goog.storage.ErrorCode.DECRYPTION_ERROR;
   }

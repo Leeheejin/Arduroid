@@ -16,9 +16,13 @@
  * @fileoverview Provides the built-in decorators: is, describedAs, anything.
  */
 
+
+
 goog.provide('goog.labs.testing.AnythingMatcher');
 
+
 goog.require('goog.labs.testing.Matcher');
+
 
 
 /**
@@ -48,7 +52,7 @@ goog.labs.testing.AnythingMatcher.prototype.matches = function(actualObject) {
  * @override
  */
 goog.labs.testing.AnythingMatcher.prototype.describe = function(actualObject) {
-  throw new Error('AnythingMatcher should never fail!');
+  throw Error('AnythingMatcher should never fail!');
 };
 
 
@@ -57,20 +61,20 @@ goog.labs.testing.AnythingMatcher.prototype.describe = function(actualObject) {
  *
  * @return {!goog.labs.testing.AnythingMatcher} A AnythingMatcher.
  */
-var anything = goog.labs.testing.AnythingMatcher.anything = function() {
+function anything() {
   return new goog.labs.testing.AnythingMatcher();
-};
+}
 
 
 /**
- * Returns any matcher that is passed to it (aids readability).
+ * Returnes any matcher that is passed to it (aids readability).
  *
  * @param {!goog.labs.testing.Matcher} matcher A matcher.
  * @return {!goog.labs.testing.Matcher} The wrapped matcher.
  */
-var is = goog.labs.testing.AnythingMatcher.is = function(matcher) {
+function is(matcher) {
   return matcher;
-};
+}
 
 
 /**
@@ -78,16 +82,10 @@ var is = goog.labs.testing.AnythingMatcher.is = function(matcher) {
  *
  * @param {string} description The custom description for the matcher.
  * @param {!goog.labs.testing.Matcher} matcher The matcher.
+ *
  * @return {!goog.labs.testing.Matcher} The matcher with custom description.
  */
-var describedAs = goog.labs.testing.AnythingMatcher.describedAs = function(
-    description, matcher) {
-  return /** @type {!goog.labs.testing.Matcher} */ ({
-    matches: function(value) {
-      return matcher.matches(value);
-    },
-    describe: function() {
-      return description;
-    }
-  });
-};
+function describedAs(description, matcher) {
+  matcher.describe = function(value) { return description; };
+  return matcher;
+}

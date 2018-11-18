@@ -31,7 +31,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.NodeType');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.vendor');
-goog.require('goog.html.SafeStyleSheet');
 goog.require('goog.math.Box');
 goog.require('goog.math.Coordinate');
 goog.require('goog.math.Rect');
@@ -41,6 +40,7 @@ goog.require('goog.reflect');
 goog.require('goog.string');
 goog.require('goog.userAgent');
 
+goog.forwardDeclare('goog.events.BrowserEvent');
 goog.forwardDeclare('goog.events.Event');
 
 
@@ -73,7 +73,7 @@ goog.style.setStyle = function(element, style, opt_value) {
 
 /**
  * Sets a style value on an element, with parameters swapped to work with
- * `goog.object.forEach()`. Prepends a vendor-specific prefix when
+ * {@code goog.object.forEach()}. Prepends a vendor-specific prefix when
  * necessary.
  * @param {Element} element The element to change.
  * @param {string|number|boolean|undefined} value Style value.
@@ -84,8 +84,7 @@ goog.style.setStyle_ = function(element, value, style) {
   var propertyName = goog.style.getVendorJsStyleName_(element, style);
 
   if (propertyName) {
-    // TODO(johnlenz): coerce to string?
-    element.style[propertyName] = /** @type {?} */ (value);
+    element.style[propertyName] = value;
   }
 };
 
@@ -219,8 +218,7 @@ goog.style.getComputedStyle = function(element, property) {
  */
 goog.style.getCascadedStyle = function(element, style) {
   // TODO(nicksantos): This should be documented to return null. #fixTypes
-  return /** @type {string} */ (
-      element.currentStyle ? element.currentStyle[style] : null);
+  return element.currentStyle ? element.currentStyle[style] : null;
 };
 
 
@@ -493,7 +491,7 @@ goog.style.getOffsetParent = function(element) {
   // browsers it only includes elements with position absolute, relative or
   // fixed, not elements with overflow set to auto or scroll.
   if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(8)) {
-    goog.asserts.assert(element && 'offsetParent' in element);
+    goog.asserts.assert('offsetParent' in element);
     return element.offsetParent;
   }
 
@@ -504,9 +502,7 @@ goog.style.getOffsetParent = function(element) {
        parent = parent.parentNode) {
     // Skip shadowDOM roots.
     if (parent.nodeType == goog.dom.NodeType.DOCUMENT_FRAGMENT && parent.host) {
-      // Cast because the assignment is not type safe, and without a cast we
-      // start typing parent loosely and get bad disambiguation.
-      parent = /** @type {!Element} */ (parent.host);
+      parent = parent.host;
     }
     positionStyle =
         goog.style.getStyle_(/** @type {!Element} */ (parent), 'position');
@@ -581,8 +577,8 @@ goog.style.getVisibleRectForElement = function(element) {
 
 
 /**
- * Calculate the scroll position of `container` with the minimum amount so
- * that the content and the borders of the given `element` become visible.
+ * Calculate the scroll position of {@code container} with the minimum amount so
+ * that the content and the borders of the given {@code element} become visible.
  * If the element is bigger than the container, its top left corner will be
  * aligned as close to the container's top left corner as possible.
  *
@@ -611,7 +607,7 @@ goog.style.getContainerOffsetToScrollInto = function(
     var relY = elementPos.y - container.scrollTop;
     if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(10)) {
       // In older versions of IE getPageOffset(element) does not include the
-      // container border so it has to be added to accommodate.
+      // container border so it has to be added to accomodate.
       relX += containerBorder.left;
       relY += containerBorder.top;
     }
@@ -623,9 +619,11 @@ goog.style.getContainerOffsetToScrollInto = function(
   // How much the element can move in the container, i.e. the difference between
   // the element's bottom-right-most and top-left-most position where it's
   // fully visible.
-  var elementSize = goog.style.getSizeWithDisplay_(element);
-  var spaceX = container.clientWidth - elementSize.width;
-  var spaceY = container.clientHeight - elementSize.height;
+  var spaceX = container.clientWidth -
+      /** @type {HTMLElement} */ (element).offsetWidth;
+  var spaceY = container.clientHeight -
+      /** @type {HTMLElement} */ (element).offsetHeight;
+
   var scrollLeft = container.scrollLeft;
   var scrollTop = container.scrollTop;
   if (opt_center) {
@@ -648,8 +646,8 @@ goog.style.getContainerOffsetToScrollInto = function(
 
 
 /**
- * Changes the scroll position of `container` with the minimum amount so
- * that the content and the borders of the given `element` become visible.
+ * Changes the scroll position of {@code container} with the minimum amount so
+ * that the content and the borders of the given {@code element} become visible.
  * If the element is bigger than the container, its top left corner will be
  * aligned as close to the container's top left corner as possible.
  *
@@ -917,7 +915,7 @@ goog.style.setSize = function(element, w, opt_h) {
     w = w.width;
   } else {
     if (opt_h == undefined) {
-      throw new Error('missing height argument');
+      throw Error('missing height argument');
     }
     h = opt_h;
   }
@@ -976,7 +974,7 @@ goog.style.setWidth = function(element, width) {
  * irrespective of the box model in effect.
  *
  * Note that this function does not take CSS transforms into account. Please see
- * `goog.style.getTransformedSize`.
+ * {@code goog.style.getTransformedSize}.
  * @param {Element} element Element to get size of.
  * @return {!goog.math.Size} Object with width/height properties.
  */
@@ -987,14 +985,14 @@ goog.style.getSize = function(element) {
 
 
 /**
- * Call `fn` on `element` such that `element`'s dimensions are
- * accurate when it's passed to `fn`.
- * @param {function(!Element): T} fn Function to call with `element` as
- *     an argument after temporarily changing `element`'s display such
+ * Call {@code fn} on {@code element} such that {@code element}'s dimensions are
+ * accurate when it's passed to {@code fn}.
+ * @param {function(!Element): T} fn Function to call with {@code element} as
+ *     an argument after temporarily changing {@code element}'s display such
  *     that its dimensions are accurate.
  * @param {!Element} element Element (which may have display none) to use as
- *     argument to `fn`.
- * @return {T} Value returned by calling `fn` with `element`.
+ *     argument to {@code fn}.
+ * @return {T} Value returned by calling {@code fn} with {@code element}.
  * @template T
  * @private
  */
@@ -1052,11 +1050,11 @@ goog.style.getSizeWithDisplay_ = function(element) {
  * Gets the height and width of an element, post transform, even if its display
  * is none.
  *
- * This is like `goog.style.getSize`, except:
+ * This is like {@code goog.style.getSize}, except:
  * <ol>
  * <li>Takes webkitTransforms such as rotate and scale into account.
- * <li>Will return null if `element` doesn't respond to
- *     `getBoundingClientRect`.
+ * <li>Will return null if {@code element} doesn't respond to
+ *     {@code getBoundingClientRect}.
  * <li>Currently doesn't make sense on non-WebKit browsers which don't support
  *    webkitTransforms.
  * </ol>
@@ -1276,29 +1274,23 @@ goog.style.isElementShown = function(el) {
 
 
 /**
- * Installs the style sheet into the window that contains opt_node.  If
+ * Installs the styles string into the window that contains opt_node.  If
  * opt_node is null, the main window is used.
- * @param {!goog.html.SafeStyleSheet} safeStyleSheet The style sheet to install.
- * @param {?Node=} opt_node Node whose parent document should have the
+ * @param {string} stylesString The style string to install.
+ * @param {Node=} opt_node Node whose parent document should have the
  *     styles installed.
- * @return {!HTMLStyleElement|!StyleSheet} In IE<11, a StyleSheet object with no
- *     owning &lt;style&gt; tag (this is how IE creates style sheets).  In every
- *     other browser, a &lt;style&gt; element with an attached style.  This
- *     doesn't return a StyleSheet object so that setSafeStyleSheet can replace
- *     it (otherwise, if you pass a StyleSheet to setSafeStyleSheet, it will
- *     make a new StyleSheet and leave the original StyleSheet orphaned).
+ * @return {Element|StyleSheet} The style element created.
  */
-goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
+goog.style.installStyles = function(stylesString, opt_node) {
   var dh = goog.dom.getDomHelper(opt_node);
+  var styleSheet = null;
 
   // IE < 11 requires createStyleSheet. Note that doc.createStyleSheet will be
   // undefined as of IE 11.
   var doc = dh.getDocument();
   if (goog.userAgent.IE && doc.createStyleSheet) {
-    /** @type {(!HTMLStyleElement|!StyleSheet)} */
-    var styleSheet = doc.createStyleSheet();
-    goog.style.setSafeStyleSheet(styleSheet, safeStyleSheet);
-    return styleSheet;
+    styleSheet = doc.createStyleSheet();
+    goog.style.setStyles(styleSheet, stylesString);
   } else {
     var head = dh.getElementsByTagNameAndClass(goog.dom.TagName.HEAD)[0];
 
@@ -1309,15 +1301,15 @@ goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
       head = dh.createDom(goog.dom.TagName.HEAD);
       body.parentNode.insertBefore(head, body);
     }
-    var el = dh.createDom(goog.dom.TagName.STYLE);
+    styleSheet = dh.createDom(goog.dom.TagName.STYLE);
     // NOTE(user): Setting styles after the style element has been appended
     // to the head results in a nasty Webkit bug in certain scenarios. Please
     // refer to https://bugs.webkit.org/show_bug.cgi?id=26307 for additional
     // details.
-    goog.style.setSafeStyleSheet(el, safeStyleSheet);
-    dh.appendChild(head, el);
-    return el;
+    goog.style.setStyles(styleSheet, stylesString);
+    dh.appendChild(head, styleSheet);
   }
+  return styleSheet;
 };
 
 
@@ -1336,14 +1328,12 @@ goog.style.uninstallStyles = function(styleSheet) {
 /**
  * Sets the content of a style element.  The style element can be any valid
  * style element.  This element will have its content completely replaced by
- * the safeStyleSheet.
- * @param {!Element|!StyleSheet} element A stylesheet element as returned by
+ * the new stylesString.
+ * @param {Element|StyleSheet} element A stylesheet element as returned by
  *     installStyles.
- * @param {!goog.html.SafeStyleSheet} safeStyleSheet The new content of the
- *     stylesheet.
+ * @param {string} stylesString The new content of the stylesheet.
  */
-goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
-  var stylesString = goog.html.SafeStyleSheet.unwrap(safeStyleSheet);
+goog.style.setStyles = function(element, stylesString) {
   if (goog.userAgent.IE && goog.isDef(element.cssText)) {
     // Adding the selectors individually caused the browser to hang if the
     // selector was invalid or there were CSS comments.  Setting the cssText of
@@ -1352,7 +1342,6 @@ goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
     // cssText is a defined property and otherwise fall back to innerHTML.
     element.cssText = stylesString;
   } else {
-    // Setting textContent doesn't work in Safari, see b/29340337.
     element.innerHTML = stylesString;
   }
 };
@@ -1549,11 +1538,9 @@ goog.style.getContentBoxSize = function(element) {
     // If IE in CSS1Compat mode than just use the width and height.
     // If we have a boxSizing then fall back on measuring the borders etc.
     var width = goog.style.getIePixelValue_(
-        element, /** @type {string} */ (ieCurrentStyle.width), 'width',
-        'pixelWidth');
+        element, ieCurrentStyle.width, 'width', 'pixelWidth');
     var height = goog.style.getIePixelValue_(
-        element, /** @type {string} */ (ieCurrentStyle.height), 'height',
-        'pixelHeight');
+        element, ieCurrentStyle.height, 'height', 'pixelHeight');
     return new goog.math.Size(width, height);
   } else {
     var borderBoxSize = goog.style.getBorderBoxSize(element);
@@ -1649,7 +1636,7 @@ goog.style.getIePixelValue_ = function(element, value, name, pixelName) {
     // restore
     element.style[name] = oldStyleValue;
     element.runtimeStyle[name] = oldRuntimeValue;
-    return +pixelValue;
+    return pixelValue;
   }
 };
 
@@ -1793,7 +1780,7 @@ goog.style.getFontFamily = function(el) {
   if (doc.body.createTextRange && goog.dom.contains(doc, el)) {
     var range = doc.body.createTextRange();
     range.moveToElementText(el);
-
+    /** @preserveTry */
     try {
       font = range.queryCommandValue('FontName');
     } catch (e) {
@@ -1892,11 +1879,11 @@ goog.style.getFontSize = function(el) {
   // (em, ex) are applied relative to the element's parentNode and can also
   // be converted.
   if (goog.userAgent.IE) {
-    if (String(sizeUnits) in goog.style.ABSOLUTE_CSS_LENGTH_UNITS_) {
+    if (sizeUnits in goog.style.ABSOLUTE_CSS_LENGTH_UNITS_) {
       return goog.style.getIePixelValue_(el, fontSize, 'left', 'pixelLeft');
     } else if (
         el.parentNode && el.parentNode.nodeType == goog.dom.NodeType.ELEMENT &&
-        String(sizeUnits) in goog.style.CONVERTIBLE_RELATIVE_CSS_UNITS_) {
+        sizeUnits in goog.style.CONVERTIBLE_RELATIVE_CSS_UNITS_) {
       // Check the parent size - if it is the same it means the relative size
       // value is inherited and we therefore don't want to count it twice.  If
       // it is different, this element either has explicit style or has a CSS

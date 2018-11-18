@@ -18,10 +18,12 @@
  */
 
 
+
 goog.provide('goog.labs.testing.HasEntriesMatcher');
 goog.provide('goog.labs.testing.HasEntryMatcher');
 goog.provide('goog.labs.testing.HasKeyMatcher');
 goog.provide('goog.labs.testing.HasValueMatcher');
+
 
 goog.require('goog.asserts');
 goog.require('goog.labs.testing.Matcher');
@@ -217,12 +219,12 @@ goog.labs.testing.HasValueMatcher.prototype.describe = function(actualObject) {
  * in the input object.
  *
  * @param {!Object} entries The entries to check for presence in the object.
+ *
  * @return {!goog.labs.testing.HasEntriesMatcher} A HasEntriesMatcher.
  */
-var hasEntries =
-    goog.labs.testing.HasEntriesMatcher.hasEntries = function(entries) {
-      return new goog.labs.testing.HasEntriesMatcher(entries);
-    };
+function hasEntries(entries) {
+  return new goog.labs.testing.HasEntriesMatcher(entries);
+}
 
 
 /**
@@ -230,31 +232,33 @@ var hasEntries =
  *
  * @param {string} key The key to check for presence in the object.
  * @param {*} value The value to check for presence in the object.
+ *
  * @return {!goog.labs.testing.HasEntryMatcher} A HasEntryMatcher.
  */
-var hasEntry =
-    goog.labs.testing.HasEntryMatcher.hasEntry = function(key, value) {
-      return new goog.labs.testing.HasEntryMatcher(key, value);
-    };
+function hasEntry(key, value) {
+  return new goog.labs.testing.HasEntryMatcher(key, value);
+}
 
 
 /**
  * Gives a matcher that asserts an object contains the given key.
  *
  * @param {string} key The key to check for presence in the object.
+ *
  * @return {!goog.labs.testing.HasKeyMatcher} A HasKeyMatcher.
  */
-var hasKey = goog.labs.testing.HasKeyMatcher.hasKey = function(key) {
+function hasKey(key) {
   return new goog.labs.testing.HasKeyMatcher(key);
-};
+}
 
 
 /**
  * Gives a matcher that asserts an object contains the given value.
  *
  * @param {*} value The value to check for presence in the object.
+ *
  * @return {!goog.labs.testing.HasValueMatcher} A HasValueMatcher.
  */
-var hasValue = goog.labs.testing.HasValueMatcher.hasValue = function(value) {
+function hasValue(value) {
   return new goog.labs.testing.HasValueMatcher(value);
-};
+}

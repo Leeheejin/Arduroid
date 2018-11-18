@@ -179,7 +179,7 @@ goog.ui.DragDropDetector.DEFAULT_FILE_PATH_ = 'dragdropdetector_target.html';
 
 /**
  * Our event handler object.
- * @type {goog.events.EventHandler<!goog.ui.DragDropDetector>}
+ * @type {goog.events.EventHandler}
  * @private
  */
 goog.ui.DragDropDetector.prototype.handler_;
@@ -336,8 +336,10 @@ goog.ui.DragDropDetector.prototype.initIframe_ = function() {
             this.body_,
             [goog.events.EventType.MOUSEMOVE, goog.events.EventType.KEYPRESS],
             this.uncoverScreen_)
+        .
+
         // Detect content insertion.
-        .listen(this.document_, 'DOMNodeInserted', this.handleNodeInserted_);
+        listen(this.document_, 'DOMNodeInserted', this.handleNodeInserted_);
   }
 };
 
@@ -522,7 +524,7 @@ goog.ui.DragDropDetector.prototype.handleNodeInserted_ = function(e) {
   }
 
   if (!uri) {
-    var imgs = goog.dom.getElementsByTagName(goog.dom.TagName.IMG, this.body_);
+    var imgs = this.body_.getElementsByTagName(goog.dom.TagName.IMG);
     if (imgs && imgs.length) {
       // TODO(robbyw): Grab all the images, instead of just the first.
       var img = imgs[0];
@@ -550,7 +552,7 @@ goog.ui.DragDropDetector.prototype.handleNodeInserted_ = function(e) {
     }
   }
 
-  var links = goog.dom.getElementsByTagName(goog.dom.TagName.A, this.body_);
+  var links = this.body_.getElementsByTagName(goog.dom.TagName.A);
   if (links) {
     for (i = 0, len = links.length; i < len; i++) {
       this.dispatchEvent(

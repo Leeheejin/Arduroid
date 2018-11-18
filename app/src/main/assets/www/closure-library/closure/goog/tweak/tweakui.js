@@ -27,7 +27,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.safe');
 goog.require('goog.html.SafeHtml');
-goog.require('goog.html.SafeStyleSheet');
 goog.require('goog.object');
 goog.require('goog.string.Const');
 goog.require('goog.style');
@@ -122,28 +121,27 @@ goog.tweak.TweakUi.STYLE_SHEET_INSTALLED_MARKER_ = '__closure_tweak_installed_';
 
 /**
  * CSS used by TweakUI.
- * @type {!goog.html.SafeStyleSheet}
+ * @type {string}
  * @private
  */
 goog.tweak.TweakUi.CSS_STYLES_ = (function() {
   var MOBILE = goog.userAgent.MOBILE;
   var IE = goog.userAgent.IE;
+  var ENTRY_CLASS = '.' + goog.tweak.TweakUi.ENTRY_CSS_CLASS_;
   var ROOT_PANEL_CLASS = '.' + goog.tweak.TweakUi.ROOT_PANEL_CLASS_;
   var GOOG_INLINE_BLOCK_CLASS = '.' + goog.getCssName('goog-inline-block');
-  var ret = [goog.html.SafeStyleSheet.createRule(
-      ROOT_PANEL_CLASS, {'background': '#ffc', 'padding': '0 4px'})];
+  var ret = ROOT_PANEL_CLASS + '{background:#ffc; padding:0 4px}';
   // Make this work even if the user hasn't included common.css.
   if (!IE) {
-    ret.push(goog.html.SafeStyleSheet.createRule(
-        GOOG_INLINE_BLOCK_CLASS, {'display': 'inline-block'}));
+    ret += GOOG_INLINE_BLOCK_CLASS + '{display:inline-block}';
   }
   // Space things out vertically for touch UIs.
   if (MOBILE) {
-    ret.push(goog.html.SafeStyleSheet.createRule(
-        ROOT_PANEL_CLASS + ',' + ROOT_PANEL_CLASS + ' fieldset',
-        {'line-height': '2em'}));
+    ret += ROOT_PANEL_CLASS + ',' + ROOT_PANEL_CLASS + ' fieldset{' +
+        'line-height:2em;' +
+        '}';
   }
-  return goog.html.SafeStyleSheet.concat(ret);
+  return ret;
 })();
 
 
@@ -311,7 +309,7 @@ goog.tweak.TweakUi.prototype.installStyles_ = function() {
   // they are automatically excluded when tweaks are stripped out.
   var doc = this.domHelper_.getDocument();
   if (!(goog.tweak.TweakUi.STYLE_SHEET_INSTALLED_MARKER_ in doc)) {
-    goog.style.installSafeStyleSheet(goog.tweak.TweakUi.CSS_STYLES_, doc);
+    goog.style.installStyles(goog.tweak.TweakUi.CSS_STYLES_, doc);
     doc[goog.tweak.TweakUi.STYLE_SHEET_INSTALLED_MARKER_] = true;
   }
 };
@@ -464,15 +462,13 @@ goog.tweak.EntriesPanel.prototype.getRootElement = function() {
 /**
  * Creates and returns the expanded element.
  * The markup looks like:
- *
- *    <div>
- *      <a>Show Descriptions</a>
- *      <div>
- *         ...
- *         {endElement}
- *      </div>
- *    </div>
- *
+ * <div>
+ *   <a>Show Descriptions</a>
+ *   <div>
+ *      ...
+ *      {endElement}
+ *   </div>
+ * </div>
  * @param {Element|DocumentFragment=} opt_endElement Element to insert after all
  *     tweak entries.
  * @return {!Element} The root element for the panel.
@@ -659,11 +655,9 @@ goog.tweak.EntriesPanel.prototype.createComboBoxDom_ = function(
   ret.appendChild(selectElem);
 
   // Set the value and add a callback.
-  selectElem.value = String(tweak.getNewValue());
+  selectElem.value = tweak.getNewValue();
   selectElem.onchange = onchangeFunc;
-  tweak.addCallback(function() {
-    selectElem.value = String(tweak.getNewValue());
-  });
+  tweak.addCallback(function() { selectElem.value = tweak.getNewValue(); });
   return ret;
 };
 
@@ -749,15 +743,13 @@ goog.tweak.EntriesPanel.prototype.createTextBoxDom_ = function(
   var ret = dh.getDocument().createDocumentFragment();
   ret.appendChild(dh.createTextNode(label + ': '));
   var textBox = dh.createDom(goog.dom.TagName.INPUT, {
-    value: String(tweak.getNewValue()),
+    value: tweak.getNewValue(),
     // TODO(agrieve): Make size configurable or autogrow.
     size: 5,
     onblur: onchangeFunc
   });
   ret.appendChild(textBox);
-  tweak.addCallback(function() {
-    textBox.value = String(tweak.getNewValue());
-  });
+  tweak.addCallback(function() { textBox.value = tweak.getNewValue(); });
   return ret;
 };
 
@@ -797,7 +789,6 @@ goog.tweak.EntriesPanel.prototype.createTweakEntryDom_ = function(entry) {
         this.createComboBoxDom_(entry, label, setValueFunc) :
         this.createTextBoxDom_(entry, label, setValueFunc);
   } else if (entry instanceof goog.tweak.NumericSetting) {
-    /** @this {Element} */
     setValueFunc = function() {
       // Reset the value if it's not a number.
       if (isNaN(this.value)) {

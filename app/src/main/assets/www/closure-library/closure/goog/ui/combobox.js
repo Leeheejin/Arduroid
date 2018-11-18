@@ -446,6 +446,8 @@ goog.ui.ComboBox.prototype.getNumberOfVisibleItems_ = function() {
     this.visibleCount_ = count;
   }
 
+  goog.log.info(
+      this.logger_, 'getNumberOfVisibleItems() - ' + this.visibleCount_);
   return this.visibleCount_;
 };
 
@@ -521,6 +523,7 @@ goog.ui.ComboBox.prototype.setUseDropdownArrow = function(useDropdownArrow) {
  * @param {string} value The new value.
  */
 goog.ui.ComboBox.prototype.setValue = function(value) {
+  goog.log.info(this.logger_, 'setValue() - ' + value);
   if (this.labelInput_.getValue() != value) {
     this.labelInput_.setValue(value);
     this.handleInputChange_();
@@ -570,7 +573,7 @@ goog.ui.ComboBox.prototype.setupMenu_ = function() {
 
 /**
  * Shows the menu if it isn't already showing.  Also positions the menu
- * correctly, resets the menu item visibilities and highlights the relevant
+ * correctly, resets the menu item visibilities and highlights the relevent
  * item.
  * @param {boolean} showAll Whether to show all items, with the first matching
  *     item highlighted.
@@ -692,6 +695,7 @@ goog.ui.ComboBox.prototype.onComboMouseDown_ = function(e) {
 goog.ui.ComboBox.prototype.onDocClicked_ = function(e) {
   if (!goog.dom.contains(
           this.menu_.getElement(), /** @type {Node} */ (e.target))) {
+    goog.log.info(this.logger_, 'onDocClicked_() - dismissing immediately');
     this.dismiss();
   }
 };
@@ -703,6 +707,7 @@ goog.ui.ComboBox.prototype.onDocClicked_ = function(e) {
  * @private
  */
 goog.ui.ComboBox.prototype.onMenuSelected_ = function(e) {
+  goog.log.info(this.logger_, 'onMenuSelected_()');
   var item = /** @type {!goog.ui.MenuItem} */ (e.target);
   // Stop propagation of the original event and redispatch to allow the menu
   // select to be cancelled at this level. i.e. if a menu item should cause
@@ -730,6 +735,7 @@ goog.ui.ComboBox.prototype.onMenuSelected_ = function(e) {
  * @private
  */
 goog.ui.ComboBox.prototype.onInputBlur_ = function(e) {
+  goog.log.info(this.logger_, 'onInputBlur_() - delayed dismiss');
   this.clearDismissTimer_();
   this.dismissTimer_ = goog.Timer.callOnce(
       this.dismiss, goog.ui.ComboBox.BLUR_DISMISS_TIMER_MS, this);
@@ -838,6 +844,7 @@ goog.ui.ComboBox.prototype.handleInputChange_ = function() {
  * @private
  */
 goog.ui.ComboBox.prototype.setItemVisibilityFromToken_ = function(token) {
+  goog.log.info(this.logger_, 'setItemVisibilityFromToken_() - ' + token);
   var isVisibleItem = false;
   var count = 0;
   var recheckHidden = !this.matchFunction_(token, this.lastToken_);
@@ -881,6 +888,8 @@ goog.ui.ComboBox.prototype.setItemVisibilityFromToken_ = function(token) {
  * @private
  */
 goog.ui.ComboBox.prototype.setItemHighlightFromToken_ = function(token) {
+  goog.log.info(this.logger_, 'setItemHighlightFromToken_() - ' + token);
+
   if (token == '') {
     this.menu_.setHighlightedIndex(-1);
     return;
@@ -919,7 +928,7 @@ goog.ui.ComboBox.prototype.isItemSticky_ = function(item) {
  * @param {goog.ui.ControlContent} content Text caption or DOM structure to
  *     display as the content of the item (use to add icons or styling to
  *     menus).
- * @param {*=} opt_data Identifying data for the menu item.
+ * @param {Object=} opt_data Identifying data for the menu item.
  * @param {goog.dom.DomHelper=} opt_domHelper Optional dom helper used for dom
  *     interactions.
  * @param {goog.ui.MenuItemRenderer=} opt_renderer Optional renderer.
@@ -928,8 +937,7 @@ goog.ui.ComboBox.prototype.isItemSticky_ = function(item) {
  */
 goog.ui.ComboBoxItem = function(
     content, opt_data, opt_domHelper, opt_renderer) {
-  goog.ui.ComboBoxItem.base(
-      this, 'constructor', content, opt_data, opt_domHelper, opt_renderer);
+  goog.ui.MenuItem.call(this, content, opt_data, opt_domHelper, opt_renderer);
 };
 goog.inherits(goog.ui.ComboBoxItem, goog.ui.MenuItem);
 goog.tagUnsealableClass(goog.ui.ComboBoxItem);

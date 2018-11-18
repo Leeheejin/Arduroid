@@ -28,7 +28,6 @@ goog.require('goog.ui.Button');
 goog.require('goog.ui.ButtonRenderer');
 goog.require('goog.ui.ButtonSide');
 goog.require('goog.ui.Component');
-goog.require('goog.ui.ControlRenderer');
 
 var button, buttonRenderer, testRenderer;
 var sandbox;
@@ -43,7 +42,7 @@ function setUpPage() {
 
 /**
  * A subclass of ButtonRenderer that overrides
- * `getStructuralCssClass` for testing purposes.
+ * {@code getStructuralCssClass} for testing purposes.
  * @constructor
  * @extends {goog.ui.ControlRenderer}
  */
@@ -85,8 +84,7 @@ function testGetAriaRole() {
 function testCreateDom() {
   var element = buttonRenderer.createDom(button);
   assertNotNull('Element must not be null', element);
-  assertEquals('Element must be a DIV',
-      String(goog.dom.TagName.DIV), element.tagName);
+  assertEquals('Element must be a DIV', goog.dom.TagName.DIV, element.tagName);
   assertHTMLEquals(
       'Element must have expected structure',
       '<div class="goog-button">Hello</div>', goog.dom.getOuterHtml(element));

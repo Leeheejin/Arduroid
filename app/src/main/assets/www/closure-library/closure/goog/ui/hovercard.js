@@ -45,10 +45,10 @@ goog.require('goog.ui.Tooltip');
  * tag should have for that tag to trigger the hover card.  See example below.
  *
  * Hovercards can also be triggered manually by calling
- * `triggerForElement`, shown without a delay by calling
- * `showForElement`, or triggered over other elements by calling
- * `attach`.  For the latter two cases, the application is responsible
- * for calling `detach` when finished.
+ * {@code triggerForElement}, shown without a delay by calling
+ * {@code showForElement}, or triggered over other elements by calling
+ * {@code attach}.  For the latter two cases, the application is responsible
+ * for calling {@code detach} when finished.
  *
  * HoverCard objects fire a TRIGGER event when the mouse moves over an element
  * that can trigger a hovercard, and BEFORE_SHOW when the hovercard is
@@ -76,7 +76,7 @@ goog.ui.HoverCard = function(
   goog.ui.AdvancedTooltip.call(this, null, null, opt_domHelper);
 
   if (goog.isFunction(isAnchor)) {
-    // Override default implementation of `isAnchor_`.
+    // Override default implementation of {@code isAnchor_}.
     this.isAnchor_ = isAnchor;
   } else {
     /**
@@ -147,8 +147,8 @@ goog.ui.HoverCard.prototype.disposeInternal = function() {
 
 /**
  * Anchor of hovercard currently being shown.  This may be different from
- * `anchor` property if a second hovercard is triggered, when
- * `anchor` becomes the second hovercard while `currentAnchor_`
+ * {@code anchor} property if a second hovercard is triggered, when
+ * {@code anchor} becomes the second hovercard while {@code currentAnchor_}
  * is still the old (but currently displayed) anchor.
  * @type {Element}
  * @private
@@ -170,7 +170,6 @@ goog.ui.HoverCard.prototype.maxSearchSteps_;
  * @param {Node} node Node to test.
  * @return {boolean} Whether or not hovercard should be shown.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.HoverCard.prototype.isAnchor_ = function(node) {
   return node.tagName in this.anchors_ &&
@@ -240,7 +239,7 @@ goog.ui.HoverCard.prototype.triggerForElement = function(
     this.onCancelTrigger();
     return;
   }
-  var pos = opt_pos || this.getPosition();
+  var pos = opt_pos || this.position_;
   this.startShowTimer(
       anchorElement,
       /** @type {goog.positioning.AbstractPosition} */ (pos));

@@ -29,23 +29,20 @@ goog.require('goog.style');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.MenuItemRenderer');
 
-goog.forwardDeclare('goog.ui.SubMenu');
-
 
 
 /**
  * Default renderer for {@link goog.ui.SubMenu}s.  Each item has the following
  * structure:
- *
  *    <div class="goog-submenu">
  *      ...(menuitem content)...
  *      <div class="goog-menu">
  *        ... (submenu content) ...
  *      </div>
  *    </div>
- *
  * @constructor
  * @extends {goog.ui.MenuItemRenderer}
+ * @final
  */
 goog.ui.SubMenuRenderer = function() {
   goog.ui.MenuItemRenderer.call(this);

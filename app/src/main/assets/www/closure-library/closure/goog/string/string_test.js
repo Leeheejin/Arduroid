@@ -19,7 +19,6 @@
 /** @suppress {extraProvide} */
 goog.provide('goog.stringTest');
 
-goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.functions');
 goog.require('goog.object');
@@ -562,7 +561,7 @@ function testHtmlUnescapeEntitiesWithDocument() {
   var documentMock = {
     createElement: mockControl.createFunctionMock('createElement')
   };
-  var divMock = goog.dom.createElement(goog.dom.TagName.DIV);
+  var divMock = document.createElement(goog.dom.TagName.DIV);
   documentMock.createElement('div').$returns(divMock);
   mockControl.$replayAll();
 
@@ -983,19 +982,6 @@ function testRemoveAll() {
   assertEquals('Original string', 'barbazbarbaz', str);
 }
 
-function testReplaceAll() {
-  var str = 'foobarbazbarfoobazfoo';
-  str = goog.string.replaceAll(str, 'foo', 'test');
-  assertEquals(
-      'Replace all occurrences of foo with test', 'testbarbazbartestbaztest',
-      str);
-  var str2 = 'foobarbazbar^foo$baz^foo$';
-  str2 = goog.string.replaceAll(str2, '^foo', '$&test');
-  assertEquals(
-      'Replace all occurrences of ^foo with $&test',
-      'foobarbazbar$&test$baz$&test$', str2);
-}
-
 function testRegExpEscape() {
   var spec = '()[]{}+-?*.$^|,:#<!\\';
   var escapedSpec = '\\' + spec.split('').join('\\');
@@ -1006,10 +992,10 @@ function testRegExpEscape() {
   var re = new RegExp('^' + goog.string.regExpEscape(s) + '$');
   assertTrue('All ASCII', re.test(s));
   s = '';
-  re = new RegExp('^' + goog.string.regExpEscape(s) + '$');
+  var re = new RegExp('^' + goog.string.regExpEscape(s) + '$');
   assertTrue('empty string', re.test(s));
   s = allChars(0, 10000);
-  re = new RegExp('^' + goog.string.regExpEscape(s) + '$');
+  var re = new RegExp('^' + goog.string.regExpEscape(s) + '$');
   assertTrue('Unicode', re.test(s));
 }
 
@@ -1037,9 +1023,7 @@ function testAsString() {
   assertEquals('false', goog.string.makeSafe(false));
 
   var funky = function() {};
-  funky.toString = function() {
-    return 'funky-thing';
-  };
+  funky.toString = function() { return 'funky-thing' };
   assertEquals('funky-thing', goog.string.makeSafe(funky));
 }
 
@@ -1425,54 +1409,4 @@ function testEditDistance() {
   assertEquals(
       'Substitution should be preferred over insert/delete', 4,
       goog.string.editDistance('abcd', 'defg'));
-}
-
-function testLastComponent() {
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', []));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', null));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', undefined));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', ''));
-  assertEquals(
-      'Giving a simple string separator instead of an array should work', 'fgh',
-      goog.string.lastComponent('abcdefgh', 'e'));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', ['']));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', ['', '']));
-  assertEquals(
-      'Last component of a string without separators should be the string',
-      'abcdefgh', goog.string.lastComponent('abcdefgh', ['']));
-  assertEquals(
-      'Last component of a single character string should be the string', 'a',
-      goog.string.lastComponent('a', ['']));
-  assertEquals(
-      'Last component of a single character string separated by its only' +
-          'character should be the empty string',
-      '', goog.string.lastComponent('a', ['a']));
-  assertEquals(
-      'Last component of the empty string should be the empty string', '',
-      goog.string.lastComponent('', ['']));
-  assertEquals(
-      'Last component of the empty string should be the empty string', '',
-      goog.string.lastComponent('', ['a']));
-  assertEquals(
-      'Last component of the empty string should be the empty string', '',
-      goog.string.lastComponent('', ['']));
-  assertEquals('ccc', goog.string.lastComponent('aaabbbccc', ['b']));
-  assertEquals('baz', goog.string.lastComponent('foo/bar/baz', ['/']));
-  assertEquals('baz', goog.string.lastComponent('foo.bar.baz', ['.']));
-  assertEquals('baz', goog.string.lastComponent('foo.bar.baz', ['/', '.']));
-  assertEquals('bar/baz', goog.string.lastComponent('foo.bar/baz', ['.']));
-  assertEquals('bar-baz', goog.string.lastComponent('foo.bar-baz', ['/', '.']));
-  assertEquals('baz', goog.string.lastComponent('foo.bar-baz', ['-', '', '.']));
 }

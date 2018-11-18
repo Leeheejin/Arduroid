@@ -21,12 +21,10 @@ goog.provide('goog.storage.ExpiringStorage');
 
 goog.require('goog.storage.RichStorage');
 
-goog.forwardDeclare('goog.storage.mechanism.Mechanism');
-
 
 
 /**
- * Provides a storage with expiring keys.
+ * Provides a storage with expirning keys.
  *
  * @param {!goog.storage.mechanism.Mechanism} mechanism The underlying
  *     storage mechanism.

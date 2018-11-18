@@ -19,6 +19,7 @@
  * @see ../demos/useragent.html
  */
 
+/** @suppress {extraProvide} */
 goog.provide('goog.userAgent.adobeReader');
 
 goog.require('goog.string');
@@ -29,7 +30,7 @@ goog.require('goog.userAgent');
   var version = '';
   if (goog.userAgent.IE) {
     var detectOnIe = function(classId) {
-
+      /** @preserveTry */
       try {
         new ActiveXObject(classId);
         return true;

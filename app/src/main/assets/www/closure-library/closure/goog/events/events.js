@@ -15,7 +15,7 @@
 /**
  * @fileoverview An event manager for both native browser event
  * targets and custom JavaScript event targets
- * (`goog.events.Listenable`). This provides an abstraction
+ * ({@code goog.events.Listenable}). This provides an abstraction
  * over browsers' event systems.
  *
  * It also provides a simulation of W3C event model's capture phase in
@@ -160,34 +160,30 @@ goog.events.listenerCountEstimate_ = 0;
  * @param {function(this:T, EVENTOBJ):?|{handleEvent:function(?):?}|null}
  *     listener Callback method, or an object with a handleEvent function.
  *     WARNING: passing an Object is now softly deprecated.
- * @param {(boolean|!AddEventListenerOptions)=} opt_options
+ * @param {boolean=} opt_capt Whether to fire in capture phase (defaults to
+ *     false).
  * @param {T=} opt_handler Element in whose scope to call the listener.
  * @return {goog.events.Key} Unique key for the listener.
  * @template T,EVENTOBJ
  */
-goog.events.listen = function(src, type, listener, opt_options, opt_handler) {
-  if (opt_options && opt_options.once) {
-    return goog.events.listenOnce(
-        src, type, listener, opt_options, opt_handler);
-  }
+goog.events.listen = function(src, type, listener, opt_capt, opt_handler) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.listen(src, type[i], listener, opt_options, opt_handler);
+      goog.events.listen(src, type[i], listener, opt_capt, opt_handler);
     }
     return null;
   }
 
   listener = goog.events.wrapListener(listener);
   if (goog.events.Listenable.isImplementedBy(src)) {
-    var capture =
-        goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
     return src.listen(
-        /** @type {string|!goog.events.EventId} */ (type), listener, capture,
+        /** @type {string|!goog.events.EventId} */ (type), listener, opt_capt,
         opt_handler);
   } else {
     return goog.events.listen_(
-        /** @type {!EventTarget} */ (src), type, listener,
-        /* callOnce */ false, opt_options, opt_handler);
+        /** @type {!EventTarget} */ (src),
+        /** @type {string|!goog.events.EventId} */ (type), listener,
+        /* callOnce */ false, opt_capt, opt_handler);
   }
 };
 
@@ -202,24 +198,23 @@ goog.events.listen = function(src, type, listener, opt_options, opt_handler) {
  * one-off listener to become a normal listener.
  *
  * @param {EventTarget} src The node to listen to events on.
- * @param {string|?goog.events.EventId<EVENTOBJ>} type Event type.
+ * @param {string|!goog.events.EventId} type Event type.
  * @param {!Function} listener Callback function.
  * @param {boolean} callOnce Whether the listener is a one-off
  *     listener or otherwise.
- * @param {(boolean|!AddEventListenerOptions)=} opt_options
+ * @param {boolean=} opt_capt Whether to fire in capture phase (defaults to
+ *     false).
  * @param {Object=} opt_handler Element in whose scope to call the listener.
  * @return {goog.events.ListenableKey} Unique key for the listener.
- * @template EVENTOBJ
  * @private
  */
 goog.events.listen_ = function(
-    src, type, listener, callOnce, opt_options, opt_handler) {
+    src, type, listener, callOnce, opt_capt, opt_handler) {
   if (!type) {
-    throw new Error('Invalid event type');
+    throw Error('Invalid event type');
   }
 
-  var capture =
-      goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
+  var capture = !!opt_capt;
   if (capture && !goog.events.BrowserFeature.HAS_W3C_EVENT_SUPPORT) {
     if (goog.events.CAPTURE_SIMULATION_MODE ==
         goog.events.CaptureSimulationMode.OFF_AND_FAIL) {
@@ -238,8 +233,8 @@ goog.events.listen_ = function(
         new goog.events.ListenerMap(src);
   }
 
-  var listenerObj = /** @type {goog.events.Listener} */ (
-      listenerMap.add(type, listener, callOnce, capture, opt_handler));
+  var listenerObj =
+      listenerMap.add(type, listener, callOnce, opt_capt, opt_handler);
 
   // If the listenerObj already has a proxy, it has been set up
   // previously. We simply return.
@@ -255,28 +250,15 @@ goog.events.listen_ = function(
 
   // Attach the proxy through the browser's API
   if (src.addEventListener) {
-    // Don't pass an object as `capture` if the browser doesn't support that.
-    if (!goog.events.BrowserFeature.PASSIVE_EVENTS) {
-      opt_options = capture;
-    }
-    // Don't break tests that expect a boolean.
-    if (opt_options === undefined) opt_options = false;
-    src.addEventListener(type.toString(), proxy, opt_options);
+    src.addEventListener(type.toString(), proxy, capture);
   } else if (src.attachEvent) {
     // The else if above used to be an unconditional else. It would call
     // exception on IE11, spoiling the day of some callers. The previous
     // incarnation of this code, from 2007, indicates that it replaced an
     // earlier still version that caused excess allocations on IE6.
     src.attachEvent(goog.events.getOnString_(type.toString()), proxy);
-  } else if (src.addListener && src.removeListener) {
-    // In IE, MediaQueryList uses addListener() insteadd of addEventListener. In
-    // Safari, there is no global for the MediaQueryList constructor, so we just
-    // check whether the object "looks like" MediaQueryList.
-    goog.asserts.assert(
-        type === 'change', 'MediaQueryList only has a change event');
-    src.addListener(proxy);
   } else {
-    throw new Error('addEventListener and attachEvent are unavailable.');
+    throw Error('addEventListener and attachEvent are unavailable.');
   }
 
   goog.events.listenerCountEstimate_++;
@@ -328,31 +310,29 @@ goog.events.getProxy = function() {
  *     type Event type or array of event types.
  * @param {function(this:T, EVENTOBJ):?|{handleEvent:function(?):?}|null}
  *     listener Callback method.
- * @param {(boolean|!AddEventListenerOptions)=} opt_options
+ * @param {boolean=} opt_capt Fire in capture phase?.
  * @param {T=} opt_handler Element in whose scope to call the listener.
  * @return {goog.events.Key} Unique key for the listener.
  * @template T,EVENTOBJ
  */
-goog.events.listenOnce = function(
-    src, type, listener, opt_options, opt_handler) {
+goog.events.listenOnce = function(src, type, listener, opt_capt, opt_handler) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.listenOnce(src, type[i], listener, opt_options, opt_handler);
+      goog.events.listenOnce(src, type[i], listener, opt_capt, opt_handler);
     }
     return null;
   }
 
   listener = goog.events.wrapListener(listener);
   if (goog.events.Listenable.isImplementedBy(src)) {
-    var capture =
-        goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
     return src.listenOnce(
-        /** @type {string|!goog.events.EventId} */ (type), listener, capture,
+        /** @type {string|!goog.events.EventId} */ (type), listener, opt_capt,
         opt_handler);
   } else {
     return goog.events.listen_(
-        /** @type {!EventTarget} */ (src), type, listener,
-        /* callOnce */ true, opt_options, opt_handler);
+        /** @type {!EventTarget} */ (src),
+        /** @type {string|!goog.events.EventId} */ (type), listener,
+        /* callOnce */ true, opt_capt, opt_handler);
   }
 };
 
@@ -388,27 +368,25 @@ goog.events.listenWithWrapper = function(
  *     type Event type or array of event types to unlisten to.
  * @param {function(?):?|{handleEvent:function(?):?}|null} listener The
  *     listener function to remove.
- * @param {(boolean|!EventListenerOptions)=} opt_options
+ * @param {boolean=} opt_capt In DOM-compliant browsers, this determines
  *     whether the listener is fired during the capture or bubble phase of the
  *     event.
  * @param {Object=} opt_handler Element in whose scope to call the listener.
  * @return {?boolean} indicating whether the listener was there to remove.
  * @template EVENTOBJ
  */
-goog.events.unlisten = function(src, type, listener, opt_options, opt_handler) {
+goog.events.unlisten = function(src, type, listener, opt_capt, opt_handler) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.unlisten(src, type[i], listener, opt_options, opt_handler);
+      goog.events.unlisten(src, type[i], listener, opt_capt, opt_handler);
     }
     return null;
   }
-  var capture =
-      goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
 
   listener = goog.events.wrapListener(listener);
   if (goog.events.Listenable.isImplementedBy(src)) {
     return src.unlisten(
-        /** @type {string|!goog.events.EventId} */ (type), listener, capture,
+        /** @type {string|!goog.events.EventId} */ (type), listener, opt_capt,
         opt_handler);
   }
 
@@ -418,6 +396,7 @@ goog.events.unlisten = function(src, type, listener, opt_options, opt_handler) {
     return false;
   }
 
+  var capture = !!opt_capt;
   var listenerMap = goog.events.getListenerMap_(
       /** @type {!EventTarget} */ (src));
   if (listenerMap) {
@@ -464,8 +443,6 @@ goog.events.unlistenByKey = function(key) {
     src.removeEventListener(type, proxy, listener.capture);
   } else if (src.detachEvent) {
     src.detachEvent(goog.events.getOnString_(type), proxy);
-  } else if (src.addListener && src.removeListener) {
-    src.removeListener(proxy);
   }
   goog.events.listenerCountEstimate_--;
 
@@ -484,7 +461,7 @@ goog.events.unlistenByKey = function(key) {
       src[goog.events.LISTENER_MAP_PROP_] = null;
     }
   } else {
-    /** @type {!goog.events.Listener} */ (listener).markAsRemoved();
+    listener.markAsRemoved();
   }
 
   return true;
@@ -741,7 +718,7 @@ goog.events.fireListeners_ = function(obj, type, capture, eventObject) {
  *
  * @param {goog.events.Listener} listener The listener object to call.
  * @param {Object} eventObject The event object to pass to the listener.
- * @return {*} Result of listener.
+ * @return {boolean} Result of listener.
  */
 goog.events.fireListener = function(listener, eventObject) {
   var listenerFn = listener.listener;
@@ -812,7 +789,7 @@ goog.events.protectBrowserEventEntryPoint = function(errorHandler) {
  * @param {goog.events.Listener} listener The listener object.
  * @param {Event=} opt_evt Optional event object that gets passed in via the
  *     native event handlers.
- * @return {*} Result of the event handler.
+ * @return {boolean} Result of the event handler.
  * @this {EventTarget} The object or Element that fired the event.
  * @private
  */
@@ -827,7 +804,7 @@ goog.events.handleBrowserEvent_ = function(listener, opt_evt) {
     var ieEvent = opt_evt ||
         /** @type {Event} */ (goog.getObjectByName('window.event'));
     var evt = new goog.events.BrowserEvent(ieEvent, this);
-    /** @type {*} */
+    /** @type {boolean} */
     var retval = true;
 
     if (goog.events.CAPTURE_SIMULATION_MODE ==
@@ -903,7 +880,7 @@ goog.events.markIeEvent_ = function(e) {
     // We could test that that is the case but that would allocate 3 objects.
     // If we use try/catch we will only allocate extra objects in the case of a
     // failure.
-
+    /** @preserveTry */
     try {
       e.keyCode = -1;
       return;
@@ -943,7 +920,7 @@ goog.events.uniqueIdCounter_ = 0;
  *
  * @param {string} identifier The identifier.
  * @return {string} A unique identifier.
- * @idGenerator {unique}
+ * @idGenerator
  */
 goog.events.getUniqueId = function(identifier) {
   return identifier + '_' + goog.events.uniqueIdCounter_++;

@@ -53,7 +53,7 @@ goog.dom.xml.hasActiveXObjectSupport_ = function() {
   try {
     // Due to lot of changes in IE 9, 10 & 11 behaviour and ActiveX being
     // totally disableable using MSIE's security level, trying to create the
-    // ActiveXOjbect is a lot more reliable than testing for the existence of
+    // ActiveXOjbect is a lot more reliable than testing for the existance of
     // window.ActiveXObject
     new ActiveXObject('MSXML2.DOMDocument');
     return true;
@@ -87,7 +87,7 @@ goog.dom.xml.ACTIVEX_SUPPORT =
 goog.dom.xml.createDocument = function(
     opt_rootTagName, opt_namespaceUri, opt_preferActiveX) {
   if (opt_namespaceUri && !opt_rootTagName) {
-    throw new Error('Can\'t create document with namespace and no root tag');
+    throw Error("Can't create document with namespace and no root tag");
   }
   // If document.implementation.createDocument is available and they haven't
   // explicitly opted to use ActiveXObject when possible.
@@ -107,7 +107,7 @@ goog.dom.xml.createDocument = function(
       return doc;
     }
   }
-  throw new Error('Your browser does not support creating new documents');
+  throw Error('Your browser does not support creating new documents');
 };
 
 
@@ -130,7 +130,7 @@ goog.dom.xml.loadXml = function(xml, opt_preferActiveX) {
     doc.loadXML(xml);
     return doc;
   }
-  throw new Error('Your browser does not support loading xml documents');
+  throw Error('Your browser does not support loading xml documents');
 };
 
 
@@ -150,7 +150,7 @@ goog.dom.xml.serialize = function(xml) {
   if (typeof XMLSerializer != 'undefined') {
     return new XMLSerializer().serializeToString(xml);
   }
-  throw new Error('Your browser does not support serializing XML documents');
+  throw Error('Your browser does not support serializing XML documents');
 };
 
 
@@ -185,8 +185,8 @@ goog.dom.xml.selectSingleNode = function(node, path) {
  * Selects multiple nodes using an Xpath expression and a root node
  * @param {Node} node The root node.
  * @param {string} path Xpath selector.
- * @return {(!NodeList<!Node>|!Array<!Node>)} The selected nodes, or empty array
- *     if no matching nodes.
+ * @return {(NodeList|Array<Node>)} The selected nodes, or empty array if no
+ *     matching nodes.
  */
 goog.dom.xml.selectNodes = function(node, path) {
   if (typeof node.selectNodes != 'undefined') {
@@ -234,7 +234,7 @@ goog.dom.xml.setAttributes = function(element, attributes) {
 
 /**
  * Creates an instance of the MSXML2.DOMDocument.
- * @return {!XMLDOMDocument} The new document.
+ * @return {Document} The new document.
  * @private
  */
 goog.dom.xml.createMsXmlDocument_ = function() {

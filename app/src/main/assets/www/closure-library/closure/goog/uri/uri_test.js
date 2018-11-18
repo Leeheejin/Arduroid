@@ -15,7 +15,6 @@
 /**
  * @fileoverview Unit tests for goog.Uri.
  *
- * @author msamuel@google.com (Mike Samuel)
  */
 
 goog.provide('goog.UriTest');
@@ -38,17 +37,6 @@ function testUriParse() {
   assertEquals(
       'terer258+foo@gmail.com',
       goog.Uri.parse('mailto:terer258+foo@gmail.com').getPath());
-}
-
-function testUriParseWithNewline() {
-  var uri = new goog.Uri('http://www.google.com:80/path?q=query#frag\nmento');
-  assertEquals('http', uri.getScheme());
-  assertEquals('', uri.getUserInfo());
-  assertEquals('www.google.com', uri.getDomain());
-  assertEquals(80, uri.getPort());
-  assertEquals('/path', uri.getPath());
-  assertEquals('q=query', uri.getQuery());
-  assertEquals('frag\nmento', uri.getFragment());
 }
 
 function testUriParseAcceptsThingsWithToString() {
@@ -125,13 +113,6 @@ function testAbsolutePathResolution() {
       'http://www.google.com:8080/foo/bar',
       goog.Uri.resolve('http://www.google.com:8080/search/', '/foo/bar')
           .toString());
-
-  assertEquals(
-      'http://www.google.com:8080/path?q=que%2Br%20y#fragmento',
-      goog.Uri
-          .resolve(
-              'http://www.google.com:8080/', '/path?q=que%2Br%20y#fragmento')
-          .toString());
 }
 
 function testRelativePathResolution() {
@@ -153,6 +134,7 @@ function testRelativePathResolution() {
   var uri4 = new goog.Uri('foo');
   assertEquals('bar', uri4.resolve(new goog.Uri('bar')).toString());
 
+  var uri5 = new goog.Uri('http://www.google.com:8080/search/');
   assertEquals(
       'http://www.google.com:8080/search/..%2ffoo/bar',
       uri3.resolve(new goog.Uri('..%2ffoo/bar')).toString());
@@ -576,16 +558,16 @@ function testTreatmentOfAt1() {
 }
 
 function testTreatmentOfAt2() {
-  var uri = new goog.Uri('http://test/~johndoe@gmail.com/foo');
+  var uri = new goog.Uri('http://www/~johndoe@gmail.com/foo');
   assertEquals('http', uri.getScheme());
-  assertEquals('test', uri.getDomain());
+  assertEquals('www', uri.getDomain());
   assertEquals('/~johndoe@gmail.com/foo', uri.getPath());
 
   assertEquals(
-      'http://test/~johndoe@gmail.com/foo',
+      'http://www/~johndoe@gmail.com/foo',
       goog.Uri
           .create(
-              'http', null, 'test', null, '/~johndoe@gmail.com/foo', null, null)
+              'http', null, 'www', null, '/~johndoe@gmail.com/foo', null, null)
           .toString());
 }
 
@@ -813,21 +795,6 @@ function testQueryDataGetKeys() {
   assertEquals('bbcdd', qd.getKeys().join(''));
 }
 
-function testQueryDataForEach() {
-  var qd = new goog.Uri.QueryData('a=A&b=B&a=A2&b=B2&c=C=extra');
-
-  var calls = [];
-  qd.forEach(function(value, key) {
-    calls.push([value, key]);
-  });
-  assertArrayEquals(
-      [
-        // value, key
-        ['A', 'a'], ['A2', 'a'], ['B', 'b'], ['B2', 'b'], ['C=extra', 'c']
-      ],
-      calls);
-}
-
 function testQueryDataGetValues() {
   var qd = new goog.Uri.QueryData('a=A&b=B&a=A2&b=B2&c=C=extra');
 
@@ -1012,7 +979,7 @@ function testStrictDoubleEncodingRemoval() {
 
 // Tests, that creating URI from components and then
 // getting the components back yields equal results.
-// The special attention is paid to test proper encoding
+// The special attention is payed to test proper encoding
 // and decoding of URI components.
 function testComponentsAfterUriCreate() {
   var createdUri = new goog.Uri.create(

@@ -21,6 +21,8 @@
 
 goog.provide('goog.math.AffineTransform');
 
+goog.require('goog.math');
+
 
 
 /**
@@ -64,7 +66,7 @@ goog.math.AffineTransform = function(
         /** @type {number} */ (opt_m02),
         /** @type {number} */ (opt_m12));
   } else if (arguments.length != 0) {
-    throw new Error('Insufficient matrix parameters');
+    throw Error('Insufficient matrix parameters');
   } else {
     this.m00_ = this.m11_ = 1;
     this.m10_ = this.m01_ = this.m02_ = this.m12_ = 0;
@@ -105,7 +107,7 @@ goog.math.AffineTransform.prototype.setTransform = function(
     m00, m10, m01, m11, m02, m12) {
   if (!goog.isNumber(m00) || !goog.isNumber(m10) || !goog.isNumber(m01) ||
       !goog.isNumber(m11) || !goog.isNumber(m02) || !goog.isNumber(m12)) {
-    throw new Error('Invalid transform parameters');
+    throw Error('Invalid transform parameters');
   }
   this.m00_ = m00;
   this.m10_ = m10;
@@ -406,7 +408,7 @@ goog.math.AffineTransform.prototype.preConcatenate = function(tx) {
  *     point pairs.
  * @param {number} dstOff The offset of the location of the first transformed
  *     point in the destination array.
- * @param {number} numPts The number of points to transform.
+ * @param {number} numPts The number of points to tranform.
  */
 goog.math.AffineTransform.prototype.transform = function(
     src, srcOff, dst, dstOff, numPts) {
@@ -438,8 +440,8 @@ goog.math.AffineTransform.prototype.getDeterminant = function() {
  */
 goog.math.AffineTransform.prototype.isInvertible = function() {
   var det = this.getDeterminant();
-  return isFinite(det) && isFinite(this.m02_) && isFinite(this.m12_) &&
-      det != 0;
+  return goog.math.isFiniteNumber(det) && goog.math.isFiniteNumber(this.m02_) &&
+      goog.math.isFiniteNumber(this.m12_) && det != 0;
 };
 
 

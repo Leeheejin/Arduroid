@@ -293,7 +293,7 @@ function testDecorate() {
 
 function testDecorate_AllowDetached_NotInDocument() {
   goog.ui.Component.ALLOW_DETACHED_DECORATION = true;
-  var element = goog.dom.createElement(goog.dom.TagName.DIV);
+  var element = document.createElement(goog.dom.TagName.DIV);
   component.decorate(element);
   assertFalse(
       'Component should not call enterDocument when decorated ' +
@@ -304,7 +304,7 @@ function testDecorate_AllowDetached_NotInDocument() {
 
 function testDecorate_AllowDetached_InDocument() {
   goog.ui.Component.ALLOW_DETACHED_DECORATION = true;
-  var element = goog.dom.createElement(goog.dom.TagName.DIV);
+  var element = document.createElement(goog.dom.TagName.DIV);
   sandbox.appendChild(element);
   component.decorate(element);
   assertTrue(
@@ -904,7 +904,7 @@ function testRemoveChildren_Unrender() {
   component.addChild(b);
 
   assertArrayEquals(
-      'Parent must remove and return children.', [a, b],
+      'Prent must remove and return children.', [a, b],
       component.removeChildren(true));
   assertNull(
       'Parent must no longer contain this child', component.getChild('a'));
@@ -912,32 +912,4 @@ function testRemoveChildren_Unrender() {
   assertNull(
       'Parent must no longer contain this child', component.getChild('b'));
   assertFalse('Child must no longer be in the document.', b.isInDocument());
-}
-
-function testSetPointerEventsEnabled() {
-  assertFalse(
-      'Component must default to mouse events.',
-      component.pointerEventsEnabled());
-
-  component.setPointerEventsEnabled(true);
-  assertTrue(
-      'Component must use pointer events when specified.',
-      component.pointerEventsEnabled());
-
-  component.setPointerEventsEnabled(false);
-  assertFalse(
-      'Component must use mouse events when specified.',
-      component.pointerEventsEnabled());
-}
-
-function testSetPointerEventsEnabledAfterEnterDocument() {
-  component.render(sandbox);
-
-  assertThrows(
-      'setPointerEventsEnabled(true) after enterDocument must throw error.',
-      function() { component.setPointerEventsEnabled(true); });
-
-  assertThrows(
-      'setPointerEventsEnabled(false) after enterDocument must throw error.',
-      function() { component.setPointerEventsEnabled(false); });
 }

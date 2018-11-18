@@ -26,12 +26,11 @@ goog.provide('goog.fx.Animation.State');
 goog.provide('goog.fx.AnimationEvent');
 
 goog.require('goog.array');
-goog.require('goog.asserts');
 goog.require('goog.events.Event');
-goog.require('goog.fx.Transition');
+goog.require('goog.fx.Transition');  // Unreferenced: interface
 goog.require('goog.fx.TransitionBase');
 goog.require('goog.fx.anim');
-goog.require('goog.fx.anim.Animated');
+goog.require('goog.fx.anim.Animated');  // Unreferenced: interface
 
 
 
@@ -51,11 +50,11 @@ goog.fx.Animation = function(start, end, duration, opt_acc) {
   goog.fx.Animation.base(this, 'constructor');
 
   if (!goog.isArray(start) || !goog.isArray(end)) {
-    throw new Error('Start and end parameters must be arrays');
+    throw Error('Start and end parameters must be arrays');
   }
 
   if (start.length != end.length) {
-    throw new Error('Start and end points must be the same length');
+    throw Error('Start and end points must be the same length');
   }
 
   /**
@@ -123,14 +122,6 @@ goog.fx.Animation = function(start, end, duration, opt_acc) {
   this.lastFrame = null;
 };
 goog.inherits(goog.fx.Animation, goog.fx.TransitionBase);
-
-
-/**
- * @return {number} The duration of this animation in milliseconds.
- */
-goog.fx.Animation.prototype.getDuration = function() {
-  return this.duration;
-};
 
 
 /**
@@ -300,7 +291,7 @@ goog.fx.Animation.prototype.stop = function(opt_gotoEnd) {
   goog.fx.anim.unregisterAnimation(this);
   this.setStateStopped();
 
-  if (opt_gotoEnd) {
+  if (!!opt_gotoEnd) {
     this.progress = 1;
   }
 
@@ -389,14 +380,9 @@ goog.fx.Animation.prototype.cycle = function(now) {
   goog.asserts.assertNumber(this.startTime);
   goog.asserts.assertNumber(this.endTime);
   goog.asserts.assertNumber(this.lastFrame);
-  // Happens in rare system clock reset.
-  if (now < this.startTime) {
-    this.endTime = now + this.endTime - this.startTime;
-    this.startTime = now;
-  }
   this.progress = (now - this.startTime) / (this.endTime - this.startTime);
 
-  if (this.progress > 1) {
+  if (this.progress >= 1) {
     this.progress = 1;
   }
 
@@ -422,7 +408,7 @@ goog.fx.Animation.prototype.cycle = function(now) {
 
 /**
  * Calculates current coordinates, based on the current state.  Applies
- * the acceleration function if it exists.
+ * the accelleration function if it exists.
  * @param {number} t Percentage of the way through the animation as a decimal.
  * @private
  */

@@ -62,7 +62,6 @@ goog.require('goog.ui.ac.AutoComplete');
  *     bolds every matching substring for a given token in each row. True by
  *     default.
  * @extends {goog.events.EventTarget}
- * @suppress {underscore}
  */
 goog.ui.ac.Renderer = function(
     opt_parentNode, opt_customRenderer, opt_rightAlign,
@@ -269,24 +268,10 @@ goog.ui.ac.Renderer.prototype.target_;
 
 /**
  * The element on which to base the width of the autocomplete.
- * @protected {Node}
+ * @type {Node}
+ * @private
  */
 goog.ui.ac.Renderer.prototype.widthProvider_;
-
-
-/**
- * The element on which to base the max width of the autocomplete.
- * @protected {!Node|undefined}
- */
-goog.ui.ac.Renderer.prototype.maxWidthProvider_;
-
-
-/**
- * The border width of the autocomplete dropdown, only used in calculating the
- * dropdown width.
- * @private {number}
- */
-goog.ui.ac.Renderer.prototype.borderWidth_ = 0;
 
 
 /**
@@ -317,20 +302,9 @@ goog.ui.ac.Renderer.prototype.getElement = function() {
  * Sets the width provider element. The provider is only used on redraw and as
  * such will not automatically update on resize.
  * @param {Node} widthProvider The element whose width should be mirrored.
- * @param {number=} opt_borderWidth The width of the border of the autocomplete,
- *     which will be subtracted from the width of the autocomplete dropdown.
- * @param {!Node=} maxWidthProvider The element whose width should be used
- *     as the autocomplete's max width.
  */
-goog.ui.ac.Renderer.prototype.setWidthProvider = function(
-    widthProvider, opt_borderWidth, maxWidthProvider = undefined) {
+goog.ui.ac.Renderer.prototype.setWidthProvider = function(widthProvider) {
   this.widthProvider_ = widthProvider;
-  if (opt_borderWidth) {
-    this.borderWidth_ = opt_borderWidth;
-  }
-  if (maxWidthProvider) {
-    this.maxWidthProvider_ = maxWidthProvider;
-  }
 };
 
 
@@ -537,7 +511,6 @@ goog.ui.ac.Renderer.prototype.isVisible = function() {
 /**
  * Sets the 'active' class of the nth item.
  * @param {number} index Index of the item to highlight.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.hiliteRow = function(index) {
   var row =
@@ -582,7 +555,6 @@ goog.ui.ac.Renderer.prototype.hiliteNone = function() {
  * Sets the 'active' class of the item with a given id.
  * @param {number} id Id of the row to hilight. If id is -1 then no rows get
  *     hilited.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.hiliteId = function(id) {
   if (id == -1) {
@@ -650,7 +622,6 @@ goog.ui.ac.Renderer.prototype.maybeCreateElement_ = function() {
 /**
  * Redraw (or draw if this is the first call) the rendered auto-complete drop
  * down.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.redraw = function() {
   // Create the element if it doesn't yet exist
@@ -664,13 +635,8 @@ goog.ui.ac.Renderer.prototype.redraw = function() {
   }
 
   if (this.widthProvider_) {
-    var width = this.widthProvider_.clientWidth - this.borderWidth_ + 'px';
+    var width = this.widthProvider_.clientWidth + 'px';
     this.element_.style.minWidth = width;
-  }
-  if (this.maxWidthProvider_) {
-    const maxWidth =
-        this.maxWidthProvider_.clientWidth - this.borderWidth_ + 'px';
-    this.element_.style.maxWidth = maxWidth;
   }
 
   // Remove the current child nodes
@@ -822,11 +788,11 @@ goog.ui.ac.Renderer.prototype.disposeInternal = function() {
  *
  * Normally this will only be matching a maximum of 20 or so items.  Even with
  * 40 rows, DOM this building is fine.
+ *
  * @param {Object} row Object representing row.
  * @param {string} token Token to highlight.
  * @param {Node} node The node to render into.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.renderRowContents_ = function(row, token, node) {
   goog.dom.setTextContent(node, row.data.toString());
@@ -878,9 +844,9 @@ goog.ui.ac.Renderer.prototype.hiliteMatchingText_ = function(
     var text = node.nodeValue;
 
     // Create a regular expression to match a token at the beginning of a line
-    // or preceded by non-alpha-numeric characters. Note: token could have |
+    // or preceeded by non-alpha-numeric characters. Note: token could have |
     // operators in it, so we need to parenthesise it before adding \b to it.
-    // or preceded by non-alpha-numeric characters
+    // or preceeded by non-alpha-numeric characters
     //
     // NOTE(user): When using word matches, this used to have
     // a (^|\\W+) clause where it now has \\b but it caused various
@@ -1065,7 +1031,6 @@ goog.ui.ac.Renderer.prototype.getRowFromEventTarget_ = function(et) {
  * which then makes a callback to select the correct row.
  * @param {goog.events.Event} e Browser event object.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.handleClick_ = function(e) {
   var index = this.getRowFromEventTarget_(/** @type {Element} */ (e.target));
@@ -1097,7 +1062,6 @@ goog.ui.ac.Renderer.prototype.handleMouseDown_ = function(e) {
  * duplicating the code
  * @param {goog.events.Event} e Browser event object.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.ac.Renderer.prototype.handleMouseOver_ = function(e) {
   var index = this.getRowFromEventTarget_(/** @type {Element} */ (e.target));

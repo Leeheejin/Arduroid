@@ -22,7 +22,6 @@
 goog.provide('goog.ui.editor.TabPane');
 
 goog.require('goog.asserts');
-goog.require('goog.dom');
 goog.require('goog.dom.InputType');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
@@ -179,7 +178,6 @@ goog.ui.editor.TabPane.prototype.enterDocument = function() {
  * Handles a tab change.
  * @param {goog.events.Event} e The browser change event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.editor.TabPane.prototype.handleTabSelect_ = function(e) {
   var tab = /** @type {goog.ui.Tab} */ (e.target);
@@ -195,7 +193,7 @@ goog.ui.editor.TabPane.prototype.handleTabSelect_ = function(e) {
   if (this.selectedRadio_) {
     this.selectedRadio_.checked = false;
   }
-  this.selectedRadio_ = goog.dom.getElementsByTagName(
-      goog.dom.TagName.INPUT, tab.getElementStrict())[0];
+  this.selectedRadio_ =
+      tab.getElement().getElementsByTagName(goog.dom.TagName.INPUT)[0];
   this.selectedRadio_.checked = true;
 };

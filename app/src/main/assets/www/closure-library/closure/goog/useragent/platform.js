@@ -23,8 +23,7 @@ goog.require('goog.userAgent');
 
 
 /**
- * Detects the version of the OS/platform the browser is running in. Not
- * supported for Linux, where an empty string is returned.
+ * Detects the version of Windows or Mac OS that is running.
  *
  * @private
  * @return {string} The platform version.
@@ -49,8 +48,7 @@ goog.userAgent.platform.determineVersion_ = function() {
     re = /Android\s+([^\);]+)(\)|;)/;
     var match = re.exec(goog.userAgent.getUserAgentString());
     return match ? match[1] : '';
-  } else if (
-      goog.userAgent.IPHONE || goog.userAgent.IPAD || goog.userAgent.IPOD) {
+  } else if (goog.userAgent.IPHONE || goog.userAgent.IPAD) {
     re = /(?:iPhone|CPU)\s+OS\s+(\S+)/;
     var match = re.exec(goog.userAgent.getUserAgentString());
     // Report the version as x.y.z and not x_y_z
@@ -62,9 +60,10 @@ goog.userAgent.platform.determineVersion_ = function() {
 
 
 /**
- * The version of the platform. We don't determine the version of Linux.
- * For Windows, we only look at the NT version. Non-NT-based versions
- * (e.g. 95, 98, etc.) are given version 0.0.
+ * The version of the platform. We only determine the version for Windows and
+ * Mac, since it doesn't make much sense on Linux. For Windows, we only look at
+ * the NT version. Non-NT-based versions (e.g. 95, 98, etc.) are given version
+ * 0.0
  * @type {string}
  */
 goog.userAgent.platform.VERSION = goog.userAgent.platform.determineVersion_();

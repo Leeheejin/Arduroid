@@ -54,9 +54,7 @@ function testMockFunction() {
 
   mock.$reset();
 
-  assertThrows(function() {
-    mock.x();
-  });
+  assertThrows(function() { mock.x() });
 }
 
 
@@ -148,9 +146,7 @@ function testArgumentMatching() {
   mock.b('bar');
   mock.$replay();
   mock.a('foo');
-  assertThrowsJsUnitException(function() {
-    mock.b('foo');
-  });
+  assertThrowsJsUnitException(function() { mock.b('foo') });
 
   mock.$reset();
   mock.a('foo');
@@ -164,9 +160,7 @@ function testArgumentMatching() {
   mock.a('foo');
   mock.a('bar');
   mock.$replay();
-  assertThrowsJsUnitException(function() {
-    mock.a('bar');
-  });
+  assertThrowsJsUnitException(function() { mock.a('bar') });
 }
 
 
@@ -275,9 +269,7 @@ function testAtLeastOnceWithArgs() {
   mock.$replay();
   mock.a('asdf');
   mock.a('asdf');
-  assertThrowsJsUnitException(function() {
-    mock.a('zxcv');
-  });
+  assertThrowsJsUnitException(function() { mock.a('zxcv') });
   assertThrowsJsUnitException(goog.bind(mock.$verify, mock));
 }
 
@@ -328,9 +320,7 @@ function testZeroTimes() {
 
   mock.a().$times(0);
   mock.$replay();
-  assertThrowsJsUnitException(function() {
-    mock.a();
-  });
+  assertThrowsJsUnitException(function() { mock.a() });
 }
 
 
@@ -343,9 +333,7 @@ function testZeroTimesWithArguments() {
 
   mock.a('foo').$times(0);
   mock.$replay();
-  assertThrowsJsUnitException(function() {
-    mock.a('foo');
-  });
+  assertThrowsJsUnitException(function() { mock.a('foo') });
 }
 
 
@@ -354,9 +342,7 @@ function testTooManyCalls() {
   mock.$replay();
   mock.a();
   mock.a();
-  assertThrowsJsUnitException(function() {
-    mock.a();
-  });
+  assertThrowsJsUnitException(function() { mock.a() });
 }
 
 
@@ -365,9 +351,7 @@ function testTooManyCallsWithArguments() {
   mock.$replay();
   mock.a('foo');
   mock.a('foo');
-  assertThrowsJsUnitException(function() {
-    mock.a('foo');
-  });
+  assertThrowsJsUnitException(function() { mock.a('foo') });
 }
 
 
@@ -426,57 +410,13 @@ function testErrorMessageForBadArgs() {
 
   mock.$replay();
 
-  var e = assertThrowsJsUnitException(function() {
+  var message;
+  try {
     mock.a('a');
-  });
+  } catch (e) {
+    message = e.message;
+  }
 
-  assertContains('Bad arguments to a()', e.message);
-}
-
-async function testWaitAndVerify() {
-  mock.a();
-  mock.$replay();
-
-  setTimeout(() => {
-    mock.a();
-  }, 0);
-  await mock.$waitAndVerify();
-}
-
-async function testWaitAndVerify_Synchronous() {
-  mock.a();
-  mock.$replay();
-
-  mock.a();
-  await mock.$waitAndVerify();
-}
-
-async function testWaitAndVerify_Exception() {
-  mock.a();
-  mock.$replay();
-
-  setTimeout(() => {
-    assertThrowsJsUnitException(() => {
-      mock.a(false);
-    });
-  }, 0);
-  await assertRejects(mock.$waitAndVerify());
-}
-
-async function testWaitAndVerify_Reset() {
-  mock.a();
-  mock.$replay();
-
-  setTimeout(() => {
-    mock.a();
-  }, 0);
-  await mock.$waitAndVerify();
-  mock.$reset();
-  mock.a();
-  mock.$replay();
-
-  setTimeout(() => {
-    mock.a();
-  }, 0);
-  await mock.$waitAndVerify();
+  assertTrue('No exception thrown on verify', goog.isDef(message));
+  assertContains('Bad arguments to a()', message);
 }

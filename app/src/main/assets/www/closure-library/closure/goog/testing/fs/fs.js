@@ -19,7 +19,6 @@
  *
  */
 
-goog.setTestOnly('goog.testing.fs');
 goog.provide('goog.testing.fs');
 
 goog.require('goog.Timer');
@@ -27,7 +26,6 @@ goog.require('goog.array');
 goog.require('goog.async.Deferred');
 /** @suppress {extraRequire} */
 goog.require('goog.fs');
-goog.require('goog.testing.PropertyReplacer');
 goog.require('goog.testing.fs.Blob');
 goog.require('goog.testing.fs.FileSystem');
 

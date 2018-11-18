@@ -20,7 +20,6 @@ goog.provide('goog.i18n.mime');
 goog.provide('goog.i18n.mime.encode');
 
 goog.require('goog.array');
-goog.require('goog.i18n.uChar');
 
 
 /**
@@ -30,15 +29,16 @@ goog.require('goog.i18n.uChar');
  * @type {RegExp}
  * @private
  */
-goog.i18n.mime.NONASCII_ = /[\uD800-\uDBFF][\uDC00-\uDFFF]|[^!-<>@-^`-~]/g;
+goog.i18n.mime.NONASCII_ = /[^!-<>@-^`-~]/g;
+
 
 /**
  * Like goog.i18n.NONASCII_ but also omits double-quotes.
  * @type {RegExp}
  * @private
  */
-goog.i18n.mime.NONASCII_NOQUOTE_ =
-    /[\uD800-\uDBFF][\uDC00-\uDFFF]|[^!#-<>@-^`-~]/g;
+goog.i18n.mime.NONASCII_NOQUOTE_ = /[^!#-<>@-^`-~]/g;
+
 
 /**
  * Encodes a string for inclusion in a MIME header. The string is encoded
@@ -82,7 +82,7 @@ goog.i18n.mime.encode = function(str, opt_noquote) {
  * @return {!Array<string>} A hex array representing the character.
  */
 goog.i18n.mime.getHexCharArray = function(c) {
-  var i = goog.i18n.uChar.toCharCode(c);
+  var i = c.charCodeAt(0);
   var a = [];
   // First convert the UCS-2 character into its UTF-8 bytes
   if (i < 128) {
@@ -93,7 +93,8 @@ goog.i18n.mime.getHexCharArray = function(c) {
     a.push(
         0xe0 + ((i >> 12) & 0x3f), 0x80 + ((i >> 6) & 0x3f), 0x80 + (i & 0x3f));
   } else {
-    // Handle code points that take more than 16 bits.
+    // (This is defensive programming, since ecmascript isn't supposed
+    // to handle code points that take more than 16 bits.)
     a.push(
         0xf0 + ((i >> 18) & 0x3f), 0x80 + ((i >> 12) & 0x3f),
         0x80 + ((i >> 6) & 0x3f), 0x80 + (i & 0x3f));

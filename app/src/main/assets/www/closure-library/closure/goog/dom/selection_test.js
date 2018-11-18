@@ -44,7 +44,10 @@ function setUp() {
 }
 
 function tearDown() {
-  goog.dom.removeChildren(document.body);
+  goog.dom.removeNode(input);
+  goog.dom.removeNode(textarea);
+  goog.dom.removeNode(hiddenInput);
+  goog.dom.removeNode(hiddenTextarea);
 }
 
 
@@ -57,19 +60,6 @@ function testGetStartInput() {
 
 function testGetStartTextarea() {
   getStartHelper(textarea, hiddenTextarea);
-}
-
-/**
- * Tests that getStart routine does not error for elements that are neither
- * text inputs nor text areas.
- */
-function testGetStartOther() {
-  var button = goog.dom.createDom(goog.dom.TagName.BUTTON);
-  var hiddenButton =
-      goog.dom.createDom(goog.dom.TagName.BUTTON, {style: 'display: none'});
-  document.body.appendChild(button);
-  document.body.appendChild(hiddenButton);
-  getStartHelper(button, hiddenButton);
 }
 
 function getStartHelper(field, hiddenField) {
@@ -114,7 +104,7 @@ function testSetTextMultipleLines() {
   goog.dom.selection.setText(textarea, message);
   assertEquals(message, goog.dom.selection.getText(textarea));
 
-  // Select the text up to the point just after the \r\n combination
+  // Select the text upto the point just after the \r\n combination
   // or \n in GECKO.
   var endOfNewline = isLegacyIE ? 15 : 14;
   var selectedMessage = message.substring(0, endOfNewline);

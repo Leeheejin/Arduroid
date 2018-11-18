@@ -22,13 +22,6 @@ goog.require('goog.testing.dom');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
 
-
-function shouldRunTests() {
-  // This test has not yet been updated to run on IE8. See b/2997682.
-  return !goog.userAgent.IE || goog.userAgent.isVersionOrHigher(9);
-}
-
-
 var root;
 function setUpPage() {
   // TODO(b/25875505): Fix unreported assertions (go/failonunreportedasserts).
@@ -61,19 +54,19 @@ function findNodeWithHierarchy() {
   // Test a more complicated hierarchy.
   root.innerHTML = '<div>a<p>b<span>c</span>d</p>e</div>';
   assertEquals(
-      String(goog.dom.TagName.DIV),
+      goog.dom.TagName.DIV,
       goog.testing.dom.findTextNode('a', root).parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.P),
+      goog.dom.TagName.P,
       goog.testing.dom.findTextNode('b', root).parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.SPAN),
+      goog.dom.TagName.SPAN,
       goog.testing.dom.findTextNode('c', root).parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.P),
+      goog.dom.TagName.P,
       goog.testing.dom.findTextNode('d', root).parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.DIV),
+      goog.dom.TagName.DIV,
       goog.testing.dom.findTextNode('e', root).parentNode.tagName);
 }
 
@@ -438,62 +431,6 @@ function testAssertHtmlMatchesWithWhitespaceAndNesting() {
   goog.testing.dom.assertHtmlContentsMatch('&nbsp;', root);
 }
 
-function testAssertHtmlContentsMatchWithTemplate() {
-  var template = '<template><p>foo</p></template>';
-  root.innerHTML = template;
-  goog.testing.dom.assertHtmlContentsMatch(template, root, true);
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template><p id="bar">foo</p></template>', root, true);
-  });
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template><p>bar</p></template>', root, true);
-  });
-}
-
-function testAssertHtmlContentsMatchWithNestedTemplate() {
-  var nestedTemplate = '<template><br><template><br></template><br></template>';
-  root.innerHTML = nestedTemplate;
-  goog.testing.dom.assertHtmlContentsMatch(nestedTemplate, root, true);
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template><br><template id="foo"><br></template><br></template>', root,
-        true);
-  });
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template><br><template><br>bar</template><br></template>', root,
-        true);
-  });
-}
-
-function testAssertHtmlContentsMatchWithEmptyTemplate() {
-  var template = '<template><p>foo</p></template>';
-  root.innerHTML = template;
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template></template>', root, true);
-  });
-
-  template = '<template></template>';
-  root.innerHTML = template;
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<template><p>bar</p></template>', root, true);
-  });
-}
-
-function testAssertHtmlContentsMatchWithHttpCredentials() {
-  var img = '<img src="http://foo:bar@example.com">';
-  root.innerHTML = img;
-  goog.testing.dom.assertHtmlContentsMatch(img, root, true);
-  assertThrowsJsUnitException(function() {
-    goog.testing.dom.assertHtmlContentsMatch(
-        '<img src="http://bar:baz@example.com">', root, true);
-  });
-}
-
 function testAssertHtmlMatches() {
   // Since assertHtmlMatches is based on assertHtmlContentsMatch, we leave the
   // majority of edge case testing to the above.  Here we just do a sanity
@@ -518,10 +455,4 @@ function testAssertHtmlMatchesWithSvgAttributes() {
 function testAssertHtmlMatchesWithScriptWithNewLines() {
   goog.testing.dom.assertHtmlMatches(
       '<script>var a;\nvar b;</script>', '<script>var a;\nvar b;</script>');
-}
-
-function testAssertHtmlMatches_namespace() {
-  goog.testing.dom.assertHtmlMatches(
-      '<svg width="1px"></svg>',
-      '<svg xmlns="http://www.w3.org/2000/svg" width="1px"></svg>');
 }

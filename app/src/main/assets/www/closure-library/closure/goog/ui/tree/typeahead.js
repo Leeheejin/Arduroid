@@ -25,8 +25,6 @@ goog.require('goog.events.KeyCodes');
 goog.require('goog.string');
 goog.require('goog.structs.Trie');
 
-goog.forwardDeclare('goog.ui.tree.BaseNode');
-
 
 
 /**
@@ -198,14 +196,9 @@ goog.ui.tree.TypeAhead.prototype.removeNodeFromMap = function(node) {
 
     var nodeList = this.nodeMap_.get(labelText);
     if (nodeList) {
-      // Remove the node's descendants from the nodemap.
-      var count = node.getChildCount();
-      for (var i = 0; i < count; i++) {
-        this.removeNodeFromMap(node.getChildAt(i));
-      }
       // Remove the node from the array.
       goog.array.remove(nodeList, node);
-      if (!nodeList.length) {
+      if (!!nodeList.length) {
         this.nodeMap_.remove(labelText);
       }
     }

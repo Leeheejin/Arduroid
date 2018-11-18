@@ -28,9 +28,6 @@ goog.require('goog.style');
 goog.require('goog.ui.PaletteRenderer');
 goog.require('goog.ui.emoji.Emoji');
 
-goog.forwardDeclare('goog.ui.Palette');
-goog.forwardDeclare('goog.ui.emoji.SpriteInfo');
-
 
 
 /**

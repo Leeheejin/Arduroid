@@ -31,10 +31,6 @@ goog.require('goog.style');
 goog.require('goog.ui.registry');
 goog.require('goog.userAgent');
 
-goog.forwardDeclare('goog.ui.Container');
-goog.forwardDeclare('goog.ui.Container.Orientation');
-goog.forwardDeclare('goog.ui.Control');
-
 
 
 /**
@@ -155,7 +151,7 @@ goog.ui.ContainerRenderer.prototype.getContentElement = function(element) {
 
 
 /**
- * Default implementation of `canDecorate`; returns true if the element
+ * Default implementation of {@code canDecorate}; returns true if the element
  * is a DIV, false otherwise.
  * @param {Element} element Element to decorate.
  * @return {boolean} Whether the renderer can decorate the element.
@@ -166,7 +162,7 @@ goog.ui.ContainerRenderer.prototype.canDecorate = function(element) {
 
 
 /**
- * Default implementation of `decorate` for {@link goog.ui.Container}s.
+ * Default implementation of {@code decorate} for {@link goog.ui.Container}s.
  * Decorates the element with the container, and attempts to decorate its child
  * elements.  Returns the decorated element.
  * @param {goog.ui.Container} container Container to decorate the element.
@@ -217,7 +213,6 @@ goog.ui.ContainerRenderer.prototype.decorate = function(container, element) {
  * @param {string} baseClass Base class name used as the root of state-specific
  *     class names (typically the renderer's own class name).
  * @protected
- * @suppress {missingRequire} goog.ui.Container
  */
 goog.ui.ContainerRenderer.prototype.setStateFromClassName = function(
     container, className, baseClass) {
@@ -367,10 +362,9 @@ goog.ui.ContainerRenderer.prototype.getClassNames = function(container) {
 
 /**
  * Returns the default orientation of containers rendered or decorated by this
- * renderer.  The base class implementation returns `VERTICAL`.
+ * renderer.  The base class implementation returns {@code VERTICAL}.
  * @return {goog.ui.Container.Orientation} Default orientation for containers
  *     created or decorated by this renderer.
- * @suppress {missingRequire} goog.ui.Container
  */
 goog.ui.ContainerRenderer.prototype.getDefaultOrientation = function() {
   return goog.ui.Container.Orientation.VERTICAL;

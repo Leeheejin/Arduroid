@@ -108,11 +108,7 @@ goog.tweak.applyConfigParams_ = function(entry, configParams) {
         entry instanceof goog.tweak.StringSetting ||
             entry instanceof goog.tweak.NumericSetting,
         'Cannot set validValues on tweak: %s', entry.getId());
-    if (entry instanceof goog.tweak.StringSetting) {
-      entry.setValidValues(configParams.validValues);
-    } else if (entry instanceof goog.tweak.NumericSetting) {
-      entry.setValidValues(configParams.validValues);
-    }
+    entry.setValidValues(configParams.validValues);
     delete configParams.validValues;
   }
   if (goog.isDef(configParams.paramName)) {

@@ -52,8 +52,10 @@ goog.require('goog.dom.safe');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventType');
+goog.require('goog.html.SafeUrl');
 goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.html.flash');
+goog.require('goog.html.legacyconversions');
 goog.require('goog.log');
 goog.require('goog.object');
 goog.require('goog.string');
@@ -71,7 +73,11 @@ goog.require('goog.userAgent.flash');
  * {@link goog.ui.Component}, which makes it very easy to be embedded on the
  * page.
  *
- * @param {!goog.html.TrustedResourceUrl} flashUrl The Flash SWF URL.
+ * @param {string|!goog.html.TrustedResourceUrl} flashUrl The Flash SWF URL.
+ *     If possible pass a TrustedResourceUrl. string is supported
+ *     for backwards-compatibility only, uses goog.html.legacyconversions,
+ *     and will be sanitized with goog.html.SafeUrl.sanitize() before being
+ *     used.
  * @param {goog.dom.DomHelper=} opt_domHelper An optional DomHelper.
  * @extends {goog.ui.Component}
  * @constructor
@@ -79,13 +85,24 @@ goog.require('goog.userAgent.flash');
 goog.ui.media.FlashObject = function(flashUrl, opt_domHelper) {
   goog.ui.Component.call(this, opt_domHelper);
 
+  var trustedResourceUrl;
+  if (flashUrl instanceof goog.html.TrustedResourceUrl) {
+    trustedResourceUrl = flashUrl;
+  } else {
+    var flashUrlSanitized =
+        goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(flashUrl));
+    trustedResourceUrl =
+        goog.html.legacyconversions.trustedResourceUrlFromString(
+            flashUrlSanitized);
+  }
+
   /**
    * The URL of the flash movie to be embedded.
    *
    * @type {!goog.html.TrustedResourceUrl}
    * @private
    */
-  this.flashUrl_ = flashUrl;
+  this.flashUrl_ = trustedResourceUrl;
 
   /**
    * An event handler used to handle events consistently between browsers.
@@ -328,7 +345,7 @@ goog.ui.media.FlashObject.prototype.setFlashVar = function(key, value) {
  * @deprecated Use {@link #addFlashVars} or {@link #setFlashVar} instead.
  * @param {goog.structs.Map|Object|string} flashVar A map of variables (given
  *    as a goog.structs.Map or an Object literal) or a key to the optional
- *    `opt_value`.
+ *    {@code opt_value}.
  * @param {string=} opt_value The optional value for the flashVar key.
  * @return {!goog.ui.media.FlashObject} The flash object instance for chaining.
  */
@@ -446,7 +463,7 @@ goog.ui.media.FlashObject.prototype.hasRequiredVersion = function() {
 
 
 /**
- * Writes the Flash embedding `HTMLObjectElement` to this components root
+ * Writes the Flash embedding {@code HTMLObjectElement} to this components root
  * element and adds listeners for all events to handle them consistently.
  * @override
  */
@@ -501,7 +518,7 @@ goog.ui.media.FlashObject.prototype.createDom = function() {
     goog.log.warning(
         this.logger_,
         'Required flash version not found:' + this.getRequiredVersion());
-    throw new Error(goog.ui.Component.Error.NOT_SUPPORTED);
+    throw Error(goog.ui.Component.Error.NOT_SUPPORTED);
   }
 
   var element = this.getDomHelper().createElement(goog.dom.TagName.DIV);

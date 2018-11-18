@@ -56,7 +56,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(4, clock.tick(4));
   assertEquals(4, clock.getCurrentTime());
-  assertEquals(0, clock.getCallbacksTriggered());
 
   assertFalse(m5);
   assertFalse(m10);
@@ -65,7 +64,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(5, clock.tick(1));
   assertEquals(5, clock.getCurrentTime());
-  assertEquals(1, clock.getCallbacksTriggered());
 
   assertTrue('m5 should now be true', m5);
   assertFalse(m10);
@@ -74,7 +72,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(10, clock.tick(5));
   assertEquals(10, clock.getCurrentTime());
-  assertEquals(2, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should now be true', m10);
@@ -83,7 +80,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(15, clock.tick(5));
   assertEquals(15, clock.getCurrentTime());
-  assertEquals(3, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should be true', m10);
@@ -92,7 +88,6 @@ function testSetTimeoutAndTick() {
 
   assertEquals(20, clock.tick(5));
   assertEquals(20, clock.getCurrentTime());
-  assertEquals(4, clock.getCallbacksTriggered());
 
   assertTrue('m5 should be true', m5);
   assertTrue('m10 should be true', m10);
@@ -110,10 +105,8 @@ function testSetImmediateAndTick() {
   setImmediate(function() { tick0 = true; });
   setImmediate(function() { tick1 = true; });
   assertEquals(2, clock.getTimeoutsMade());
-  assertEquals(0, clock.getCallbacksTriggered());
 
   clock.tick(0);
-  assertEquals(2, clock.getCallbacksTriggered());
   assertTrue(tick0);
   assertTrue(tick1);
 
@@ -127,19 +120,14 @@ function testSetInterval() {
   setInterval(function() { times++; }, 100);
 
   clock.tick(500);
-  assertEquals(5, clock.getCallbacksTriggered());
   assertEquals(5, times);
   clock.tick(100);
-  assertEquals(6, clock.getCallbacksTriggered());
   assertEquals(6, times);
   clock.tick(100);
-  assertEquals(7, clock.getCallbacksTriggered());
   assertEquals(7, times);
   clock.tick(50);
-  assertEquals(7, clock.getCallbacksTriggered());
   assertEquals(7, times);
   clock.tick(50);
-  assertEquals(8, clock.getCallbacksTriggered());
   assertEquals(8, times);
 
   clock.uninstall();
@@ -153,13 +141,11 @@ function testRequestAnimationFrame() {
   var recFunc = goog.testing.recordFunction(function(now) { times.push(now); });
   goog.global.requestAnimationFrame(recFunc);
   clock.tick(50);
-  assertEquals(1, clock.getCallbacksTriggered());
   assertEquals(1, recFunc.getCallCount());
   assertEquals(20, times[0]);
 
   goog.global.requestAnimationFrame(recFunc);
   clock.tick(100);
-  assertEquals(2, clock.getCallbacksTriggered());
   assertEquals(2, recFunc.getCallCount());
   assertEquals(70, times[1]);
 

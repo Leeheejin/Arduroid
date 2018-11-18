@@ -55,7 +55,7 @@ goog.net.CorsXmlHttpFactory.prototype.createInstance = function() {
   } else if (typeof XDomainRequest != 'undefined') {
     return new goog.net.IeCorsXhrAdapter();
   } else {
-    throw new Error('Unsupported browser');
+    throw Error('Unsupported browser');
   }
 };
 
@@ -99,9 +99,9 @@ goog.net.IeCorsXhrAdapter = function() {
 
   /**
    * The simulated response text parameter.
-   * @type {string}
+   * @type {?string}
    */
-  this.responseText = '';
+  this.responseText = null;
 
   /**
    * The simulated status code
@@ -113,7 +113,7 @@ goog.net.IeCorsXhrAdapter = function() {
   this.responseXML = null;
 
   /** @override */
-  this.statusText = '';
+  this.statusText = null;
 
   this.xdr_.onload = goog.bind(this.handleLoad_, this);
   this.xdr_.onerror = goog.bind(this.handleError_, this);
@@ -221,7 +221,7 @@ goog.net.IeCorsXhrAdapter.prototype.handleError_ = function() {
   // IE doesn't tell us what the status code actually is (other than the fact
   // that it is not 200), so simulate an INTERNAL_SERVER_ERROR.
   this.status = goog.net.HttpStatus.INTERNAL_SERVER_ERROR;
-  this.responseText = '';
+  this.responseText = null;
   this.setReadyState_(goog.net.XmlHttp.ReadyState.COMPLETE);
 };
 

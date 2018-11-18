@@ -101,9 +101,7 @@ function testGetStrictMockClass() {
   instance3.bar();
   mock3.$verify();
 
-  assertThrows(function() {
-    new fake.BaseClass(-1);
-  });
+  assertThrows(function() { new fake.BaseClass(-1) });
   assertTrue(instance1 instanceof fake.BaseClass);
   assertTrue(instance2 instanceof fake.BaseClass);
   assertTrue(instance3 instanceof fake.ChildClass);
@@ -157,9 +155,7 @@ function testGetLooseMockClass() {
   instance3.bar();
   mock3.$verify();
 
-  assertThrows(function() {
-    new fake.BaseClass(-1);
-  });
+  assertThrows(function() { new fake.BaseClass(-1) });
   assertTrue(instance1 instanceof fake.BaseClass);
   assertTrue(instance2 instanceof fake.BaseClass);
   assertTrue(instance3 instanceof fake.ChildClass);

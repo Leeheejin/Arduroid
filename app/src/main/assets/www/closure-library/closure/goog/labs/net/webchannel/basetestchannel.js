@@ -22,11 +22,8 @@ goog.provide('goog.labs.net.webChannel.BaseTestChannel');
 
 goog.require('goog.labs.net.webChannel.Channel');
 goog.require('goog.labs.net.webChannel.ChannelRequest');
-goog.require('goog.labs.net.webChannel.WebChannelDebug');
 goog.require('goog.labs.net.webChannel.requestStats');
-goog.require('goog.net.WebChannel');
-
-goog.forwardDeclare('goog.labs.net.webChannel.WebChannelBase');
+goog.require('goog.labs.net.webChannel.requestStats.Stat');
 
 
 
@@ -105,7 +102,6 @@ goog.labs.net.webChannel.BaseTestChannel = function(channel, channelDebug) {
 
 
 goog.scope(function() {
-var WebChannel = goog.net.WebChannel;
 var BaseTestChannel = goog.labs.net.webChannel.BaseTestChannel;
 var WebChannelDebug = goog.labs.net.webChannel.WebChannelDebug;
 var ChannelRequest = goog.labs.net.webChannel.ChannelRequest;
@@ -173,20 +169,11 @@ BaseTestChannel.prototype.connect = function(path) {
 
   // the first request returns server specific parameters
   sendDataUri.setParameterValues('MODE', 'init');
-
-  // http-session-id to be generated as the response
-  if (!this.channel_.getBackgroundChannelTest() &&
-      this.channel_.getHttpSessionIdParam()) {
-    sendDataUri.setParameterValues(WebChannel.X_HTTP_SESSION_ID,
-        this.channel_.getHttpSessionIdParam());
-  }
-
   this.request_ = ChannelRequest.createChannelRequest(this, this.channelDebug_);
-
   this.request_.setExtraHeaders(this.extraHeaders_);
-
   this.request_.xmlHttpGet(
-      sendDataUri, false /* decodeChunks */, null /* hostPrefix */);
+      sendDataUri, false /* decodeChunks */, null /* hostPrefix */,
+      true /* opt_noClose */);
   this.state_ = BaseTestChannel.State_.INIT;
 };
 
@@ -206,12 +193,11 @@ BaseTestChannel.prototype.checkBufferingProxy_ = function() {
   var bufferingProxyResult =
       this.channel_.getConnectionState().bufferingProxyResult;
   if (goog.isDefAndNotNull(bufferingProxyResult)) {
-    this.channelDebug_.debug(function() {
-      return 'TestConnection: skipping stage 2, precomputed result is ' +
-              bufferingProxyResult ?
-          'Buffered' :
-          'Unbuffered';
-    });
+    this.channelDebug_.debug(
+        'TestConnection: skipping stage 2, precomputed result is ' +
+                bufferingProxyResult ?
+            'Buffered' :
+            'Unbuffered');
     requestStats.notifyStatEvent(requestStats.Stat.TEST_STAGE_TWO_START);
     if (bufferingProxyResult) {  // Buffered/Proxy connection
       requestStats.notifyStatEvent(requestStats.Stat.PROXY);
@@ -230,15 +216,9 @@ BaseTestChannel.prototype.checkBufferingProxy_ = function() {
 
   requestStats.notifyStatEvent(requestStats.Stat.TEST_STAGE_TWO_START);
   recvDataUri.setParameterValues('TYPE', 'xmlhttp');
-
-  var param = this.channel_.getHttpSessionIdParam();
-  var value = this.channel_.getHttpSessionId();
-  if (param && value) {
-    recvDataUri.setParameterValue(param, value);
-  }
-
   this.request_.xmlHttpGet(
-      recvDataUri, false /** decodeChunks */, this.hostPrefix_);
+      recvDataUri, false /** decodeChunks */, this.hostPrefix_,
+      false /** opt_noClose */);
 };
 
 
@@ -285,21 +265,15 @@ BaseTestChannel.prototype.onRequestData = function(req, responseText) {
   this.lastStatusCode_ = req.getLastStatusCode();
   if (this.state_ == BaseTestChannel.State_.INIT) {
     this.channelDebug_.debug('TestConnection: Got data for stage 1');
-
-    this.applyControlHeaders_(req);
-
     if (!responseText) {
       this.channelDebug_.debug('TestConnection: Null responseText');
       // The server should always send text; something is wrong here
       this.channel_.testConnectionFailure(this, ChannelRequest.Error.BAD_DATA);
       return;
     }
-
-
+    /** @preserveTry */
     try {
-      var channel = /** @type {!goog.labs.net.webChannel.WebChannelBase} */ (
-          this.channel_);
-      var respArray = channel.getWireCodec().decodeMessage(responseText);
+      var respArray = this.channel_.getWireCodec().decodeMessage(responseText);
     } catch (e) {
       this.channelDebug_.dumpException(e);
       this.channel_.testConnectionFailure(this, ChannelRequest.Error.BAD_DATA);
@@ -359,6 +333,7 @@ BaseTestChannel.prototype.onRequestComplete = function(req) {
   }
 
   if (this.state_ == BaseTestChannel.State_.INIT) {
+    this.recordClientProtocol_(req);
     this.state_ = BaseTestChannel.State_.CONNECTION_TESTING;
 
     this.channelDebug_.debug(
@@ -384,32 +359,16 @@ BaseTestChannel.prototype.onRequestComplete = function(req) {
 
 
 /**
- * Apply any control headers from the initial handshake response.
+ * Record the client protocol header from the initial handshake response.
  *
  * @param {!ChannelRequest} req The request object.
  * @private
  */
-BaseTestChannel.prototype.applyControlHeaders_ = function(req) {
-  if (this.channel_.getBackgroundChannelTest()) {
-    return;
-  }
-
-  var xhr = req.getXhr();
-  if (xhr) {
-    var protocolHeader = xhr.getStreamingResponseHeader(
-        WebChannel.X_CLIENT_WIRE_PROTOCOL);
+BaseTestChannel.prototype.recordClientProtocol_ = function(req) {
+  var xmlHttp = req.getXhr();
+  if (xmlHttp) {
+    var protocolHeader = xmlHttp.getResponseHeader('x-client-wire-protocol');
     this.clientProtocol_ = protocolHeader ? protocolHeader : null;
-
-    if (this.channel_.getHttpSessionIdParam()) {
-      var httpSessionIdHeader = xhr.getStreamingResponseHeader(
-          WebChannel.X_HTTP_SESSION_ID);
-      if (httpSessionIdHeader) {
-        this.channel_.setHttpSessionId(httpSessionIdHeader);
-      } else {
-        this.channelDebug_.warning(
-            'Missing X_HTTP_SESSION_ID in the handshake response');
-      }
-    }
   }
 };
 
@@ -500,34 +459,4 @@ BaseTestChannel.prototype.testConnectionFailure = goog.abstractMethod;
  * @override
  */
 BaseTestChannel.prototype.getConnectionState = goog.abstractMethod;
-
-
-/**
- * @override
- */
-BaseTestChannel.prototype.setHttpSessionIdParam = goog.abstractMethod;
-
-
-/**
- * @override
- */
-BaseTestChannel.prototype.getHttpSessionIdParam = goog.abstractMethod;
-
-
-/**
- * @override
- */
-BaseTestChannel.prototype.setHttpSessionId = goog.abstractMethod;
-
-
-/**
- * @override
- */
-BaseTestChannel.prototype.getHttpSessionId = goog.abstractMethod;
-
-
-/**
- * @override
- */
-BaseTestChannel.prototype.getBackgroundChannelTest = goog.abstractMethod;
 });  // goog.scope

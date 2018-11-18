@@ -13,8 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview A utility class for representing rectangles. Some of these
- * functions should be migrated over to non-nullable params.
+ * @fileoverview A utility class for representing rectangles.
  */
 
 goog.provide('goog.math.Rect');
@@ -22,7 +21,6 @@ goog.provide('goog.math.Rect');
 goog.require('goog.asserts');
 goog.require('goog.math.Box');
 goog.require('goog.math.Coordinate');
-goog.require('goog.math.IRect');
 goog.require('goog.math.Size');
 
 
@@ -35,7 +33,6 @@ goog.require('goog.math.Size');
  * @param {number} h Height.
  * @struct
  * @constructor
- * @implements {goog.math.IRect}
  */
 goog.math.Rect = function(x, y, w, h) {
   /** @type {number} */
@@ -112,8 +109,8 @@ if (goog.DEBUG) {
 
 /**
  * Compares rectangles for equality.
- * @param {goog.math.IRect} a A Rectangle.
- * @param {goog.math.IRect} b A Rectangle.
+ * @param {goog.math.Rect} a A Rectangle.
+ * @param {goog.math.Rect} b A Rectangle.
  * @return {boolean} True iff the rectangles have the same left, top, width,
  *     and height, or if both are null.
  */
@@ -132,7 +129,7 @@ goog.math.Rect.equals = function(a, b) {
 /**
  * Computes the intersection of this rectangle and the rectangle parameter.  If
  * there is no intersection, returns false and leaves this rectangle as is.
- * @param {goog.math.IRect} rect A Rectangle.
+ * @param {goog.math.Rect} rect A Rectangle.
  * @return {boolean} True iff this rectangle intersects with the parameter.
  */
 goog.math.Rect.prototype.intersection = function(rect) {
@@ -160,8 +157,8 @@ goog.math.Rect.prototype.intersection = function(rect) {
  * Returns the intersection of two rectangles. Two rectangles intersect if they
  * touch at all, for example, two zero width and height rectangles would
  * intersect if they had the same top and left.
- * @param {goog.math.IRect} a A Rectangle.
- * @param {goog.math.IRect} b A Rectangle.
+ * @param {goog.math.Rect} a A Rectangle.
+ * @param {goog.math.Rect} b A Rectangle.
  * @return {goog.math.Rect} A new intersection rect (even if width and height
  *     are 0), or null if there is no intersection.
  */
@@ -189,8 +186,8 @@ goog.math.Rect.intersection = function(a, b) {
  * Returns whether two rectangles intersect. Two rectangles intersect if they
  * touch at all, for example, two zero width and height rectangles would
  * intersect if they had the same top and left.
- * @param {goog.math.IRect} a A Rectangle.
- * @param {goog.math.IRect} b A Rectangle.
+ * @param {goog.math.Rect} a A Rectangle.
+ * @param {goog.math.Rect} b A Rectangle.
  * @return {boolean} Whether a and b intersect.
  */
 goog.math.Rect.intersects = function(a, b) {
@@ -202,7 +199,7 @@ goog.math.Rect.intersects = function(a, b) {
 
 /**
  * Returns whether a rectangle intersects this rectangle.
- * @param {goog.math.IRect} rect A rectangle.
+ * @param {goog.math.Rect} rect A rectangle.
  * @return {boolean} Whether rect intersects this rectangle.
  */
 goog.math.Rect.prototype.intersects = function(rect) {
@@ -215,7 +212,7 @@ goog.math.Rect.prototype.intersects = function(rect) {
  * an array of 0 to 4 rectangles defining the remaining regions of the first
  * rectangle after the second has been subtracted.
  * @param {goog.math.Rect} a A Rectangle.
- * @param {goog.math.IRect} b A Rectangle.
+ * @param {goog.math.Rect} b A Rectangle.
  * @return {!Array<!goog.math.Rect>} An array with 0 to 4 rectangles which
  *     together define the difference area of rectangle a minus rectangle b.
  */
@@ -262,10 +259,10 @@ goog.math.Rect.difference = function(a, b) {
 
 
 /**
- * Computes the difference regions between this rectangle and `rect`. The
+ * Computes the difference regions between this rectangle and {@code rect}. The
  * return value is an array of 0 to 4 rectangles defining the remaining regions
  * of this rectangle after the other has been subtracted.
- * @param {goog.math.IRect} rect A Rectangle.
+ * @param {goog.math.Rect} rect A Rectangle.
  * @return {!Array<!goog.math.Rect>} An array with 0 to 4 rectangles which
  *     together define the difference area of rectangle a minus rectangle b.
  */
@@ -276,7 +273,7 @@ goog.math.Rect.prototype.difference = function(rect) {
 
 /**
  * Expand this rectangle to also include the area of the given rectangle.
- * @param {goog.math.IRect} rect The other rectangle.
+ * @param {goog.math.Rect} rect The other rectangle.
  */
 goog.math.Rect.prototype.boundingRect = function(rect) {
   // We compute right and bottom before we change left and top below.
@@ -293,8 +290,8 @@ goog.math.Rect.prototype.boundingRect = function(rect) {
 
 /**
  * Returns a new rectangle which completely contains both input rectangles.
- * @param {goog.math.IRect} a A rectangle.
- * @param {goog.math.IRect} b A rectangle.
+ * @param {goog.math.Rect} a A rectangle.
+ * @param {goog.math.Rect} b A rectangle.
  * @return {goog.math.Rect} A new bounding rect, or null if either rect is
  *     null.
  */
@@ -303,10 +300,10 @@ goog.math.Rect.boundingRect = function(a, b) {
     return null;
   }
 
-  var newRect = new goog.math.Rect(a.left, a.top, a.width, a.height);
-  newRect.boundingRect(b);
+  var clone = a.clone();
+  clone.boundingRect(b);
 
-  return newRect;
+  return clone;
 };
 
 
@@ -314,20 +311,20 @@ goog.math.Rect.boundingRect = function(a, b) {
  * Tests whether this rectangle entirely contains another rectangle or
  * coordinate.
  *
- * @param {goog.math.IRect|goog.math.Coordinate} another The rectangle or
+ * @param {goog.math.Rect|goog.math.Coordinate} another The rectangle or
  *     coordinate to test for containment.
  * @return {boolean} Whether this rectangle contains given rectangle or
  *     coordinate.
  */
 goog.math.Rect.prototype.contains = function(another) {
-  if (another instanceof goog.math.Coordinate) {
-    return another.x >= this.left && another.x <= this.left + this.width &&
-        another.y >= this.top && another.y <= this.top + this.height;
-  } else {  // (another instanceof goog.math.IRect)
+  if (another instanceof goog.math.Rect) {
     return this.left <= another.left &&
         this.left + this.width >= another.left + another.width &&
         this.top <= another.top &&
         this.top + this.height >= another.top + another.height;
+  } else {  // (another instanceof goog.math.Coordinate)
+    return another.x >= this.left && another.x <= this.left + this.width &&
+        another.y >= this.top && another.y <= this.top + this.height;
   }
 };
 
@@ -436,9 +433,9 @@ goog.math.Rect.prototype.round = function() {
 
 /**
  * Translates this rectangle by the given offsets. If a
- * `goog.math.Coordinate` is given, then the left and top values are
- * translated by the coordinate's x and y values. Otherwise, left and top are
- * translated by `tx` and `opt_ty` respectively.
+ * {@code goog.math.Coordinate} is given, then the left and top values are
+ * translated by the coordinate's x and y values. Otherwise, top and left are
+ * translated by {@code tx} and {@code opt_ty} respectively.
  * @param {number|goog.math.Coordinate} tx The value to translate left by or the
  *     the coordinate to translate this rect by.
  * @param {number=} opt_ty The value to translate top by.
@@ -460,9 +457,9 @@ goog.math.Rect.prototype.translate = function(tx, opt_ty) {
 
 /**
  * Scales this rectangle by the given scale factors. The left and width values
- * are scaled by `sx` and the top and height values are scaled by
- * `opt_sy`.  If `opt_sy` is not given, then all fields are scaled
- * by `sx`.
+ * are scaled by {@code sx} and the top and height values are scaled by
+ * {@code opt_sy}.  If {@code opt_sy} is not given, then all fields are scaled
+ * by {@code sx}.
  * @param {number} sx The scale factor to use for the x dimension.
  * @param {number=} opt_sy The scale factor to use for the y dimension.
  * @return {!goog.math.Rect} This rectangle after scaling.

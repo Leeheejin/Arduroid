@@ -54,7 +54,7 @@ goog.structs.Pool = function(opt_minCount, opt_maxCount) {
 
   // Make sure that the max and min constraints are valid.
   if (this.minCount_ > this.maxCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
 
   /**
@@ -87,6 +87,11 @@ goog.structs.Pool = function(opt_minCount, opt_maxCount) {
 
   // Make sure that the minCount constraint is satisfied.
   this.adjustForMinMax();
+
+
+  // TODO(user): Remove once JSCompiler's undefined properties warnings
+  // don't error for guarded properties.
+  var magicProps = {canBeReused: 0};
 };
 goog.inherits(goog.structs.Pool, goog.Disposable);
 
@@ -120,7 +125,7 @@ goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_ =
 goog.structs.Pool.prototype.setMinimumCount = function(min) {
   // Check count constraints.
   if (min > this.maxCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
   this.minCount_ = min;
 
@@ -131,13 +136,13 @@ goog.structs.Pool.prototype.setMinimumCount = function(min) {
 
 /**
  * Sets the maximum count of the pool.
- * If max is less than the min count of the pool, an error is thrown.
+ * If max is less than the max count of the pool, an error is thrown.
  * @param {number} max The maximum count of the pool.
  */
 goog.structs.Pool.prototype.setMaximumCount = function(max) {
   // Check count constraints.
   if (max < this.minCount_) {
-    throw new Error(goog.structs.Pool.ERROR_MIN_MAX_);
+    throw Error(goog.structs.Pool.ERROR_MIN_MAX_);
   }
   this.maxCount_ = max;
 
@@ -275,7 +280,7 @@ goog.structs.Pool.prototype.createObject = function() {
 /**
  * Should be overridden to dispose of an object. Default implementation is to
  * remove all its members, which should render it useless. Calls the object's
- * `dispose()` method, if available.
+ * {@code dispose()} method, if available.
  * @param {T} obj The object to dispose.
  */
 goog.structs.Pool.prototype.disposeObject = function(obj) {
@@ -292,7 +297,7 @@ goog.structs.Pool.prototype.disposeObject = function(obj) {
 /**
  * Should be overridden to determine whether an object has become unusable and
  * should not be returned by getObject(). Calls the object's
- * `canBeReused()`  method, if available.
+ * {@code canBeReused()}  method, if available.
  * @param {T} obj The object to test.
  * @return {boolean} Whether the object can be reused.
  */
@@ -358,7 +363,7 @@ goog.structs.Pool.prototype.isEmpty = function() {
 goog.structs.Pool.prototype.disposeInternal = function() {
   goog.structs.Pool.superClass_.disposeInternal.call(this);
   if (this.getInUseCount() > 0) {
-    throw new Error(goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_);
+    throw Error(goog.structs.Pool.ERROR_DISPOSE_UNRELEASED_OBJS_);
   }
   delete this.inUseSet_;
 

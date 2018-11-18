@@ -15,20 +15,14 @@
 goog.module('goog.testing.MultiTestRunnerTest');
 goog.setTestOnly('goog.testing.MultiTestRunnerTest');
 
-// Delay running the tests after page load. This test has some asynchronous
-// behavior that interacts with page load detection.
-goog.testing.jsunit.AUTO_RUN_DELAY_IN_MS = 500;
-
+var Promise = goog.require('goog.Promise');
+var events = goog.require('goog.events');
 var MockControl = goog.require('goog.testing.MockControl');
 var MultiTestRunner = goog.require('goog.testing.MultiTestRunner');
-var Promise = goog.require('goog.Promise');
 var PropertyReplacer = goog.require('goog.testing.PropertyReplacer');
 var TestCase = goog.require('goog.testing.TestCase');
-var array = goog.require('goog.array');
-var asserts = goog.require('goog.testing.asserts');
-var events = goog.require('goog.events');
+var jsunit = goog.require('goog.testing.jsunit');
 var testSuite = goog.require('goog.testing.testSuite');
-var testingEvents = goog.require('goog.testing.events');
 
 var ALL_TESTS = [
   'testdata/fake_passing_test.html', 'testdata/fake_failing_test.html',
@@ -45,23 +39,37 @@ var stubs = new PropertyReplacer();
 /**
  * Asserts string matches exactly one item in the given array. Useful for
  * matching elements in an array without guaranteed ordering.
- *
  * @param {string} string String to match in the array.
- * @param {!Array<string>} strings Array of strings find match.
+ * @param {!Array<string>} array Array of strings find match.
  */
-function assertArrayContainsString(string, strings) {
-  asserts.assertEquals(
-      'Expected the string "' + string +
-          '" to appear exactly once in the array <' + strings.join(', ') + '>.',
-      1, array.count(strings, function(str) {
-        return str == string;
-      }));
+function assertArrayContainsString(string, array) {
+  var matcher = function(item) { return string == item; };
+  assertArrayContainsMatcher(matcher, array);
+}
+
+
+/**
+ * Asserts at least one item in array causes matcher to return true. Used by
+ * more specific assertion methods and not meant to be used directly.
+ * @param {function(string):boolean} matcher Function called for each item in
+ *     array. Should return true when match is found.
+ * @param {!Array<string>} array Array of strings find match.
+ */
+function assertArrayContainsMatcher(matcher, array) {
+  var matching = 0;
+  for (var i = 0; i < array.length; i++) {
+    if (matcher(array[i])) {
+      matching++;
+    }
+  }
+  assertEquals(
+      'Matched ' + matching + ' items in array, but should be 1', 1, matching);
 }
 
 
 /**
  * Returns promise that resolves when eventType is dispatched from target.
- * @param {!EventTarget|!events.Listenable} target Target to listen for
+ * @param {!EventTarget|!goog.events.Listenable} target Target to listen for
  *     event on.
  * @param {string} eventType Type of event.
  * @return {!Promise} Promise that resolves with triggered event.
@@ -75,7 +83,7 @@ function createEventPromise(target, eventType) {
 
 /**
  * @typedef {{
- *   failureReports: !Array<TestCase.IResult>,
+ *   failureReports: !Array<string>,
  *   testNames: !Array<string>
  * }}
  */
@@ -85,8 +93,8 @@ var TestResults;
 /**
  * Processes the test results returned from MultiTestRunner and creates a
  * consolidated test result object.
- * @param {!Array<!Object<string,!Array<TestCase.IResult>>>}
- *     testResults The list of individual test results from MultiTestRunner.
+ * @param {!Array<!Object<string,!Array<string>>>} testResults The list of
+ *     individual test results from MultiTestRunner.
  * @return {!TestResults} Consolidated test results for all individual tests.
  */
 function processTestResults(testResults) {
@@ -129,7 +137,7 @@ testSuite({
     mockStart();
 
     mocks.$replayAll();
-    testingEvents.fireClickSequence(startButton);
+    goog.testing.events.fireClickSequence(startButton);
     mocks.$verifyAll();
   },
 
@@ -142,10 +150,11 @@ testSuite({
     var stopButton = el.querySelectorAll('button')[1];
     assertEquals('Stop', stopButton.innerHTML);
     stubs.replace(
-        MultiTestRunner.TestFrame.prototype, 'runTest', function() { return; });
+        goog.testing.MultiTestRunner.TestFrame.prototype, 'runTest',
+        function() { return; });
 
-    testingEvents.fireClickSequence(startButton);
-    testingEvents.fireClickSequence(stopButton);
+    goog.testing.events.fireClickSequence(startButton);
+    goog.testing.events.fireClickSequence(stopButton);
     return promise.then(function(results) {
       // Tests should be halted and marked as "unfinished".
       assertContains(
@@ -278,36 +287,31 @@ testSuite({
   },
 
   testTimeoutFailsAfterTimeout: function() {
-    testRunner = new MultiTestRunner().setPoolSize(3).addTests([
-      'testdata/fake_long_running_failing_test',
-      'testdata/fake_long_running_passing_test'
-    ]);
     var promise = createEventPromise(testRunner, 'testsFinished');
 
     testRunner.render(document.getElementById('runner'));
     testRunner.setTimeout(0);
-    // If the fake tests complete before the timeout check, this test will fail.
     testRunner.start();
 
     return promise.then(function(results) {
       var testResults = processTestResults(results['allTestResults']);
       var testNames = testResults.testNames;
+      assertEquals(3, testNames.length);
       // Only the filename should be the test name for timeouts.
-      assertArrayContainsString(
-          'testdata/fake_long_running_failing_test', testNames);
-      assertArrayContainsString(
-          'testdata/fake_long_running_passing_test', testNames);
-      assertEquals(2, testNames.length);
+      assertArrayContainsString('testdata/fake_failing_test2', testNames);
+      assertArrayContainsString('testdata/fake_failing_test', testNames);
+      assertArrayContainsString('testdata/fake_passing_test', testNames);
       var failureReports = testResults.failureReports;
-      assertContains('timed out', failureReports[0]['message']);
-      assertContains('timed out', failureReports[1]['message']);
-      assertEquals(2, failureReports.length);
       var failedTests = testRunner.getTestsThatFailed();
+      assertEquals(3, failureReports.length);
+      assertEquals(3, failedTests.length);
+      assertContains('timed out', failureReports[0]);
+      assertContains('timed out', failureReports[1]);
+      assertContains('timed out', failureReports[2]);
+      assertArrayContainsString('testdata/fake_passing_test.html', failedTests);
+      assertArrayContainsString('testdata/fake_failing_test.html', failedTests);
       assertArrayContainsString(
-          'testdata/fake_long_running_failing_test', failedTests);
-      assertArrayContainsString(
-          'testdata/fake_long_running_passing_test', failedTests);
-      assertEquals(2, failedTests.length);
+          'testdata/fake_failing_test2.html', failedTests);
     });
   },
 

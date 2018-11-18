@@ -14,7 +14,7 @@
 
 
 /**
- * @fileoverview The color theme used by a gauge (goog.ui.Gauge).
+ * @fileoverview The color theme used by a gauge (goog.ui.Guage).
  */
 
 

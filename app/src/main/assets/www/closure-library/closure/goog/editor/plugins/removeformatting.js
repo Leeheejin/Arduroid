@@ -49,14 +49,6 @@ goog.editor.plugins.RemoveFormatting = function() {
    * @private
    */
   this.optRemoveFormattingFunc_ = null;
-
-  /**
-   * The key that this plugin triggers on when pressed with the platform
-   * modifier key. Can be set by calling {@link #setKeyboardShortcutKey}.
-   * @type {string}
-   * @private
-   */
-  this.keyboardShortcutKey_ = ' ';
 };
 goog.inherits(goog.editor.plugins.RemoveFormatting, goog.editor.Plugin);
 
@@ -137,36 +129,13 @@ goog.editor.plugins.RemoveFormatting.prototype.handleKeyboardShortcut =
     return false;
   }
 
-  // Disregard the shortcut if more than one modifier key is pressed
-  // because the user may have intended a different shortcut (for example OSX
-  // uses ctrlKey + metaKey + space to open the emoji picker).
-  if (e.metaKey && e.ctrlKey) {
-    return false;
-  }
-
-  // Disregard the shortcut if the shift key is also pressed because the user
-  // may have intended a different shortcut (for example Chrome OS uses shiftKey
-  // + ctrlKey + space to toggle input languages.
-  if (e.shiftKey) {
-    return false;
-  }
-
-  if (key == this.keyboardShortcutKey_) {
+  if (key == ' ') {
     this.getFieldObject().execCommand(
         goog.editor.plugins.RemoveFormatting.REMOVE_FORMATTING_COMMAND);
     return true;
   }
 
   return false;
-};
-
-
-/**
- * @param {string} key
- */
-goog.editor.plugins.RemoveFormatting.prototype.setKeyboardShortcutKey =
-    function(key) {
-  this.keyboardShortcutKey_ = key;
 };
 
 
@@ -316,12 +285,8 @@ goog.editor.plugins.RemoveFormatting.prototype.pasteHtml_ = function(html) {
     // remove parentNodes of the span while they are empty.
 
     if (goog.userAgent.GECKO) {
-      // Escape dollars passed in second argument of String.proto.replace.
-      // And since we're using that to replace, we need to escape those as well,
-      // hence the 2*2 dollar signs.
       goog.editor.node.replaceInnerHtml(
-          parent, parent.innerHTML.replace(
-                      dummyImageNodePattern, html.replace(/\$/g, '$$$$')));
+          parent, parent.innerHTML.replace(dummyImageNodePattern, html));
     } else {
       goog.editor.node.replaceInnerHtml(
           parent,
@@ -346,9 +311,7 @@ goog.editor.plugins.RemoveFormatting.prototype.pasteHtml_ = function(html) {
       }
       goog.editor.node.replaceInnerHtml(
           parent,
-          // Escape dollars passed in second argument of String.proto.replace
-          parent.innerHTML.replace(
-              new RegExp(dummySpanText, 'i'), html.replace(/\$/g, '$$$$')));
+          parent.innerHTML.replace(new RegExp(dummySpanText, 'i'), html));
     }
   }
 
@@ -366,7 +329,7 @@ goog.editor.plugins.RemoveFormatting.prototype.pasteHtml_ = function(html) {
  * Gets the html inside the selection to send off for further processing.
  *
  * TODO(user): Make this general so that it can be moved into
- * goog.editor.range.  The main reason it can't be moved is because we need to
+ * goog.editor.range.  The main reason it can't be moved is becuase we need to
  * get the range before we do the execCommand and continue to operate on that
  * same range (reasons are documented above).
  *
@@ -479,7 +442,7 @@ goog.editor.plugins.RemoveFormatting.prototype.putCaretInCave_ = function(
  * Restore carets that were hidden away by adding them back into the dom.
  * Note: this does not restore to the original dom location, as that
  * will likely have been modified with remove formatting.  The only
- * guarantees here are that start will still be before end, and that
+ * guarentees here are that start will still be before end, and that
  * they will be in the editable region.  This should only be used when
  * you don't actually intend to USE the caret again.
  * @private
@@ -688,33 +651,33 @@ goog.editor.plugins.RemoveFormatting.prototype.removeFormattingWorker_ =
           sb.push(nodeValue);
           continue;
 
-        case String(goog.dom.TagName.P):
+        case goog.dom.TagName.P:
           goog.editor.plugins.RemoveFormatting.appendNewline_(sb);
           goog.editor.plugins.RemoveFormatting.appendNewline_(sb);
           break;  // break (not continue) so that child nodes are processed.
 
-        case String(goog.dom.TagName.BR):
+        case goog.dom.TagName.BR:
           goog.editor.plugins.RemoveFormatting.appendNewline_(sb);
           continue;
 
-        case String(goog.dom.TagName.TABLE):
+        case goog.dom.TagName.TABLE:
           goog.editor.plugins.RemoveFormatting.appendNewline_(sb);
           tableStack[tableLevel++] = sp;
           break;
 
-        case String(goog.dom.TagName.PRE):
+        case goog.dom.TagName.PRE:
         case 'XMP':
           // This doesn't fully handle xmp, since
           // it doesn't actually ignore tags within the xmp tag.
           preTagStack[preTagLevel++] = sp;
           break;
 
-        case String(goog.dom.TagName.STYLE):
-        case String(goog.dom.TagName.SCRIPT):
-        case String(goog.dom.TagName.SELECT):
+        case goog.dom.TagName.STYLE:
+        case goog.dom.TagName.SCRIPT:
+        case goog.dom.TagName.SELECT:
           continue;
 
-        case String(goog.dom.TagName.A):
+        case goog.dom.TagName.A:
           if (node.href && node.href != '') {
             sb.push("<a href='");
             sb.push(node.href);
@@ -726,7 +689,7 @@ goog.editor.plugins.RemoveFormatting.prototype.removeFormattingWorker_ =
             break;  // Take care of the children.
           }
 
-        case String(goog.dom.TagName.IMG):
+        case goog.dom.TagName.IMG:
           sb.push("<img src='");
           sb.push(node.src);
           sb.push("'");
@@ -739,7 +702,7 @@ goog.editor.plugins.RemoveFormatting.prototype.removeFormattingWorker_ =
           sb.push('>');
           continue;
 
-        case String(goog.dom.TagName.TD):
+        case goog.dom.TagName.TD:
           // Don't add a space for the first TD, we only want spaces to
           // separate td's.
           if (node.previousSibling) {
@@ -747,14 +710,14 @@ goog.editor.plugins.RemoveFormatting.prototype.removeFormattingWorker_ =
           }
           break;
 
-        case String(goog.dom.TagName.TR):
+        case goog.dom.TagName.TR:
           // Don't add a newline for the first TR.
           if (node.previousSibling) {
             goog.editor.plugins.RemoveFormatting.appendNewline_(sb);
           }
           break;
 
-        case String(goog.dom.TagName.DIV):
+        case goog.dom.TagName.DIV:
           var parent = node.parentNode;
           if (parent.firstChild == node &&
               goog.editor.plugins.RemoveFormatting.BLOCK_RE_.test(
@@ -791,7 +754,7 @@ goog.editor.plugins.RemoveFormatting.prototype.removeFormattingWorker_ =
 
 
 /**
- * Handle per node special processing if necessary. If this function returns
+ * Handle per node special processing if neccessary. If this function returns
  * null then standard cleanup is applied. Otherwise this node and all children
  * are assumed to be cleaned.
  * NOTE(user): If an alternate RemoveFormatting processor is provided

@@ -416,8 +416,8 @@ goog.ui.emoji.EmojiPicker.prototype.setProgressiveRender = function(
 /**
  * Adjusts the number of rows to be the maximum row count out of all the emoji
  * groups, in order to prevent jitter in switching among the tabs.
+ *
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.emoji.EmojiPicker.prototype.adjustNumRowsIfNecessary_ = function() {
   var currentMax = 0;
@@ -451,7 +451,7 @@ goog.ui.emoji.EmojiPicker.prototype.loadImages = function() {
 
 /**
  * @override
- * @suppress {deprecated,strictMissingProperties} Part of the go/strict_warnings_migration
+ * @suppress {deprecated} Using deprecated goog.ui.TabPane.
  */
 goog.ui.emoji.EmojiPicker.prototype.createDom = function() {
   this.setElementInternal(this.getDomHelper().createDom(goog.dom.TagName.DIV));
@@ -461,7 +461,7 @@ goog.ui.emoji.EmojiPicker.prototype.createDom = function() {
   }
 
   if (this.emoji_.length == 0) {
-    throw new Error('Must add some emoji to the picker');
+    throw Error('Must add some emoji to the picker');
   }
 
   // If there is more than one group of emoji, we construct a tabpane
@@ -592,7 +592,7 @@ goog.ui.emoji.EmojiPicker.prototype.canDecorate = function(element) {
 
 /**
  * @override
- * @suppress {deprecated,strictMissingProperties} Part of the go/strict_warnings_migration
+ * @suppress {deprecated} Using deprecated goog.ui.TabPane.
  */
 goog.ui.emoji.EmojiPicker.prototype.enterDocument = function() {
   goog.ui.emoji.EmojiPicker.superClass_.enterDocument.call(this);
@@ -765,13 +765,14 @@ goog.ui.emoji.EmojiPicker.prototype.onPageChanged_ = function(e) {
 
 /**
  * Loads a page into the picker if it has not yet been loaded.
+ *
  * @param {number} index Index of the page to load.
  * @private
- * @suppress {deprecated,strictMissingProperties} Part of the go/strict_warnings_migration
+ * @suppress {deprecated} Using deprecated goog.ui.TabPane.
  */
 goog.ui.emoji.EmojiPicker.prototype.loadPage_ = function(index) {
   if (index < 0 || index > this.pages_.length) {
-    throw new Error('Index out of bounds');
+    throw Error('Index out of bounds');
   }
 
   if (!this.pageLoadStatus_[index]) {

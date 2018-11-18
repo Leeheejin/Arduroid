@@ -16,7 +16,6 @@ goog.provide('goog.i18n.BidiFormatterTest');
 goog.setTestOnly('goog.i18n.BidiFormatterTest');
 
 goog.require('goog.html.SafeHtml');
-goog.require('goog.html.testing');
 goog.require('goog.i18n.BidiFormatter');
 goog.require('goog.i18n.bidi.Dir');
 goog.require('goog.i18n.bidi.Format');
@@ -148,72 +147,64 @@ function testKnownDirAttr() {
       'overall dir matches context dir (LTR)', '', ltrFmt.knownDirAttr(LTR));
 }
 
-/**
- * @param {!goog.i18n.BidiFormatter} formatter
- * @param {string} html
- * @param {boolean=} opt_dirReset
- * @return {string}
- */
-function spanWrap(formatter, html, opt_dirReset) {
-  return goog.html.SafeHtml.unwrap(formatter.spanWrapSafeHtml(
-      goog.html.testing.newSafeHtmlForTest(html),
-      opt_dirReset));
-}
-
 function testSpanWrap() {
   // alwaysSpan is false and opt_isHtml is true, unless specified otherwise.
   assertEquals(
       'overall dir matches context dir (LTR), no dirReset', en,
-      spanWrap(ltrFmt, en, false));
+      ltrFmt.spanWrap(en, true, false));
   assertEquals(
       'overall dir matches context dir (LTR), dirReset', en,
-      spanWrap(ltrFmt, en, true));
+      ltrFmt.spanWrap(en, true, true));
   assertEquals(
       'overall dir matches context dir (RTL), no dirReset', he,
-      spanWrap(rtlFmt, he, false));
+      rtlFmt.spanWrap(he, true, false));
   assertEquals(
       'overall dir matches context dir (RTL), dirReset', he,
-      spanWrap(rtlFmt, he, true));
+      rtlFmt.spanWrap(he, true, true));
 
   assertEquals(
       'overall dir (RTL) doesnt match context dir (LTR), ' +
           'no dirReset',
-      '<span dir="rtl">' + he + '<\/span>', spanWrap(ltrFmt, he, false));
+      '<span dir="rtl">' + he + '<\/span>', ltrFmt.spanWrap(he, true, false));
   assertEquals(
       'overall dir (RTL) doesnt match context dir (LTR), dirReset',
       '<span dir="rtl">' + he + '<\/span>' + LRM,
-      spanWrap(ltrFmt, he, true));
+      ltrFmt.spanWrap(he, true, true));
   assertEquals(
       'overall dir (LTR) doesnt match context dir (RTL), ' +
           'no dirReset',
-      '<span dir="ltr">' + en + '<\/span>', spanWrap(rtlFmt, en, false));
+      '<span dir="ltr">' + en + '<\/span>', rtlFmt.spanWrap(en, true, false));
   assertEquals(
       'overall dir (LTR) doesnt match context dir (RTL), dirReset',
       '<span dir="ltr">' + en + '<\/span>' + RLM,
-      spanWrap(rtlFmt, en, true));
+      rtlFmt.spanWrap(en, true, true));
   assertEquals(
       'overall dir (LTR) doesnt match context dir (unknown), ' +
           'no dirReset',
-      '<span dir="ltr">' + en + '<\/span>', spanWrap(unkFmt, en, false));
+      '<span dir="ltr">' + en + '<\/span>', unkFmt.spanWrap(en, true, false));
   assertEquals(
       'overall dir (RTL) doesnt match context dir (unknown), ' +
           'dirReset',
-      '<span dir="rtl">' + he + '<\/span>', spanWrap(unkFmt, he, true));
+      '<span dir="rtl">' + he + '<\/span>', unkFmt.spanWrap(he, true, true));
   assertEquals(
       'overall dir (neutral) doesnt match context dir (LTR), ' +
           'dirReset',
-      '', spanWrap(ltrFmt, '', true));
+      '', ltrFmt.spanWrap('', true, true));
 
   assertEquals(
       'exit dir (but not overall dir) is opposite to context dir, ' +
           'dirReset',
       longEn + he + html + LRM,
-      spanWrap(ltrFmt, longEn + he + html, true));
+      ltrFmt.spanWrap(longEn + he + html, true, true));
   assertEquals(
       'overall dir (but not exit dir) is opposite to context dir, ' +
           'dirReset',
       '<span dir="ltr">' + longEn + he + '<\/span>' + RLM,
-      spanWrap(rtlFmt, longEn + he, true));
+      rtlFmt.spanWrap(longEn + he, true, true));
+
+  assertEquals(
+      'input is plain text (not escaped)', '&lt;br&gt;' + en,
+      ltrFmt.spanWrap('<br>' + en, false, false));
 
   var ltrAlwaysSpanFmt = new goog.i18n.BidiFormatter(LTR, true);
   var rtlAlwaysSpanFmt = new goog.i18n.BidiFormatter(RTL, true);
@@ -222,32 +213,32 @@ function testSpanWrap() {
   assertEquals(
       'alwaysSpan, overall dir matches context dir (LTR), ' +
           'no dirReset',
-      '<span>' + en + '<\/span>', spanWrap(ltrAlwaysSpanFmt, en, false));
+      '<span>' + en + '<\/span>', ltrAlwaysSpanFmt.spanWrap(en, true, false));
   assertEquals(
       'alwaysSpan, overall dir matches context dir (LTR), dirReset',
-      '<span>' + en + '<\/span>', spanWrap(ltrAlwaysSpanFmt, en, true));
+      '<span>' + en + '<\/span>', ltrAlwaysSpanFmt.spanWrap(en, true, true));
   assertEquals(
       'alwaysSpan, overall dir matches context dir (RTL), ' +
           'no dirReset',
-      '<span>' + he + '<\/span>', spanWrap(rtlAlwaysSpanFmt, he, false));
+      '<span>' + he + '<\/span>', rtlAlwaysSpanFmt.spanWrap(he, true, false));
   assertEquals(
       'alwaysSpan, overall dir matches context dir (RTL), dirReset',
-      '<span>' + he + '<\/span>', spanWrap(rtlAlwaysSpanFmt, he, true));
+      '<span>' + he + '<\/span>', rtlAlwaysSpanFmt.spanWrap(he, true, true));
 
   assertEquals(
       'alwaysSpan, overall dir (RTL) doesnt match ' +
           'context dir (LTR), no dirReset',
       '<span dir="rtl">' + he + '<\/span>',
-      spanWrap(ltrAlwaysSpanFmt, he, false));
+      ltrAlwaysSpanFmt.spanWrap(he, true, false));
   assertEquals(
       'alwaysSpan, overall dir (RTL) doesnt match ' +
           'context dir (LTR), dirReset',
       '<span dir="rtl">' + he + '<\/span>' + LRM,
-      spanWrap(ltrAlwaysSpanFmt, he, true));
+      ltrAlwaysSpanFmt.spanWrap(he, true, true));
   assertEquals(
       'alwaysSpan, overall dir (neutral) doesnt match ' +
           'context dir (LTR), dirReset',
-      '<span></span>', spanWrap(ltrAlwaysSpanFmt, '', true));
+      '<span></span>', ltrAlwaysSpanFmt.spanWrap('', true, true));
 }
 
 function testSpanWrapSafeHtml() {
@@ -257,110 +248,99 @@ function testSpanWrapSafeHtml() {
   assertEquals(NEUTRAL, wrapped.getDirection());
 }
 
-/**
- * @param {!goog.i18n.BidiFormatter} formatter
- * @param {?goog.i18n.bidi.Dir} dir
- * @param {string} html
- * @return {string}
- */
-function spanWrapWithKnownDir(formatter, dir, html) {
-  return goog.html.SafeHtml.unwrap(formatter.spanWrapSafeHtmlWithKnownDir(dir,
-      goog.html.testing.newSafeHtmlForTest(html)));
-}
-
 function testSpanWrapWithKnownDir() {
   assertEquals(
-      'known LTR in LTR context', en, spanWrapWithKnownDir(ltrFmt, LTR, en));
+      'known LTR in LTR context', en, ltrFmt.spanWrapWithKnownDir(LTR, en));
   assertEquals(
-      'unknown LTR in LTR context', en, spanWrapWithKnownDir(ltrFmt, null, en));
+      'unknown LTR in LTR context', en, ltrFmt.spanWrapWithKnownDir(null, en));
   assertEquals(
       'overall LTR but exit RTL in LTR context', he + LRM,
-      spanWrapWithKnownDir(ltrFmt, LTR, he));
+      ltrFmt.spanWrapWithKnownDir(LTR, he));
   assertEquals(
       'known RTL in LTR context', '<span dir="rtl">' + he + '<\/span>' + LRM,
-      spanWrapWithKnownDir(ltrFmt, RTL, he));
+      ltrFmt.spanWrapWithKnownDir(RTL, he));
   assertEquals(
       'unknown RTL in LTR context', '<span dir="rtl">' + he + '<\/span>' + LRM,
-      spanWrapWithKnownDir(ltrFmt, null, he));
+      ltrFmt.spanWrapWithKnownDir(null, he));
   assertEquals(
       'overall RTL but exit LTR in LTR context',
       '<span dir="rtl">' + en + '<\/span>' + LRM,
-      spanWrapWithKnownDir(ltrFmt, RTL, en));
+      ltrFmt.spanWrapWithKnownDir(RTL, en));
   assertEquals(
       'known neutral in LTR context', '.',
-      spanWrapWithKnownDir(ltrFmt, NEUTRAL, '.'));
+      ltrFmt.spanWrapWithKnownDir(NEUTRAL, '.'));
   assertEquals(
       'unknown neutral in LTR context', '.',
-      spanWrapWithKnownDir(ltrFmt, null, '.'));
+      ltrFmt.spanWrapWithKnownDir(null, '.'));
   assertEquals(
       'overall neutral but exit LTR in LTR context', en,
-      spanWrapWithKnownDir(ltrFmt, NEUTRAL, en));
+      ltrFmt.spanWrapWithKnownDir(NEUTRAL, en));
   assertEquals(
       'overall neutral but exit RTL in LTR context', he + LRM,
-      spanWrapWithKnownDir(ltrFmt, NEUTRAL, he));
+      ltrFmt.spanWrapWithKnownDir(NEUTRAL, he));
 
   assertEquals(
-      'known RTL in RTL context', he, spanWrapWithKnownDir(rtlFmt, RTL, he));
+      'known RTL in RTL context', he, rtlFmt.spanWrapWithKnownDir(RTL, he));
   assertEquals(
-      'unknown RTL in RTL context', he, spanWrapWithKnownDir(rtlFmt, null, he));
+      'unknown RTL in RTL context', he, rtlFmt.spanWrapWithKnownDir(null, he));
   assertEquals(
       'overall RTL but exit LTR in RTL context', en + RLM,
-      spanWrapWithKnownDir(rtlFmt, RTL, en));
+      rtlFmt.spanWrapWithKnownDir(RTL, en));
   assertEquals(
       'known LTR in RTL context', '<span dir="ltr">' + en + '<\/span>' + RLM,
-      spanWrapWithKnownDir(rtlFmt, LTR, en));
+      rtlFmt.spanWrapWithKnownDir(LTR, en));
   assertEquals(
       'unknown LTR in RTL context', '<span dir="ltr">' + en + '<\/span>' + RLM,
-      spanWrapWithKnownDir(rtlFmt, null, en));
+      rtlFmt.spanWrapWithKnownDir(null, en));
   assertEquals(
       'LTR but exit RTL in RTL context',
       '<span dir="ltr">' + he + '<\/span>' + RLM,
-      spanWrapWithKnownDir(rtlFmt, LTR, he));
+      rtlFmt.spanWrapWithKnownDir(LTR, he));
   assertEquals(
       'known neutral in RTL context', '.',
-      spanWrapWithKnownDir(rtlFmt, NEUTRAL, '.'));
+      rtlFmt.spanWrapWithKnownDir(NEUTRAL, '.'));
   assertEquals(
       'unknown neutral in RTL context', '.',
-      spanWrapWithKnownDir(rtlFmt, null, '.'));
+      rtlFmt.spanWrapWithKnownDir(null, '.'));
   assertEquals(
       'overall neutral but exit LTR in LTR context', he,
-      spanWrapWithKnownDir(rtlFmt, NEUTRAL, he));
+      rtlFmt.spanWrapWithKnownDir(NEUTRAL, he));
   assertEquals(
       'overall neutral but exit RTL in LTR context', en + RLM,
-      spanWrapWithKnownDir(rtlFmt, NEUTRAL, en));
+      rtlFmt.spanWrapWithKnownDir(NEUTRAL, en));
 
   assertEquals(
       'known RTL in unknown context', '<span dir="rtl">' + he + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, RTL, he));
+      unkFmt.spanWrapWithKnownDir(RTL, he));
   assertEquals(
       'unknown RTL in unknown context', '<span dir="rtl">' + he + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, null, he));
+      unkFmt.spanWrapWithKnownDir(null, he));
   assertEquals(
       'overall RTL but exit LTR in unknown context',
       '<span dir="rtl">' + en + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, RTL, en));
+      unkFmt.spanWrapWithKnownDir(RTL, en));
   assertEquals(
       'known LTR in unknown context', '<span dir="ltr">' + en + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, LTR, en));
+      unkFmt.spanWrapWithKnownDir(LTR, en));
   assertEquals(
       'unknown LTR in unknown context', '<span dir="ltr">' + en + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, null, en));
+      unkFmt.spanWrapWithKnownDir(null, en));
   assertEquals(
       'LTR but exit RTL in unknown context',
       '<span dir="ltr">' + he + '<\/span>',
-      spanWrapWithKnownDir(unkFmt, LTR, he));
+      unkFmt.spanWrapWithKnownDir(LTR, he));
   assertEquals(
       'known neutral in unknown context', '.',
-      spanWrapWithKnownDir(unkFmt, NEUTRAL, '.'));
+      unkFmt.spanWrapWithKnownDir(NEUTRAL, '.'));
   assertEquals(
       'unknown neutral in unknown context', '.',
-      spanWrapWithKnownDir(unkFmt, null, '.'));
+      unkFmt.spanWrapWithKnownDir(null, '.'));
   assertEquals(
       'overall neutral but exit LTR in unknown context', he,
-      spanWrapWithKnownDir(unkFmt, NEUTRAL, he));
+      unkFmt.spanWrapWithKnownDir(NEUTRAL, he));
   assertEquals(
       'overall neutral but exit RTL in unknown context', en,
-      spanWrapWithKnownDir(unkFmt, NEUTRAL, en));
+      unkFmt.spanWrapWithKnownDir(NEUTRAL, en));
 }
 
 function testSpanWrapSafeHtmlWithKnownDir() {

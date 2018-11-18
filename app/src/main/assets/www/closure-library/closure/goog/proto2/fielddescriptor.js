@@ -21,9 +21,6 @@ goog.provide('goog.proto2.FieldDescriptor');
 goog.require('goog.asserts');
 goog.require('goog.string');
 
-goog.forwardDeclare('goog.proto2.Descriptor');
-goog.forwardDeclare('goog.proto2.Message');
-
 
 
 /**
@@ -32,16 +29,8 @@ goog.forwardDeclare('goog.proto2.Message');
  * @param {function(new:goog.proto2.Message)} messageType Constructor for the
  *     message class to which the field described by this class belongs.
  * @param {number|string} tag The field's tag index.
- * @param {{
- *       name: string,
- *       fieldType: !goog.proto2.FieldDescriptor.FieldType,
- *       type: !Function,
- *       repeated: (*|undefined),
- *       required: (*|undefined),
- *       packed: (*|undefined),
- *       defaultValue: (*|undefined)
- *     }} metadata The metadata about this field
- *     that will be used to construct this descriptor.
+ * @param {Object} metadata The metadata about this field that will be used
+ *     to construct this descriptor.
  *
  * @constructor
  * @final
@@ -68,6 +57,18 @@ goog.proto2.FieldDescriptor = function(messageType, tag, metadata) {
    * @private {string}
    */
   this.name_ = metadata.name;
+
+  /** @type {goog.proto2.FieldDescriptor.FieldType} */
+  metadata.fieldType;
+
+  /** @type {*} */
+  metadata.repeated;
+
+  /** @type {*} */
+  metadata.required;
+
+  /** @type {*} */
+  metadata.packed;
 
   /**
    * If true, this field is a packed field.

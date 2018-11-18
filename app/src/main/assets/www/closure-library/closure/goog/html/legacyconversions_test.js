@@ -19,9 +19,6 @@
 goog.provide('goog.html.legacyconversionsTest');
 
 goog.require('goog.html.SafeHtml');
-goog.require('goog.html.SafeScript');
-goog.require('goog.html.SafeStyle');
-goog.require('goog.html.SafeStyleSheet');
 goog.require('goog.html.SafeUrl');
 goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.html.legacyconversions');
@@ -39,31 +36,12 @@ function testSafeHtmlFromString() {
 }
 
 
-function testSafeScriptFromString() {
-  var script = 'alert(1);';
-  var safeScript = goog.html.legacyconversions.safeScriptFromString(script);
-  assertEquals(script, goog.html.SafeScript.unwrap(safeScript));
-
-  assertFunctionReports(goog.html.legacyconversions.safeScriptFromString);
-}
-
-
 function testSafeStyleFromString() {
-  var style = 'color: red; width: 1em;';
+  var style = 'P.special { color:red ; }';
   var safeStyle = goog.html.legacyconversions.safeStyleFromString(style);
   assertEquals(style, goog.html.SafeStyle.unwrap(safeStyle));
 
   assertFunctionReports(goog.html.legacyconversions.safeStyleFromString);
-}
-
-
-function testSafeStyleSheetFromString() {
-  var styleSheet = 'P.special { color: red; background: url(http://test); }';
-  var safeStyleSheet =
-      goog.html.legacyconversions.safeStyleSheetFromString(styleSheet);
-  assertEquals(styleSheet, goog.html.SafeStyleSheet.unwrap(safeStyleSheet));
-
-  assertFunctionReports(goog.html.legacyconversions.safeStyleSheetFromString);
 }
 
 
@@ -89,7 +67,7 @@ function testTrustedResourceUrlFromString() {
 
 /**
  * Asserts that conversionFunction calls the report callback.
- * @param {function(string) : *} conversionFunction
+ * @param {!function(string) : *} conversionFunction
  */
 function assertFunctionReports(conversionFunction) {
   var reported = false;

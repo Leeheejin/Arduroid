@@ -14,6 +14,12 @@
 
 /**
  * @fileoverview This class manages the network connectivity state.
+ *
+ * Some of the connectivity state may be exposed to the client code in future,
+ * e.g. the initial handshake state, in order to save one RTT when a channel
+ * has to be reestablished. TODO(user).
+ *
+ * @visibility {:internal}
  */
 
 

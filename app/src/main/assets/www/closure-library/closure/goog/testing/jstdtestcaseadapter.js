@@ -19,134 +19,94 @@
  * them to transition to the Closure test runner and allow JSTD runner to be
  * deprecated.
  */
-goog.setTestOnly('goog.testing.JsTdTestCaseAdapter');
 goog.provide('goog.testing.JsTdTestCaseAdapter');
 
 goog.require('goog.async.run');
-goog.require('goog.functions');
-goog.require('goog.testing.JsTdAsyncWrapper');
 goog.require('goog.testing.TestCase');
 goog.require('goog.testing.jsunit');
 
 
 /**
  * @param {string} testCaseName The name of the test case.
- * @param {function(): boolean} condition A condition to determine whether to
- *     run the tests.
+ * @param {boolean} condition A condition to determine whether to run the tests.
  * @param {?=} opt_proto An optional prototype object for the test case.
- * @param {boolean=} opt_isAsync Whether this test is an async test using the
- *     JSTD testing queue.
  * @return {!Function}
  * @private
  */
 goog.testing.JsTdTestCaseAdapter.TestCaseFactory_ = function(
-    testCaseName, condition, opt_proto, opt_isAsync) {
+    testCaseName, condition, opt_proto) {
   /** @constructor */
   var T = function() {};
   if (opt_proto) T.prototype = opt_proto;
   T.displayName = testCaseName;
 
   goog.async.run(function() {
-    var t = new T();
-    if (opt_isAsync) {
-      t = goog.testing.JsTdAsyncWrapper.convertToAsyncTestObj(t);
-    }
+    var t = condition ? new T() : {};
     var testCase = new goog.testing.TestCase(testCaseName);
-    testCase.shouldRunTests = condition;
+    testCase.shouldRunTests = function() { return condition; };
     testCase.setTestObj(t);
-    testCase.autoDiscoverTests();
-    goog.testing.TestCase.initializeTestRunner(testCase, undefined);
+    goog.testing.TestCase.initializeTestRunner(testCase);
   });
 
   return T;
 };
 
-
-/**
- * @param {string} testCaseName The name of the test case.
- * @param {?=} opt_proto An optional prototype object for the test case.
- * @return {!Function}
- * @private
- */
-goog.testing.JsTdTestCaseAdapter.TestCase_ = function(testCaseName, opt_proto) {
-  return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
-      testCaseName, goog.functions.TRUE, opt_proto);
-};
-
-
-/**
- * @param {string} testCaseName The name of the test case.
- * @param {function(): boolean} condition A condition to determine whether to
- *     run the tests.
- * @param {?=} opt_proto An optional prototype object for the test case.
- * @return {!Function}
- * @private
- */
-goog.testing.JsTdTestCaseAdapter.ConditionalTestCase_ = function(
-    testCaseName, condition, opt_proto) {
-  return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
-      testCaseName, condition, opt_proto);
-};
-
-
-/**
- * @param {string} testCaseName The name of the test case.
- * @param {?=} opt_proto An optional prototype object for the test case.
- * @return {!Function}
- * @private
- */
-goog.testing.JsTdTestCaseAdapter.AsyncTestCase_ = function(
-    testCaseName, opt_proto) {
-  return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
-      testCaseName, goog.functions.TRUE, opt_proto, true);
-};
-
-
-/**
- * @param {string} testCaseName The name of the test case.
- * @param {function(): boolean} condition A condition to determine whether to
- *     run the tests.
- * @param {?=} opt_proto An optional prototype object for the test case.
- * @return {!Function}
- * @private
- */
-goog.testing.JsTdTestCaseAdapter.AsyncConditionalTestCase_ = function(
-    testCaseName, condition, opt_proto) {
-  return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
-      testCaseName, condition, opt_proto, true);
-};
-
-
 // --- conditionally add polyfills for the basic JSTD API ---
 
 
-/** @suppress {duplicate} */
-var TestCase = TestCase || goog.testing.JsTdTestCaseAdapter.TestCase_;
+/**
+ * @param {string} testCaseName The name of the test case.
+ * @param {?=} opt_proto An optional prototype object for the test case.
+ * @return {!Function}
+ * @suppress {duplicate}
+ */
+var TestCase = TestCase || function(testCaseName, opt_proto) {
+  return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
+      testCaseName, true, opt_proto);
+};
 
 
-/** @suppress {duplicate} */
-var ConditionalTestCase = ConditionalTestCase ||
-    goog.testing.JsTdTestCaseAdapter.ConditionalTestCase_;
+/**
+ * @param {string} testCaseName The name of the test case.
+ * @param {boolean} condition A condition to determine whether to run the tests.
+ * @param {?=} opt_proto An optional prototype object for the test case.
+ * @return {!Function}
+ * @suppress {duplicate}
+ */
+var ConditionalTestCase =
+    ConditionalTestCase || function(testCaseName, condition, opt_proto) {
+      return goog.testing.JsTdTestCaseAdapter.TestCaseFactory_(
+          testCaseName, condition, opt_proto);
+    };
 
 
-/** @suppress {duplicate} */
-var AsyncTestCase =
-    AsyncTestCase || goog.testing.JsTdTestCaseAdapter.AsyncTestCase_;
+// TODO(johnlenz): AsyncTestCase and AsyncConditionalTestCase are
+// placeholders for an implementation that actually understands the
+// JsTestDriver AsyncTestCases which are non-trivial:
+// see https://code.google.com/p/js-test-driver/wiki/AsyncTestCase
 
 
-/** @suppress {duplicate} */
-var AsyncConditionalTestCase = AsyncConditionalTestCase ||
-    goog.testing.JsTdTestCaseAdapter.AsyncConditionalTestCase_;
+/**
+ * @param {string} testCaseName The name of the test case.
+ * @param {?=} opt_proto An optional prototype object for the test case.
+ * @return {!Function}
+ * @suppress {duplicate}
+ */
+var AsyncTestCase = AsyncTestCase || TestCase;
 
 
-/** @suppress {duplicate} */
-var ConditionalAsyncTestCase = ConditionalAsyncTestCase ||
-    goog.testing.JsTdTestCaseAdapter.AsyncConditionalTestCase_;
+/**
+ * @param {string} testCaseName The name of the test case.
+ * @param {boolean} condition A condition to determine whether to run the tests.
+ * @param {?=} opt_proto An optional prototype object for the test case.
+ * @return {!Function}
+ * @suppress {duplicate}
+ */
+var AsyncConditionalTestCase = AsyncConditionalTestCase || ConditionalTestCase;
 
 
 // The API is also available under the jstestdriver namespace.
 
-/** @suppress {duplicate} */
 var jstestdriver = jstestdriver || {};
 if (!jstestdriver.testCaseManager) {
   /** A jstestdriver API polyfill. */
@@ -154,7 +114,6 @@ if (!jstestdriver.testCaseManager) {
     TestCase: TestCase,
     ConditionalTestCase: ConditionalTestCase,
     AsyncTestCase: AsyncTestCase,
-    AsyncConditionalTestCase: AsyncConditionalTestCase,
-    ConditionalAsyncTestCase: ConditionalAsyncTestCase
+    AsyncConditionalTestCase: AsyncConditionalTestCase
   };
 }

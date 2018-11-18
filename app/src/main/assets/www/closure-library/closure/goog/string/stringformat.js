@@ -27,15 +27,13 @@ goog.provide('goog.string.format');
 goog.require('goog.string');
 
 
-// TODO(johnlenz): goog.string.format should not accept undefined as a parameter
 /**
  * Performs sprintf-like conversion, i.e. puts the values in a template.
  * DO NOT use it instead of built-in conversions in simple cases such as
  * 'Cost: %.2f' as it would introduce unnecessary latency opposed to
  * 'Cost: ' + cost.toFixed(2).
  * @param {string} formatString Template string containing % specifiers.
- * @param {...(string|number|undefined)} var_args Values formatString is to
- *     be filled with.
+ * @param {...string|number} var_args Values formatString is to be filled with.
  * @return {string} Formatted string.
  */
 goog.string.format = function(formatString, var_args) {
@@ -46,7 +44,7 @@ goog.string.format = function(formatString, var_args) {
   // Try to get the template.
   var template = args.shift();
   if (typeof template == 'undefined') {
-    throw new Error('[goog.string.format] Template required');
+    throw Error('[goog.string.format] Template required');
   }
 
   // This re is used for matching, it also defines what is supported.
@@ -77,7 +75,7 @@ goog.string.format = function(formatString, var_args) {
 
     // If we didn't get any arguments, fail.
     if (typeof value == 'undefined') {
-      throw new Error('[goog.string.format] Not enough arguments');
+      throw Error('[goog.string.format] Not enough arguments');
     }
 
     // Patch the value argument to the beginning of our type specific call.
@@ -172,14 +170,14 @@ goog.string.format.demuxes_['f'] = function(
     replacement = sign + replacement;
   }
 
-  // If no padding is necessary we're done.
+  // If no padding is neccessary we're done.
   if (isNaN(width) || replacement.length >= Number(width)) {
     return replacement;
   }
 
   // We need a clean signless replacement to start with
-  replacement = isNaN(precision) ? Math.abs(Number(value)).toString() :
-                                   Math.abs(Number(value)).toFixed(precision);
+  replacement = isNaN(precision) ? Math.abs(value).toString() :
+                                   Math.abs(value).toFixed(precision);
 
   var padCount = Number(width) - replacement.length - sign.length;
 

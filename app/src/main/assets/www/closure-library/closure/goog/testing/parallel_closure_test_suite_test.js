@@ -20,7 +20,7 @@ var MockControl = goog.require('goog.testing.MockControl');
 var MultiTestRunner = goog.require('goog.testing.MultiTestRunner');
 var PropertyReplacer = goog.require('goog.testing.PropertyReplacer');
 var TestCase = goog.require('goog.testing.TestCase');
-var dom = goog.require('goog.dom');
+var jsunit = goog.require('goog.testing.jsunit');
 var mockmatchers = goog.require('goog.testing.mockmatchers');
 var parallelClosureTestSuite = goog.require('goog.testing.parallelClosureTestSuite');
 var testSuite = goog.require('goog.testing.testSuite');
@@ -92,7 +92,7 @@ testSuite({
     var mockRender =
         mocks.createMethodMock(MultiTestRunner.prototype, 'render');
     var elementMatcher = new ArgumentMatcher(function(container) {
-      return dom.isElement(container);
+      return goog.dom.isElement(container);
     });
     var testCaseObj = {promiseTimeout: -1};
     stubs.set(
@@ -132,7 +132,7 @@ testSuite({
     var testRunner = parallelClosureTestSuite.setUpPage();
     var testPromise = parallelClosureTestSuite.testRunAllTests();
     testRunner.dispatchEvent({
-      'type': MultiTestRunner.TESTS_FINISHED,
+      'type': goog.testing.MultiTestRunner.TESTS_FINISHED,
       'allTestResults': [{'testA': ['testA Failed!']}, {'testB': []}]
     });
 
@@ -163,7 +163,7 @@ testSuite({
     var testRunner = parallelClosureTestSuite.setUpPage();
     var testPromise = parallelClosureTestSuite.testRunAllTests();
     testRunner.dispatchEvent({
-      'type': MultiTestRunner.TESTS_FINISHED,
+      'type': goog.testing.MultiTestRunner.TESTS_FINISHED,
       'allTestResults': [{'testA': []}, {'testB': []}]
     });
 

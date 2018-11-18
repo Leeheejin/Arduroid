@@ -28,6 +28,7 @@ goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.events.EventWrapper');
 goog.require('goog.events.KeyCodes');
+goog.require('goog.userAgent');
 
 
 
@@ -40,18 +41,6 @@ goog.require('goog.events.KeyCodes');
  * @private
  */
 goog.events.ActionEventWrapper_ = function() {};
-
-/**
- * @interface
- * @private
- */
-goog.events.ActionEventWrapper_.FunctionExtension_ = function() {};
-
-/** @type {!Object|undefined} */
-goog.events.ActionEventWrapper_.FunctionExtension_.prototype.scope_;
-
-/** @type {function(?):?|{handleEvent:function(?):?}|null} */
-goog.events.ActionEventWrapper_.FunctionExtension_.prototype.listener_;
 
 
 /**
@@ -68,7 +57,9 @@ goog.events.actionEventWrapper = new goog.events.ActionEventWrapper_();
  * @private
  */
 goog.events.ActionEventWrapper_.EVENT_TYPES_ = [
-  goog.events.EventType.CLICK, goog.events.EventType.KEYDOWN,
+  goog.events.EventType.CLICK,
+  goog.userAgent.GECKO ? goog.events.EventType.KEYPRESS :
+                         goog.events.EventType.KEYDOWN,
   goog.events.EventType.KEYUP
 ];
 
@@ -147,11 +138,8 @@ goog.events.ActionEventWrapper_.prototype.unlisten = function(
        j++) {
     var listeners = goog.events.getListeners(target, type, !!opt_capt);
     for (var obj, i = 0; obj = listeners[i]; i++) {
-      var objListener =
-          /** @type {!goog.events.ActionEventWrapper_.FunctionExtension_} */ (
-              obj.listener);
-      if (objListener.listener_ == listener &&
-          objListener.scope_ == opt_scope) {
+      if (obj.listener.listener_ == listener &&
+          obj.listener.scope_ == opt_scope) {
         if (opt_eventHandler) {
           opt_eventHandler.unlisten(
               target, type, obj.listener, opt_capt, opt_scope);

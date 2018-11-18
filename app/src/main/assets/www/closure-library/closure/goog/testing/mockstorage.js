@@ -18,11 +18,10 @@
  */
 
 
-goog.setTestOnly('goog.testing.MockStorage');
-goog.provide('goog.testing.MockStorage');
-
-
 goog.require('goog.structs.Map');
+
+
+goog.provide('goog.testing.MockStorage');
 
 
 

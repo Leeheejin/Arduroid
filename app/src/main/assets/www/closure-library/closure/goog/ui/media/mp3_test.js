@@ -17,7 +17,6 @@ goog.setTestOnly('goog.ui.media.Mp3Test');
 
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.html.testing');
 goog.require('goog.testing.jsunit');
 goog.require('goog.ui.media.FlashObject');
 goog.require('goog.ui.media.Media');
@@ -32,8 +31,7 @@ function setUp() {
   mp3 = goog.ui.media.Mp3.getInstance();
   var flashUrl = goog.ui.media.Mp3.buildFlashUrl(MP3_URL);
   var model = new goog.ui.media.MediaModel(MP3_URL, 'mp3 caption', '');
-  model.setPlayer(new goog.ui.media.MediaModel.Player(
-      goog.html.testing.newTrustedResourceUrlForTest(flashUrl)));
+  model.setPlayer(new goog.ui.media.MediaModel.Player(flashUrl));
   control = new goog.ui.media.Media(model, mp3);
   control.setSelected(true);
 }

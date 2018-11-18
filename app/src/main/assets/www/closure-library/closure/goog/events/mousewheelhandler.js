@@ -133,7 +133,6 @@ goog.events.MouseWheelHandler.prototype.setMaxDeltaY = function(maxDeltaY) {
 /**
  * Handles the events on the element.
  * @param {goog.events.BrowserEvent} e The underlying browser event.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.events.MouseWheelHandler.prototype.handleEvent = function(e) {
   var deltaX = 0;
@@ -141,12 +140,17 @@ goog.events.MouseWheelHandler.prototype.handleEvent = function(e) {
   var detail = 0;
   var be = e.getBrowserEvent();
   if (be.type == 'mousewheel') {
-    // In IE we get a multiple of 120; we adjust to a multiple of 3 to
-    // represent number of lines scrolled (like Gecko).
-    // Newer versions of Webkit match IE behavior, and WebKit on
-    // Windows also matches IE behavior.
-    // See bug https://bugs.webkit.org/show_bug.cgi?id=24368
-    var wheelDeltaScaleFactor = 40;
+    var wheelDeltaScaleFactor = 1;
+    if (goog.userAgent.IE ||
+        goog.userAgent.WEBKIT && (goog.userAgent.WINDOWS ||
+                                  goog.userAgent.isVersionOrHigher('532.0'))) {
+      // In IE we get a multiple of 120; we adjust to a multiple of 3 to
+      // represent number of lines scrolled (like Gecko).
+      // Newer versions of Webkit match IE behavior, and WebKit on
+      // Windows also matches IE behavior.
+      // See bug https://bugs.webkit.org/show_bug.cgi?id=24368
+      wheelDeltaScaleFactor = 40;
+    }
 
     detail = goog.events.MouseWheelHandler.smartScale_(
         -be.wheelDelta, wheelDeltaScaleFactor);

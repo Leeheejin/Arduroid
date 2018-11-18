@@ -158,8 +158,13 @@ goog.structs.Queue.prototype.contains = function(obj) {
  * @return {boolean} True if an element was removed.
  */
 goog.structs.Queue.prototype.remove = function(obj) {
-  return goog.array.removeLast(this.front_, obj) ||
-      goog.array.remove(this.back_, obj);
+  // TODO(user): Implement goog.array.removeLast() and use it here.
+  var index = goog.array.lastIndexOf(this.front_, obj);
+  if (index < 0) {
+    return goog.array.remove(this.back_, obj);
+  }
+  goog.array.removeAt(this.front_, index);
+  return true;
 };
 
 

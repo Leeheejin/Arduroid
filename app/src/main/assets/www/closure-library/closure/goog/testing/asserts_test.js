@@ -15,9 +15,7 @@
 goog.provide('goog.testing.assertsTest');
 goog.setTestOnly('goog.testing.assertsTest');
 
-goog.require('goog.Promise');
 goog.require('goog.array');
-goog.require('goog.async.Deferred');
 goog.require('goog.dom');
 goog.require('goog.iter.Iterator');
 goog.require('goog.iter.StopIteration');
@@ -118,25 +116,6 @@ function testAssertNull() {
   assertThrowsJsUnitException(function() {
     assertNull(1);
   }, 'Expected <null> but was <1> (Number)');
-}
-
-function testAssertNullOrUndefined() {
-  assertNullOrUndefined(null);
-  assertNullOrUndefined(undefined);
-  assertNullOrUndefined('Good assertion', null);
-  assertNullOrUndefined('Good assertion', undefined);
-  assertThrowsJsUnitException(function() {
-    assertNullOrUndefined(true);
-  }, 'Expected <null> or <undefined> but was <true> (Boolean)');
-  assertThrowsJsUnitException(
-      function() {
-        assertNullOrUndefined('Should be null', false);
-      },
-      'Should be null\n' +
-          'Expected <null> or <undefined> but was <false> (Boolean)');
-  assertThrowsJsUnitException(function() {
-    assertNullOrUndefined(0);
-  }, 'Expected <null> or <undefined> but was <0> (Number)');
 }
 
 function testAssertNotNull() {
@@ -354,9 +333,6 @@ function testAssertObjectNotEquals() {
 
   // Check with obj5 and obj4 as first and second arguments respectively.
   assertObjectNotEquals(obj5, obj4);
-
-  assertObjectNotEquals(new Map([['a', '1']]), new Map([['b', '1']]));
-  assertObjectNotEquals(new Set(['a', 'b']), new Set(['a']));
 }
 
 function testAssertObjectEquals2() {
@@ -502,33 +478,6 @@ function testAssertObjectEqualsSparseArrays2() {
   }
 }
 
-function testAssertObjectEqualsNestedPropertyMessage() {
-  assertThrowsJsUnitException(function() {
-    assertObjectEquals(
-        {a: 'abc', b: 4, array: [1, 2, 3, {nested: [2, 3, 4]}]},
-        {a: 'bcd', b: '4', array: [1, 5, 3, {nested: [2, 3, 4, 5]}]});
-  }, `Expected <[object Object]> (Object) but was <[object Object]> (Object)
-   a: Expected <abc> (String) but was <bcd> (String)
-   b: Expected <4> (Number) but was <4> (String)
-   array[1]: Expected <2> (Number) but was <5> (Number)
-   array[3].nested: Expected 3-element array but got a 4-element array`);
-}
-
-function testAssertObjectEqualsRootDifference() {
-  assertThrowsJsUnitException(function() {
-    assertObjectEquals([1], [1, 2]);
-  }, `Expected <1> (Array) but was <1,2> (Array)
-   Expected 1-element array but got a 2-element array`);
-
-  assertThrowsJsUnitException(function() {
-    assertObjectEquals('a', 'b');
-  }, 'Expected <a> (String) but was <b> (String)');
-
-  assertThrowsJsUnitException(function() {
-    assertObjectEquals([], {});
-  }, 'Expected <> (Array) but was <[object Object]> (Object)');
-}
-
 function testAssertObjectEqualsArraysWithExtraProps() {
   var arr1 = [1];
   var arr2 = [1];
@@ -572,29 +521,11 @@ function testAssertSameElementsOnArrayLike() {
 }
 
 function testAssertSameElementsWithBadArguments() {
-  var ex = assertThrowsJsUnitException(function() {
-    assertSameElements([], new goog.structs.Set());
-  });
-  assertContains('actual', ex.toString());
-  assertContains('array-like or iterable', ex.toString());
-}
-
-function testAssertSameElementsWithIterables() {
-  const s = new Set([1, 2, 3]);
-  assertSameElements({0: 3, 1: 2, 2: 1, length: 3}, s);
-  assertSameElements(s, {0: 3, 1: 2, 2: 1, length: 3});
-  assertSameElements([], new Set());
-  assertSameElements(new Set(), []);
-
   assertThrowsJsUnitException(
-      () => assertSameElements([1, 1], new Set([1, 1])));
-  assertThrowsJsUnitException(
-      () => assertSameElements(new Set([1, 1]), [1, 1]));
-
-  assertThrowsJsUnitException(
-      () => assertSameElements([1, 3], new Set([1, 2])));
-  assertThrowsJsUnitException(
-      () => assertSameElements(new Set([1, 2]), [1, 3]));
+      function() { assertSameElements([], new goog.structs.Set()); },
+      'Bad arguments to assertSameElements(opt_message, expected: ' +
+          'ArrayLike, actual: ArrayLike)\n' +
+          'Call to assertTrue(boolean) with false');
 }
 
 var implicitlyTrue = [true, 1, -1, ' ', 'string', Infinity, new Object()];
@@ -670,7 +601,7 @@ function testAssertHashEquals() {
     assertHashEquals('Should match', {a: 1}, {a: 5});
   }, 'Should match\nValue for key a mismatch - expected = 1, actual = 5');
   assertThrowsJsUnitException(function() {
-    assertHashEquals({a: undefined}, {a: 1});
+    assertHashEquals({a: undefined}, {a: 1})
   }, 'Value for key a mismatch - expected = undefined, actual = 1');
   // Extra key.
   assertThrowsJsUnitException(function() {
@@ -694,7 +625,8 @@ function testAssertRoughlyEquals() {
   }, 'Close enough\nExpected 1, but got 1.1 which was more than 0.05 away');
 }
 
-function testAssertContainsForArrays() {
+function testAssertContains() {
+  var a = [1, 2, 3];
   assertContains(1, [1, 2, 3]);
   assertContains('Should contain', 1, [1, 2, 3]);
   assertThrowsJsUnitException(function() {
@@ -711,7 +643,8 @@ function testAssertContainsForArrays() {
   }, 'Expected \'1,2,3\' to contain \'[object Object]\'');
 }
 
-function testAssertNotContainsForArrays() {
+function testAssertNotContains() {
+  var a = [1, 2, 3];
   assertNotContains(4, [1, 2, 3]);
   assertNotContains('Should not contain', 4, [1, 2, 3]);
   assertThrowsJsUnitException(function() {
@@ -726,54 +659,6 @@ function testAssertNotContainsForArrays() {
   assertThrowsJsUnitException(function() {
     assertNotContains(o, [o, 2, 3]);
   }, 'Expected \'[object Object],2,3\' not to contain \'[object Object]\'');
-}
-
-function testAssertContainsForStrings() {
-  assertContains('ignored msg', 'abc', 'zabcd');
-  assertContains('abc', 'abc');
-  assertContains('', 'abc');
-  assertContains('', '');
-  assertThrowsJsUnitException(function() {
-    assertContains('msg', 'abc', 'bcd');
-  }, 'msg\nExpected \'bcd\' to contain \'abc\'');
-  assertThrowsJsUnitException(function() {
-    assertContains('a', '');
-  }, 'Expected \'\' to contain \'a\'');
-}
-
-function testAssertNotContainsForStrings() {
-  assertNotContains('ignored msg', 'abc', 'bcd');
-  assertNotContains('a', '');
-  assertThrowsJsUnitException(function() {
-    assertNotContains('msg', 'abc', 'zabcd');
-  }, 'msg\nExpected \'zabcd\' not to contain \'abc\'');
-  assertThrowsJsUnitException(function() {
-    assertNotContains('abc', 'abc');
-  }, 'Expected \'abc\' not to contain \'abc\'');
-  assertThrowsJsUnitException(function() {
-    assertNotContains('', 'abc');
-  }, 'Expected \'abc\' not to contain \'\'');
-}
-
-/**
- * Tests `assertContains` and 'assertNotContains` with an arbitrary type that
- * has a custom `indexOf`.
- */
-function testAssertContainsAndAssertNotContainsOnCustomObjectWithIndexof() {
-  const valueContained = {toString: () => 'I am in'};
-  const valueNotContained = {toString: () => 'I am out'};
-  const container = {
-    indexOf: (value) => value === valueContained ? 1234 : -1,
-    toString: () => 'I am a container',
-  };
-  assertContains('ignored message', valueContained, container);
-  assertNotContains('ignored message', valueNotContained, container);
-  assertThrowsJsUnitException(function() {
-    assertContains('msg', valueNotContained, container);
-  }, 'msg\nExpected \'I am a container\' to contain \'I am out\'');
-  assertThrowsJsUnitException(function() {
-    assertNotContains('msg', valueContained, container);
-  }, 'msg\nExpected \'I am a container\' not to contain \'I am in\'');
 }
 
 function testAssertRegExp() {
@@ -970,96 +855,6 @@ function testAssertNotThrows() {
   assertFalse('assertNotThrows did not fail on a thrown exception', failed);
 }
 
-async function testAssertRejects() {
-  assertThrows(() => {
-    assertRejects('assertRejects should not pass with null param', null);
-    fail('Should always throw');
-  });
-
-  assertThrows(() => {
-    assertRejects(
-        'assertRejects should not pass with undefined param', undefined);
-    fail('Should always throw');
-  });
-
-  assertThrows(() => {
-    assertRejects('assertRejects should not pass with number param', 1);
-    fail('Should always throw');
-  });
-
-  assertThrows(() => {
-    assertRejects('assertRejects should not pass with string param', 'string');
-    fail('Should always throw');
-  });
-
-  assertThrows(() => {
-    assertRejects(
-        'assertRejects should not pass with object param with no then property',
-        {});
-    fail('Should always throw');
-  });
-
-  const thenables = [
-    // Test goog.async.Deferred.
-    (fn) => {
-      const d = new goog.async.Deferred();
-      try {
-        fn((val) => d.callback(), (err) => d.errback(err));
-      } catch (e) {
-        d.errback(e);
-      }
-      return d;
-    },
-    // Test goog.Promise.
-    (fn) => new goog.Promise(fn),
-    /// Test Promise.
-    (fn) => new Promise(fn),
-    // Test async function that awaits on a goog.Promise.
-    async (fn) => {
-      await new goog.Promise(fn);
-    },
-    // Test async function that awaits on a Promise.
-    async (fn) => {
-      await new Promise(fn);
-    },
-    // Test async function that throws.
-    async (fn) => {
-      fn(() => {}, (err) => {
-        throw err;
-      });
-    },
-  ];
-  for (const thenable of thenables) {
-    let e = await assertRejects(
-        'valid IThenable constructor throws Error', thenable(() => {
-          throw new Error('test');
-        }));
-    assertEquals('error message', 'test', e.message);
-    e = await assertRejects(
-        'valid IThenable constructor throws string error', thenable(() => {
-          throw 'string error test';
-        }));
-    assertEquals('string error', 'string error test', e);
-    e = await assertRejects(
-        'valid IThenable rejects Error', thenable((_, reject) => {
-          reject(new Error('test'));
-        }));
-    assertEquals('error message', 'test', e.message);
-    e = await assertRejects(
-        'valid IThenable rejects string error', thenable((_, reject) => {
-          reject('string error test');
-        }));
-    assertEquals('string error', 'string error test', e);
-    e = await assertRejects(
-        'assertRejects should fail with a resolved thenable', (async () => {
-          await assertRejects(thenable((resolve) => resolve()));
-          fail('should always throw.');
-        })());
-    assertEquals(
-        'IThenable passed into assertRejects did not reject', e.message);
-  }
-}
-
 function testAssertArrayEquals() {
   var a1 = [0, 1, 2];
   var a2 = [0, 1, 2];
@@ -1118,6 +913,7 @@ function testAssertObjectsEqualsDifferentArrays() {
 }
 
 function testAssertObjectsEqualsNegativeArrayIndexes() {
+  var a1 = [0];
   var a2 = [0];
   a2[-1] = -1;
   // The following test fails unexpectedly. The bug is tracked at
@@ -1156,22 +952,6 @@ function testAssertObjectsRoughlyEquals() {
           'was more than 0.1 away');
 }
 
-function testAssertObjectRoughlyEqualsWithStrings() {
-  // Check that objects with string properties are compared properly.
-  var obj1 = {'description': [{'colName': 'x1'}]};
-  var obj2 = {'description': [{'colName': 'x2'}]};
-  assertThrowsJsUnitException(
-      function() {
-        assertObjectRoughlyEquals(obj1, obj2, 0.00001);
-      },
-      'Expected <[object Object]> (Object)' +
-          ' but was <[object Object]> (Object)' +
-          '\n   description[0].colName: Expected <x1> (String) but was <x2> (String)');
-  assertThrowsJsUnitException(function() {
-    assertObjectRoughlyEquals('x1', 'x2', 0.00001);
-  }, 'Expected <x1> (String) but was <x2> (String)');
-}
-
 function testFindDifferences_equal() {
   assertNull(goog.testing.asserts.findDifferences(true, true));
   assertNull(goog.testing.asserts.findDifferences(null, null));
@@ -1184,10 +964,6 @@ function testFindDifferences_equal() {
       goog.testing.asserts.findDifferences([{a: 1, b: 2}], [{b: 2, a: 1}]));
   assertNull(goog.testing.asserts.findDifferences(null, null));
   assertNull(goog.testing.asserts.findDifferences(undefined, undefined));
-  assertNull(goog.testing.asserts.findDifferences(
-      new Map([['a', 1], ['b', 2]]), new Map([['b', 2], ['a', 1]])));
-  assertNull(goog.testing.asserts.findDifferences(
-      new Set(['a', 'b']), new Set(['b', 'a'])));
 }
 
 function testFindDifferences_unequal() {
@@ -1198,31 +974,6 @@ function testFindDifferences_unequal() {
       goog.testing.asserts.findDifferences([{a: 1}], [{a: 1, b: [2]}]));
   assertNotNull(
       goog.testing.asserts.findDifferences([{a: 1, b: [2]}], [{a: 1}]));
-
-  assertNotNull(
-      'Second map is missing key "a"; first map is missing key "b"',
-      goog.testing.asserts.findDifferences(
-          new Map([['a', 1]]), new Map([['b', 2]])));
-  assertNotNull(
-      'Value for key "a" differs by value',
-      goog.testing.asserts.findDifferences(
-          new Map([['a', '1']]), new Map([['a', '2']])));
-  assertNotNull(
-      'Value for key "a" differs by type',
-      goog.testing.asserts.findDifferences(
-          new Map([['a', '1']]), new Map([['a', 1]])));
-
-  assertNotNull(
-      'Second set is missing key "a"',
-      goog.testing.asserts.findDifferences(
-          new Set(['a', 'b']), new Set(['b'])));
-  assertNotNull(
-      'First set is missing key "b"',
-      goog.testing.asserts.findDifferences(
-          new Set(['a']), new Set(['a', 'b'])));
-  assertNotNull(
-      'Values have different types"',
-      goog.testing.asserts.findDifferences(new Set(['1']), new Set([1])));
 }
 
 function testFindDifferences_objectsAndNull() {
@@ -1362,37 +1113,6 @@ function testStringSameSuffix() {
           'Difference was at position 0. Expected [xbc...] vs. actual [abc...]');
 }
 
-function testStringLongComparedValues() {
-  assertThrowsJsUnitException(
-      function() {
-        assertEquals(
-            'abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz',
-            'abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz');
-      },
-      'Expected\n' +
-          '<abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz> (String)\n' +
-          'but was\n' +
-          '<abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz> (String)\n' +
-          'Difference was at position 40. Expected [...kkklmnopqrstuvwxyz] vs. actual [...kklmnopqrstuvwxyz]');
-}
-
-function testStringLongDiff() {
-  assertThrowsJsUnitException(
-      function() {
-        assertEquals(
-            'abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz',
-            'abc...xyz');
-      },
-      'Expected\n' +
-          '<abcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxyz> (String)\n' +
-          'but was\n' +
-          '<abc...xyz> (String)\n' +
-          'Difference was at position 3. Expected\n' +
-          '[...bcdefghijkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkklmnopqrstuvwxy...]\n' +
-          'vs. actual\n' +
-          '[...bc...xy...]');
-}
-
 function testStringDissimilarShort() {
   assertThrowsJsUnitException(function() {
     assertEquals('x', 'y');
@@ -1463,11 +1183,9 @@ function testDisplayStringForValue() {
 
 function testDisplayStringForValue_exception() {
   assertEquals(
-      '<toString failed: foo message> (Object)', _displayStringForValue({
-        toString: function() {
-          throw new Error('foo message');
-        }
-      }));
+      '<toString failed: foo message> (Object)',
+      _displayStringForValue(
+          {toString: function() { throw Error('foo message'); }}));
 }
 
 function testDisplayStringForValue_cycle() {
@@ -1476,10 +1194,4 @@ function testDisplayStringForValue_cycle() {
   assertTrue(
       'Computing string should terminate and result in a reasonable length',
       _displayStringForValue(cycle).length < 1000);
-}
-
-function testToArrayForIterable() {
-  const s = new Set([3]);
-  const arr = goog.testing.asserts.toArray_(s);
-  assertEquals(3, arr[0]);
 }

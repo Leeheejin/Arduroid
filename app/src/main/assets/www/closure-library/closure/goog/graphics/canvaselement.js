@@ -31,7 +31,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.safe');
 goog.require('goog.graphics.EllipseElement');
-goog.require('goog.graphics.Font');
 goog.require('goog.graphics.GroupElement');
 goog.require('goog.graphics.ImageElement');
 goog.require('goog.graphics.Path');
@@ -43,8 +42,6 @@ goog.require('goog.html.uncheckedconversions');
 goog.require('goog.math');
 goog.require('goog.string');
 goog.require('goog.string.Const');
-
-goog.forwardDeclare('goog.graphics.CanvasGraphics');
 
 
 
@@ -454,7 +451,7 @@ goog.graphics.CanvasPathElement.prototype.draw = function(ctx) {
         }
         break;
       case goog.graphics.Path.Segment.ARCTO:
-        throw new Error('Canvas paths cannot contain arcs');
+        throw Error('Canvas paths cannot contain arcs');
       case goog.graphics.Path.Segment.CLOSE:
         ctx.closePath();
         break;

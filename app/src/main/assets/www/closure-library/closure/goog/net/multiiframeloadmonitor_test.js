@@ -15,12 +15,14 @@
 goog.module('goog.net.MultiIframeLoadMonitorTest');
 goog.setTestOnly('goog.net.MultiIframeLoadMonitorTest');
 
-var MultiIframeLoadMonitor = goog.require('goog.net.MultiIframeLoadMonitor');
 var Promise = goog.require('goog.Promise');
-var PropertyReplacer = goog.require('goog.testing.PropertyReplacer');
-var TagName = goog.require('goog.dom.TagName');
 var Timer = goog.require('goog.Timer');
 var dom = goog.require('goog.dom');
+var TagName = goog.require('goog.dom.TagName');
+var IframeLoadMonitor = goog.require('goog.net.IframeLoadMonitor');
+var MultiIframeLoadMonitor = goog.require('goog.net.MultiIframeLoadMonitor');
+var PropertyReplacer = goog.require('goog.testing.PropertyReplacer');
+var jsunit = goog.require('goog.testing.jsunit');
 var testSuite = goog.require('goog.testing.testSuite');
 
 
@@ -94,16 +96,15 @@ testSuite({
     var disposeCalls = 0;
 
     // Replace the IframeLoadMonitor implementation with a fake.
-    function FakeIframeLoadMonitor() {
+    stubs.replace(goog.net, 'IframeLoadMonitor', function() {
       iframeLoadMonitorsCreated++;
       return {
         attachEvent: function() {},
         dispose: function() { disposeCalls++; },
         isLoaded: function() { return false; }
       };
-    }
-    FakeIframeLoadMonitor.LOAD_EVENT = 'ifload';
-    stubs.replace(goog.net, 'IframeLoadMonitor', FakeIframeLoadMonitor);
+    });
+    goog.net.IframeLoadMonitor.LOAD_EVENT = 'ifload';
 
     var frames = [dom.createDom(TagName.IFRAME), dom.createDom(TagName.IFRAME)];
     var monitor = new MultiIframeLoadMonitor(frames, function() {

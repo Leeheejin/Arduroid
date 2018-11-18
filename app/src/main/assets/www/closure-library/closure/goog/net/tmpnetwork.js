@@ -52,10 +52,8 @@ goog.define(
  *     for compatibility with existing code, but the search team does not want
  *     people using images served off of google.com for this purpose. The
  *     default will go away when all usages have been changed.
- * @param {number=} opt_timeout Milliseconds before giving up.
  */
-goog.net.tmpnetwork.testGoogleCom = function(
-    callback, opt_imageUri, opt_timeout) {
+goog.net.tmpnetwork.testGoogleCom = function(callback, opt_imageUri) {
   // We need to add a 'rand' to make sure the response is not fulfilled
   // by browser cache.
   var uri = opt_imageUri;
@@ -64,8 +62,7 @@ goog.net.tmpnetwork.testGoogleCom = function(
     uri.makeUnique();
   }
   goog.net.tmpnetwork.testLoadImage(
-      uri.toString(), opt_timeout || goog.net.tmpnetwork.GOOGLECOM_TIMEOUT,
-      callback);
+      uri.toString(), goog.net.tmpnetwork.GOOGLECOM_TIMEOUT, callback);
 };
 
 
@@ -109,7 +106,6 @@ goog.net.tmpnetwork.testLoadImageWithRetries = function(
  * @param {string} url URL to the iamge.
  * @param {number} timeout Milliseconds before giving up.
  * @param {Function} callback Function to call with results.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.net.tmpnetwork.testLoadImage = function(url, timeout, callback) {
   var channelDebug = new goog.net.ChannelDebug();
@@ -165,7 +161,6 @@ goog.net.tmpnetwork.testLoadImage = function(url, timeout, callback) {
  * Clear handlers to avoid memory leaks.
  * @param {Image} img The image to clear handlers from.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.net.tmpnetwork.clearImageCallbacks_ = function(img) {
   // NOTE(user): Nullified individually to avoid compiler warnings

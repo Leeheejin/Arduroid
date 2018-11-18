@@ -36,10 +36,10 @@ goog.require('goog.events.KeyCodes');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.string');
 goog.require('goog.ui.Component');
-goog.require('goog.ui.ComponentUtil');
 /** @suppress {extraRequire} */
 goog.require('goog.ui.ControlContent');
 goog.require('goog.ui.ControlRenderer');
+goog.require('goog.ui.decorate');
 goog.require('goog.ui.registry');
 goog.require('goog.userAgent');
 
@@ -122,6 +122,18 @@ goog.ui.Control.registerDecorator = goog.ui.registry.setDecoratorByClassName;
 goog.ui.Control.getDecorator =
     /** @type {function(Element): goog.ui.Control} */ (
         goog.ui.registry.getDecorator);
+
+
+/**
+ * Takes an element, and decorates it with a {@link goog.ui.Control} instance
+ * if a suitable decorator is found.
+ * @param {Element} element Element to decorate.
+ * @return {goog.ui.Control?} New control instance that decorates the element
+ *     (null if none).
+ * @deprecated Use {@link goog.ui.decorate} instead.
+ */
+goog.ui.Control.decorate =
+    /** @type {function(Element): goog.ui.Control} */ (goog.ui.decorate);
 
 
 /**
@@ -314,7 +326,7 @@ goog.ui.Control.prototype.getRenderer = function() {
 goog.ui.Control.prototype.setRenderer = function(renderer) {
   if (this.isInDocument()) {
     // Too late.
-    throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+    throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
   }
 
   if (this.getElement()) {
@@ -580,36 +592,21 @@ goog.ui.Control.prototype.enterDocument = function() {
  * @private
  */
 goog.ui.Control.prototype.enableMouseEventHandling_ = function(enable) {
-  var MouseEventType = goog.ui.ComponentUtil.getMouseEventType(this);
-
   var handler = this.getHandler();
   var element = this.getElement();
   if (enable) {
-    handler.listen(element, MouseEventType.MOUSEDOWN, this.handleMouseDown)
-        .listen(
-            element, [MouseEventType.MOUSEUP, MouseEventType.MOUSECANCEL],
-            this.handleMouseUp)
+    handler
         .listen(element, goog.events.EventType.MOUSEOVER, this.handleMouseOver)
+        .listen(element, goog.events.EventType.MOUSEDOWN, this.handleMouseDown)
+        .listen(element, goog.events.EventType.MOUSEUP, this.handleMouseUp)
         .listen(element, goog.events.EventType.MOUSEOUT, this.handleMouseOut);
-    if (this.pointerEventsEnabled()) {
-      // Prevent pointer events from capturing the target element so they behave
-      // more like mouse events.
-      handler.listen(
-          element, goog.events.EventType.GOTPOINTERCAPTURE,
-          this.preventPointerCapture_);
-    }
     if (this.handleContextMenu != goog.nullFunction) {
       handler.listen(
           element, goog.events.EventType.CONTEXTMENU, this.handleContextMenu);
     }
     if (goog.userAgent.IE) {
-      // Versions of IE before 9 send only one click event followed by a
-      // dblclick, so we must explicitly listen for these. In later versions,
-      // two click events are fired  and so a dblclick listener is unnecessary.
-      if (!goog.userAgent.isVersionOrHigher(9)) {
-        handler.listen(
-            element, goog.events.EventType.DBLCLICK, this.handleDblClick);
-      }
+      handler.listen(
+          element, goog.events.EventType.DBLCLICK, this.handleDblClick);
       if (!this.ieMouseEventSequenceSimulator_) {
         this.ieMouseEventSequenceSimulator_ =
             new goog.ui.Control.IeMouseEventSequenceSimulator_(this);
@@ -617,27 +614,20 @@ goog.ui.Control.prototype.enableMouseEventHandling_ = function(enable) {
       }
     }
   } else {
-    handler.unlisten(element, MouseEventType.MOUSEDOWN, this.handleMouseDown)
-        .unlisten(
-            element, [MouseEventType.MOUSEUP, MouseEventType.MOUSECANCEL],
-            this.handleMouseUp)
+    handler
         .unlisten(
             element, goog.events.EventType.MOUSEOVER, this.handleMouseOver)
+        .unlisten(
+            element, goog.events.EventType.MOUSEDOWN, this.handleMouseDown)
+        .unlisten(element, goog.events.EventType.MOUSEUP, this.handleMouseUp)
         .unlisten(element, goog.events.EventType.MOUSEOUT, this.handleMouseOut);
-    if (this.pointerEventsEnabled()) {
-      handler.unlisten(
-          element, goog.events.EventType.GOTPOINTERCAPTURE,
-          this.preventPointerCapture_);
-    }
     if (this.handleContextMenu != goog.nullFunction) {
       handler.unlisten(
           element, goog.events.EventType.CONTEXTMENU, this.handleContextMenu);
     }
     if (goog.userAgent.IE) {
-      if (!goog.userAgent.isVersionOrHigher(9)) {
-        handler.unlisten(
-            element, goog.events.EventType.DBLCLICK, this.handleDblClick);
-      }
+      handler.unlisten(
+          element, goog.events.EventType.DBLCLICK, this.handleDblClick);
       goog.dispose(this.ieMouseEventSequenceSimulator_);
       this.ieMouseEventSequenceSimulator_ = null;
     }
@@ -972,8 +962,8 @@ goog.ui.Control.prototype.setChecked = function(check) {
 
 /**
  * Returns true if the component is styled to indicate that it has keyboard
- * focus, false otherwise.  Note that `isFocused()` returning true
- * doesn't guarantee that the component's key event target has keyboard focus,
+ * focus, false otherwise.  Note that {@code isFocused()} returning true
+ * doesn't guarantee that the component's key event target has keyborad focus,
  * only that it is styled as such.
  * @return {boolean} Whether the component is styled to indicate as having
  *     keyboard focus.
@@ -987,7 +977,7 @@ goog.ui.Control.prototype.isFocused = function() {
  * Applies or removes styling indicating that the component has keyboard focus.
  * Note that unlike the other "set" methods, this method is called as a result
  * of the component's element having received or lost keyboard focus, not the
- * other way around, so calling `setFocused(true)` doesn't guarantee that
+ * other way around, so calling {@code setFocused(true)} doesn't guarantee that
  * the component's key event target has keyboard focus, only that it is styled
  * as such.
  * @param {boolean} focused Whether to apply or remove styling to indicate that
@@ -1100,7 +1090,7 @@ goog.ui.Control.prototype.isSupportedState = function(state) {
 goog.ui.Control.prototype.setSupportedState = function(state, support) {
   if (this.isInDocument() && this.hasState(state) && !support) {
     // Since we hook up event handlers in enterDocument(), this is an error.
-    throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+    throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
   }
 
   if (!support && this.hasState(state)) {
@@ -1238,18 +1228,6 @@ goog.ui.Control.prototype.handleMouseOut = function(e) {
 
 
 /**
- * @param {!goog.events.BrowserEvent} e Event to handle.
- * @private
- */
-goog.ui.Control.prototype.preventPointerCapture_ = function(e) {
-  var elem = /** @type {!Element} */ (e.target);
-  if (!!elem.releasePointerCapture) {
-    elem.releasePointerCapture(e.pointerId);
-  }
-};
-
-
-/**
  * Handles contextmenu events.
  * @param {goog.events.BrowserEvent} e Event to handle.
  */
@@ -1257,12 +1235,12 @@ goog.ui.Control.prototype.handleContextMenu = goog.nullFunction;
 
 
 /**
- * Checks if a mouse event (mouseover or mouseout) occurred below an element.
+ * Checks if a mouse event (mouseover or mouseout) occured below an element.
  * @param {goog.events.BrowserEvent} e Mouse event (should be mouseover or
  *     mouseout).
  * @param {Element} elem The ancestor element.
  * @return {boolean} Whether the event has a relatedTarget (the element the
- *     mouse is coming from) and it's a descendant of elem.
+ *     mouse is coming from) and it's a descendent of elem.
  * @private
  */
 goog.ui.Control.isMouseEventWithinElement_ = function(e, elem) {
@@ -1487,9 +1465,7 @@ goog.ui.Control.IeMouseEventSequenceSimulator_ = function(control) {
   /** @private {boolean} */
   this.clickExpected_ = false;
 
-  /** @private @const {!goog.events.EventHandler<
-   *                       !goog.ui.Control.IeMouseEventSequenceSimulator_>}
-   */
+  /** @private @const */
   this.handler_ = new goog.events.EventHandler(this);
   this.registerDisposable(this.handler_);
 

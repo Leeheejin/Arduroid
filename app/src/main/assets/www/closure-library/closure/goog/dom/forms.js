@@ -16,7 +16,6 @@
  * @fileoverview Utilities for manipulating a form and elements.
  *
  * @author arv@google.com (Erik Arvidsson)
- * @suppress {strictMissingProperties}
  */
 
 goog.provide('goog.dom.forms');
@@ -24,96 +23,6 @@ goog.provide('goog.dom.forms');
 goog.require('goog.dom.InputType');
 goog.require('goog.dom.TagName');
 goog.require('goog.structs.Map');
-goog.require('goog.window');
-
-
-
-/**
- * Submits form data via a new window. This hides references to the parent
- * window and should be used when submitting forms to untrusted 3rd party urls.
- * By default, this uses the action and method of the specified form
- * element. It is possible to override the default action and method if an
- * optional submit element with formaction and/or formmethod attributes is
- * provided.
- * @param {!HTMLFormElement} form The form.
- * @param {!HTMLElement=} opt_submitElement The `<button>` or `<input>` element
- *     used to submit the form. The element should have a submit type.
- * @return {boolean} true If the form was submitted succesfully.
- * @throws {!Error} If opt_submitElement is not a valid form submit element.
- */
-goog.dom.forms.submitFormInNewWindow = function(form, opt_submitElement) {
-  var formData = goog.dom.forms.getFormDataMap(form);
-  var action = form.action;
-  var method = form.method;
-
-  if (opt_submitElement) {
-    if (goog.dom.InputType.SUBMIT != opt_submitElement.type.toLowerCase()) {
-      throw new Error('opt_submitElement does not have a valid type.');
-    }
-
-
-    var submitValue =
-        /** @type {?string} */ (goog.dom.forms.getValue(opt_submitElement));
-    if (submitValue != null) {
-      goog.dom.forms.addFormDataToMap_(
-          formData, opt_submitElement.name, submitValue);
-    }
-
-    if (opt_submitElement.getAttribute('formaction')) {
-      action = opt_submitElement.getAttribute('formaction');
-    }
-
-    if (opt_submitElement.getAttribute('formmethod')) {
-      method = opt_submitElement.getAttribute('formmethod');
-    }
-  }
-
-  return goog.dom.forms.submitFormDataInNewWindow(action, method, formData);
-};
-
-/**
- * Submits form data via a new window. This hides references to the parent
- * window and should be used when submitting forms to untrusted 3rd party urls.
- * @param {string} actionUri uri to submit form content to.
- * @param {string} method HTTP method used to submit the form.
- * @param {!goog.structs.Map<string, !Array<string>>} formData A map of the form
- *     data as field name to arrays of values.
- * @return {boolean} true If the form was submitted succesfully.
- */
-goog.dom.forms.submitFormDataInNewWindow = function(
-    actionUri, method, formData) {
-  var newWin = goog.window.openBlank('', {noreferrer: true});
-
-  // This could be null if a new window could not be opened. e.g. if it was
-  // stopped by a popup blocker.
-  if (!newWin) {
-    return false;
-  }
-
-  var newDocument = newWin.document;
-
-  var newForm =
-      /** @type {!HTMLFormElement} */ (newDocument.createElement('form'));
-  newForm.method = method;
-  newForm.action = actionUri;
-
-  // After this point, do not directly reference the form object's functions as
-  // field names can shadow the form's properties.
-
-  formData.forEach(function(fieldValues, fieldName) {
-    for (var i = 0; i < fieldValues.length; i++) {
-      var fieldValue = fieldValues[i];
-      var newInput = newDocument.createElement('input');
-      newInput.name = fieldName;
-      newInput.value = fieldValue;
-      newInput.type = 'hidden';
-      HTMLFormElement.prototype.appendChild.call(newForm, newInput);
-    }
-  });
-
-  HTMLFormElement.prototype.submit.call(newForm);
-  return true;
-};
 
 
 /**
@@ -150,7 +59,7 @@ goog.dom.forms.getFormDataString = function(form) {
  * string. This doesn't support file inputs.
  * @param {HTMLFormElement} form The form.
  * @param {Object} result The object form data is being put in.
- * @param {Function} fnAppend Function that takes `result`, an element
+ * @param {Function} fnAppend Function that takes {@code result}, an element
  *     name, and an element value, and adds the name/value pair to the result
  *     object.
  * @private
@@ -195,7 +104,7 @@ goog.dom.forms.getFormDataHelper_ = function(form, result, fnAppend) {
   }
 
   // input[type=image] are not included in the elements collection
-  var inputs = form.getElementsByTagName(String(goog.dom.TagName.INPUT));
+  var inputs = form.getElementsByTagName(goog.dom.TagName.INPUT);
   for (var input, i = 0; input = inputs[i]; i++) {
     if (input.form == form &&
         input.type.toLowerCase() == goog.dom.InputType.IMAGE) {
@@ -319,9 +228,11 @@ goog.dom.forms.hasValueByName = function(form, name) {
  *     (or null).
  */
 goog.dom.forms.getValue = function(el) {
-  // Elements with a type may need more specialized logic.
   var type = /** @type {!HTMLInputElement} */ (el).type;
-  switch (goog.isString(type) && type.toLowerCase()) {
+  if (!goog.isDef(type)) {
+    return null;
+  }
+  switch (type.toLowerCase()) {
     case goog.dom.InputType.CHECKBOX:
     case goog.dom.InputType.RADIO:
       return goog.dom.forms.getInputChecked_(el);
@@ -330,10 +241,18 @@ goog.dom.forms.getValue = function(el) {
     case goog.dom.InputType.SELECT_MULTIPLE:
       return goog.dom.forms.getSelectMultiple_(el);
     default:
-      // Not every element with a value has a type (e.g. meter and progress).
-      return el.value != null ? el.value : null;
+      return goog.isDef(el.value) ? el.value : null;
   }
 };
+
+
+/**
+ * Alias for goog.dom.form.element.getValue
+ * @type {Function}
+ * @deprecated Use {@link goog.dom.forms.getValue} instead.
+ * @suppress {missingProvide}
+ */
+goog.dom.$F = goog.dom.forms.getValue;
 
 
 /**
@@ -384,9 +303,7 @@ goog.dom.forms.getInputChecked_ = function(el) {
  */
 goog.dom.forms.getSelectSingle_ = function(el) {
   var selectedIndex = /** @type {!HTMLSelectElement} */ (el).selectedIndex;
-  return selectedIndex >= 0 ?
-      /** @type {!HTMLSelectElement} */ (el).options[selectedIndex].value :
-      null;
+  return selectedIndex >= 0 ? el.options[selectedIndex].value : null;
 };
 
 
@@ -416,28 +333,28 @@ goog.dom.forms.getSelectMultiple_ = function(el) {
  *     an array for setting the value of select multiple elements.
  */
 goog.dom.forms.setValue = function(el, opt_value) {
-  // Elements with a type may need more specialized logic.
   var type = /** @type {!HTMLInputElement} */ (el).type;
-  switch (goog.isString(type) && type.toLowerCase()) {
-    case goog.dom.InputType.CHECKBOX:
-    case goog.dom.InputType.RADIO:
-      goog.dom.forms.setInputChecked_(
-          el,
-          /** @type {string} */ (opt_value));
-      return;
-    case goog.dom.InputType.SELECT_ONE:
-      goog.dom.forms.setSelectSingle_(
-          el,
-          /** @type {string} */ (opt_value));
-      return;
-    case goog.dom.InputType.SELECT_MULTIPLE:
-      goog.dom.forms.setSelectMultiple_(
-          el,
-          /** @type {!Array<string>} */ (opt_value));
-      return;
-    default:
-      // Not every element with a value has a type (e.g. meter and progress).
-      el.value = opt_value != null ? opt_value : '';
+  if (goog.isDef(type)) {
+    switch (type.toLowerCase()) {
+      case goog.dom.InputType.CHECKBOX:
+      case goog.dom.InputType.RADIO:
+        goog.dom.forms.setInputChecked_(
+            el,
+            /** @type {string} */ (opt_value));
+        break;
+      case goog.dom.InputType.SELECT_ONE:
+        goog.dom.forms.setSelectSingle_(
+            el,
+            /** @type {string} */ (opt_value));
+        break;
+      case goog.dom.InputType.SELECT_MULTIPLE:
+        goog.dom.forms.setSelectMultiple_(
+            el,
+            /** @type {Array<string>} */ (opt_value));
+        break;
+      default:
+        el.value = goog.isDefAndNotNull(opt_value) ? opt_value : '';
+    }
   }
 };
 

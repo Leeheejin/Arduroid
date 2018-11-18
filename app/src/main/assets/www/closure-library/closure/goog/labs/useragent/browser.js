@@ -35,13 +35,12 @@ goog.require('goog.string');
 
 
 /**
- * @return {boolean} Whether the user's browser is Opera.  Note: Chromium
- *     based Opera (Opera 15+) is detected as Chrome to avoid unnecessary
- *     special casing.
+ * @return {boolean} Whether the user's browser is Opera.
  * @private
  */
 goog.labs.userAgent.browser.matchOpera_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent('Opera');
+  return goog.labs.userAgent.util.matchUserAgent('Opera') ||
+      goog.labs.userAgent.util.matchUserAgent('OPR');
 };
 
 
@@ -121,6 +120,7 @@ goog.labs.userAgent.browser.matchIosWebview_ = function() {
 goog.labs.userAgent.browser.matchChrome_ = function() {
   return (goog.labs.userAgent.util.matchUserAgent('Chrome') ||
           goog.labs.userAgent.util.matchUserAgent('CriOS')) &&
+      !goog.labs.userAgent.browser.matchOpera_() &&
       !goog.labs.userAgent.browser.matchEdge_();
 };
 
@@ -252,7 +252,7 @@ goog.labs.userAgent.browser.getVersion = function() {
   if (goog.labs.userAgent.browser.isOpera()) {
     // Opera 10 has Version/10.0 but Opera/9.8, so look for "Version" first.
     // Opera uses 'OPR' for more recent UAs.
-    return lookUpValueWithKeys(['Version', 'Opera']);
+    return lookUpValueWithKeys(['Version', 'Opera', 'OPR']);
   }
 
   // Check Edge before Chrome since it has Chrome in the string.

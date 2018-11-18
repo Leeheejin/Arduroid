@@ -84,17 +84,14 @@ function testSavedCaretRange() {
   assertHTMLEquals('jkl', jkl.innerHTML);
 
   // def and jkl now contain fragmented text nodes.
-  var endNode = selection.getEndNode();
-  if (endNode == jkl.childNodes[0]) {
-    // Webkit (up to Chrome 57) and IE < 9.
+  if (goog.userAgent.WEBKIT ||
+      (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher('9'))) {
     goog.testing.dom.assertRangeEquals(
         def.childNodes[1], 0, jkl.childNodes[0], 2, selection);
-  } else if (endNode == jkl.childNodes[1]) {
-    // Opera
+  } else if (goog.userAgent.OPERA) {
     goog.testing.dom.assertRangeEquals(
         def.childNodes[1], 0, jkl.childNodes[1], 0, selection);
   } else {
-    // Gecko, newer Chromes
     goog.testing.dom.assertRangeEquals(def, 1, jkl, 1, selection);
   }
 }

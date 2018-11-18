@@ -19,14 +19,12 @@
 goog.provide('goog.html.safeHtmlTest');
 
 goog.require('goog.html.SafeHtml');
-goog.require('goog.html.SafeScript');
 goog.require('goog.html.SafeStyle');
 goog.require('goog.html.SafeStyleSheet');
 goog.require('goog.html.SafeUrl');
 goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.html.testing');
 goog.require('goog.i18n.bidi.Dir');
-goog.require('goog.labs.userAgent.browser');
 goog.require('goog.object');
 goog.require('goog.string.Const');
 goog.require('goog.testing.jsunit');
@@ -87,26 +85,6 @@ function testHtmlEscape() {
   assertEquals(
       'SafeHtml{Hello &lt;em&gt;&quot;&#39;&amp;World&lt;/em&gt;}',
       String(safeHtml));
-
-  // Primitives with properties that wrongly indicate that the text is of a type
-  // that implements `goog.i18n.bidi.DirectionalString` and
-  // `goog.string.TypedString` are escaped. This simulates a property renaming
-  // collision with a String, Number or Boolean property set externally.
-  var stringWithProperties = 'Hello <em>"\'&World</em>';
-  stringWithProperties.implementsGoogI18nBidiDirectionalString = true;
-  stringWithProperties.implementsGoogStringTypedString = true;
-  safeHtml = goog.html.SafeHtml.htmlEscape(stringWithProperties);
-  assertSameHtml('Hello &lt;em&gt;&quot;&#39;&amp;World&lt;/em&gt;', safeHtml);
-  var numberWithProperties = 123;
-  numberWithProperties.implementsGoogI18nBidiDirectionalString = true;
-  numberWithProperties.implementsGoogStringTypedString = true;
-  safeHtml = goog.html.SafeHtml.htmlEscape(numberWithProperties);
-  assertSameHtml('123', safeHtml);
-  var booleanWithProperties = true;
-  booleanWithProperties.implementsGoogI18nBidiDirectionalString = true;
-  booleanWithProperties.implementsGoogStringTypedString = true;
-  safeHtml = goog.html.SafeHtml.htmlEscape(booleanWithProperties);
-  assertSameHtml('true', safeHtml);
 
   // Creating from a SafeUrl escapes and retains the known direction (which is
   // fixed to RTL for URLs).
@@ -271,7 +249,6 @@ function testSafeHtmlCreate_urlAttributes() {
 }
 
 
-/** @suppress {checkTypes} */
 function testSafeHtmlCreateIframe() {
   // Setting src and srcdoc.
   var url = goog.html.TrustedResourceUrl.fromConstant(
@@ -300,174 +277,11 @@ function testSafeHtmlCreateIframe() {
     goog.html.SafeHtml.createIframe(null, null, {'Srcdoc': url});
   });
 
-  // Unsafe src and srcdoc.
-  assertThrows(function() {
-    goog.html.SafeHtml.createIframe('http://example.com');
-  });
-  assertThrows(function() {
-    goog.html.SafeHtml.createIframe(null, '<script>alert(1)</script>');
-  });
-
   // Can set content.
   assertSameHtml(
       '<iframe>&lt;</iframe>',
       goog.html.SafeHtml.createIframe(null, null, {'sandbox': null}, '<'));
 }
-
-/** @suppress {checkTypes} */
-function testSafeHtmlcreateSandboxIframe() {
-  function assertSameHtmlIfSupportsSandbox(referenceHtml, testedHtmlFunction) {
-    if (!goog.html.SafeHtml.canUseSandboxIframe()) {
-      assertThrows(testedHtmlFunction);
-    } else {
-      assertSameHtml(referenceHtml, testedHtmlFunction());
-    }
-  }
-
-  // Setting src and srcdoc.
-  var url = goog.html.SafeUrl.fromConstant(
-      goog.string.Const.from('https://google.com/trusted<'));
-  assertSameHtmlIfSupportsSandbox(
-      '<iframe src="https://google.com/trusted&lt;" sandbox=""></iframe>',
-      function() { return goog.html.SafeHtml.createSandboxIframe(url, null); });
-
-  // If set with a string, src is sanitized.
-  assertSameHtmlIfSupportsSandbox(
-      '<iframe src="' + goog.html.SafeUrl.INNOCUOUS_STRING +
-          '" sandbox=""></iframe>',
-      function() {
-        return goog.html.SafeHtml.createSandboxIframe(
-            "javascript:evil();", null);
-      });
-
-  var srcdoc = '<br>';
-  assertSameHtmlIfSupportsSandbox(
-      '<iframe srcdoc="&lt;br&gt;" sandbox=""></iframe>', function() {
-        return goog.html.SafeHtml.createSandboxIframe(null, srcdoc);
-      });
-
-  // Cannot override src, srcdoc.
-  assertThrows(function() {
-    goog.html.SafeHtml.createSandboxIframe(null, null, {'Src': url});
-  });
-  assertThrows(function() {
-    goog.html.SafeHtml.createSandboxIframe(null, null, {'Srcdoc': url});
-  });
-
-
-  // Sandboxed by default, and can't be overriden.
-  assertSameHtmlIfSupportsSandbox('<iframe sandbox=""></iframe>', function() {
-    return goog.html.SafeHtml.createSandboxIframe();
-  });
-
-  assertThrows(function() {
-    goog.html.SafeHtml.createSandboxIframe(null, null, {'sandbox': ''});
-  });
-  assertThrows(function() {
-    goog.html.SafeHtml.createSandboxIframe(
-        null, null, {'SaNdBoX': 'allow-scripts'});
-  });
-  assertThrows(function() {
-    goog.html.SafeHtml.createSandboxIframe(
-        null, null, {'sandbox': 'allow-same-origin allow-top-navigation'});
-  });
-
-  // Can set content.
-  assertSameHtmlIfSupportsSandbox(
-      '<iframe sandbox="">&lt;</iframe>', function() {
-        return goog.html.SafeHtml.createSandboxIframe(null, null, null, '<');
-      });
-}
-
-
-function testSafeHtmlCanUseIframeSandbox() {
-  // We know that the IE < 10 do not support the sandbox attribute, so use them
-  // as a reference.
-  if (goog.labs.userAgent.browser.isIE() &&
-      goog.labs.userAgent.browser.getVersion() < 10) {
-    assertEquals(false, goog.html.SafeHtml.canUseSandboxIframe());
-  } else {
-    assertEquals(true, goog.html.SafeHtml.canUseSandboxIframe());
-  }
-}
-
-
-function testSafeHtmlCreateScript() {
-  var script =
-      goog.html.SafeScript.fromConstant(goog.string.Const.from('function1();'));
-  var scriptHtml = goog.html.SafeHtml.createScript(script);
-  assertSameHtml('<script>function1();</script>', scriptHtml);
-
-  // Two pieces of script.
-  var otherScript =
-      goog.html.SafeScript.fromConstant(goog.string.Const.from('function2();'));
-  scriptHtml = goog.html.SafeHtml.createScript([script, otherScript]);
-  assertSameHtml('<script>function1();function2();</script>', scriptHtml);
-
-  // Set attribute.
-  scriptHtml = goog.html.SafeHtml.createScript(script, {'id': 'test'});
-  assertContains('id="test"', goog.html.SafeHtml.unwrap(scriptHtml));
-
-  // Set attribute to null.
-  scriptHtml =
-      goog.html.SafeHtml.createScript(goog.html.SafeScript.EMPTY, {'id': null});
-  assertSameHtml('<script></script>', scriptHtml);
-
-  // Set attribute to invalid value.
-  var exception = assertThrows(function() {
-    goog.html.SafeHtml.createScript(
-        goog.html.SafeScript.EMPTY, {'invalid.': 'cantdothis'});
-  });
-  assertContains('Invalid attribute name', exception.message);
-
-  // Cannot override type attribute.
-  exception = assertThrows(function() {
-    goog.html.SafeHtml.createScript(
-        goog.html.SafeScript.EMPTY, {'Type': 'cantdothis'});
-  });
-  assertContains('Cannot set "type"', exception.message);
-
-  // Cannot set src attribute.
-  exception = assertThrows(function() {
-    goog.html.SafeHtml.createScript(
-        goog.html.SafeScript.EMPTY, {'src': 'cantdothis'});
-  });
-  assertContains('Cannot set "src"', exception.message);
-
-  // Directionality.
-  assertEquals(goog.i18n.bidi.Dir.NEUTRAL, scriptHtml.getDirection());
-}
-
-
-/** @suppress {checkTypes} */
-function testSafeHtmlCreateScriptSrc() {
-  var url = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('https://google.com/trusted<'));
-
-  assertSameHtml(
-      '<script src="https://google.com/trusted&lt;"></script>',
-      goog.html.SafeHtml.createScriptSrc(url));
-
-  assertSameHtml(
-      '<script src="https://google.com/trusted&lt;" defer="defer"></script>',
-      goog.html.SafeHtml.createScriptSrc(url, {'defer': 'defer'}));
-
-  // Unsafe src.
-  assertThrows(function() {
-    goog.html.SafeHtml.createScriptSrc('http://example.com');
-  });
-
-  // Unsafe attribute.
-  assertThrows(function() {
-    goog.html.SafeHtml.createScriptSrc(url, {'onerror': 'alert(1)'});
-  });
-
-  // Cannot override src.
-  assertThrows(function() {
-    goog.html.SafeHtml.createScriptSrc(url, {'Src': url});
-  });
-}
-
 
 function testSafeHtmlCreateMeta() {
   var url = goog.html.SafeUrl.fromConstant(
@@ -529,8 +343,8 @@ function testSafeHtmlCreateStyle() {
   // Set attribute.
   styleHtml = goog.html.SafeHtml.createStyle(styleSheet, {'id': 'test'});
   var styleHtmlString = goog.html.SafeHtml.unwrap(styleHtml);
-  assertContains('id="test"', styleHtmlString);
-  assertContains('type="text/css"', styleHtmlString);
+  assertTrue(styleHtmlString, styleHtmlString.indexOf('id="test"') != -1);
+  assertTrue(styleHtmlString, styleHtmlString.indexOf('type="text/css"') != -1);
 
   // Set attribute to null.
   styleHtml = goog.html.SafeHtml.createStyle(
@@ -538,18 +352,16 @@ function testSafeHtmlCreateStyle() {
   assertSameHtml('<style type="text/css"></style>', styleHtml);
 
   // Set attribute to invalid value.
-  var exception = assertThrows(function() {
-    goog.html.SafeHtml.createStyle(
+  assertThrows(function() {
+    styleHtml = goog.html.SafeHtml.createStyle(
         goog.html.SafeStyleSheet.EMPTY, {'invalid.': 'cantdothis'});
   });
-  assertContains('Invalid attribute name', exception.message);
 
   // Cannot override type attribute.
-  exception = assertThrows(function() {
-    goog.html.SafeHtml.createStyle(
+  assertThrows(function() {
+    styleHtml = goog.html.SafeHtml.createStyle(
         goog.html.SafeStyleSheet.EMPTY, {'Type': 'cantdothis'});
   });
-  assertContains('Cannot override "type"', exception.message);
 
   // Directionality.
   assertEquals(goog.i18n.bidi.Dir.NEUTRAL, styleHtml.getDirection());

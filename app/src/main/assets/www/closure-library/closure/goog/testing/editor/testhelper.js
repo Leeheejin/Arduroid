@@ -18,7 +18,6 @@
  * @author robbyw@google.com (Robby Walker)
  */
 
-goog.setTestOnly('goog.testing.editor.TestHelper');
 goog.provide('goog.testing.editor.TestHelper');
 
 goog.require('goog.Disposable');
@@ -40,7 +39,7 @@ goog.require('goog.testing.dom');
  */
 goog.testing.editor.TestHelper = function(root) {
   if (!root) {
-    throw new Error('Null root');
+    throw Error('Null root');
   }
   goog.Disposable.call(this);
 
@@ -67,14 +66,14 @@ goog.inherits(goog.testing.editor.TestHelper, goog.Disposable);
  */
 goog.testing.editor.TestHelper.prototype.setRoot = function(root) {
   if (!root) {
-    throw new Error('Null root');
+    throw Error('Null root');
   }
   this.root_ = root;
 };
 
 
 /**
- * Make the root element editable.  Also saves its HTML to be restored
+ * Make the root element editable.  Alse saves its HTML to be restored
  * in tearDown.
  */
 goog.testing.editor.TestHelper.prototype.setUpEditableElement = function() {
@@ -143,8 +142,8 @@ goog.testing.editor.TestHelper.prototype.findTextNode = function(textOrRegexp) {
 
 
 /**
- * Select from the given `fromOffset` in the given `from` node to
- * the given `toOffset` in the optionally given `to` node. If nodes
+ * Select from the given {@code fromOffset} in the given {@code from} node to
+ * the given {@code toOffset} in the optionally given {@code to} node. If nodes
  * are passed in, uses them, otherwise uses findTextNode to find the nodes to
  * select. Selects a caret if opt_to and opt_toOffset are not given.
  * @param {Node|string} from Node or text of the node to start the selection at.

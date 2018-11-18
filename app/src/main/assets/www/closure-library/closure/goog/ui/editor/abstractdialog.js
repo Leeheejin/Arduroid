@@ -44,11 +44,8 @@ goog.require('goog.ui.PopupBase');
  * @extends {goog.events.EventTarget}
  */
 goog.ui.editor.AbstractDialog = function(domHelper) {
-  goog.ui.editor.AbstractDialog.base(this, 'constructor');
+  goog.events.EventTarget.call(this);
   this.dom = domHelper;
-
-  /** @private {?goog.ui.Dialog} */
-  this.dialogInternal_ = null;
 };
 goog.inherits(goog.ui.editor.AbstractDialog, goog.events.EventTarget);
 
@@ -428,6 +425,14 @@ goog.ui.editor.AbstractDialog.prototype.disposeInternal = function() {
 
 
 // *** Private implementation *********************************************** //
+
+
+/**
+ * The wrapped dialog widget.
+ * @type {goog.ui.Dialog}
+ * @private
+ */
+goog.ui.editor.AbstractDialog.prototype.dialogInternal_;
 
 
 /**

@@ -21,19 +21,15 @@ goog.require('goog.dom.TagName');
 goog.require('goog.events');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventType');
-goog.require('goog.html.testing');
+goog.require('goog.html.SafeUrl');
 goog.require('goog.testing.MockControl');
 goog.require('goog.testing.events');
 goog.require('goog.testing.jsunit');
 goog.require('goog.ui.media.FlashObject');
 goog.require('goog.userAgent');
 
-// Delay running the tests after page load. This test has some asynchronous
-// behavior that interacts with page load detection.
-goog.testing.jsunit.AUTO_RUN_DELAY_IN_MS = 500;
 
-var FLASH_URL = goog.html.testing.newTrustedResourceUrlForTest(
-    'http://www.youtube.com/v/RbI7cCp0v6w&hl=en&fs=1');
+var FLASH_URL = 'http://www.youtube.com/v/RbI7cCp0v6w&hl=en&fs=1';
 var control = new goog.testing.MockControl();
 var domHelper = control.createLooseMock(goog.dom.DomHelper);
 // TODO(user): mocking window.document throws exceptions in FF2. find out how
@@ -107,7 +103,7 @@ function testRenderedWithCorrectAttributes() {
       el.getAttribute('pluginspage'));
   assertEquals('high', el.getAttribute('quality'));
   assertEquals('false', el.getAttribute('SeamlessTabbing'));
-  assertEquals(FLASH_URL.getTypedStringValue(), el.getAttribute('src'));
+  assertEquals(FLASH_URL, el.getAttribute('src'));
   assertEquals('application/x-shockwave-flash', el.getAttribute('type'));
   assertEquals('wmode', el.getAttribute('wmode'));
 }
@@ -145,6 +141,34 @@ function testRenderedWithCorrectAttributesOldIe() {
   assertContainsParam(el, 'quality', 'high');
   assertContainsParam(el, 'SeamlessTabbing', 'false');
   assertContainsParam(el, 'wmode', 'wmode');
+}
+
+function testUrlIsSanitized() {
+  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(11)) {
+    return;
+  }
+
+  control.$replayAll();
+
+  var flash = new goog.ui.media.FlashObject('javascript:evil', domHelper);
+  flash.render();
+  var el = flash.getFlashElement();
+
+  assertEquals(goog.html.SafeUrl.INNOCUOUS_STRING, el.getAttribute('src'));
+}
+
+function testUrlIsSanitizedOldIe() {
+  if (!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(11)) {
+    return;
+  }
+
+  control.$replayAll();
+
+  var flash = new goog.ui.media.FlashObject('javascript:evil', domHelper);
+  flash.render();
+  var el = flash.getFlashElement();
+
+  assertContainsParam(el, 'movie', goog.html.SafeUrl.INNOCUOUS_STRING);
 }
 
 function assertContainsParam(element, expectedName, expectedValue) {
@@ -276,6 +300,23 @@ function testIsLoadedAfterDispose() {
   // assertTrue(flash.isLoaded());
   flash.dispose();
   assertFalse(flash.isLoaded());
+}
+
+function testXssAttacks() {
+  control.$replayAll();
+
+  called = false;
+  var injection = '' +
+      '">' +
+      '</embed>' +
+      '<script>called = true; // evil arbitrary js injected here<\/script>' +
+      '<embed src=""';
+  var flash = new goog.ui.media.FlashObject(injection, domHelper);
+  flash.render();
+  // Makes sure FlashObject html escapes user input.
+  // NOTE(user): this test fails if the URL is not HTML escaped, showing that
+  // html escaping is necessary to avoid attacks.
+  assertFalse(called);
 }
 
 function testPropagatesEventsConsistently() {

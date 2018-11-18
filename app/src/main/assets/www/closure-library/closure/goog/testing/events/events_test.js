@@ -167,11 +167,6 @@ function testFocus() {
   assertEventTypes(['focus']);
 }
 
-function testFocusIn() {
-  goog.testing.events.fireFocusInEvent(root);
-  assertEventTypes([goog.events.EventType.FOCUSIN]);
-}
-
 function testBlur() {
   goog.testing.events.fireBlurEvent(root);
   assertEventTypes(['blur']);
@@ -367,7 +362,7 @@ function testKeySequenceCancellingKeyup() {
 function testKeySequenceWithEscapeKey() {
   assertTrue(
       goog.testing.events.fireKeySequence(root, goog.events.KeyCodes.ESC));
-  if (goog.userAgent.EDGE || goog.userAgent.GECKO ||
+  if (goog.userAgent.EDGE ||
       (goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher('525'))) {
     assertEventTypes(['keydown', 'keyup']);
   } else {
@@ -375,12 +370,19 @@ function testKeySequenceWithEscapeKey() {
   }
 }
 
-function testKeySequenceForMacActionKeys() {
+function testKeySequenceForMacActionKeysNegative() {
+  stubs.set(goog.userAgent, 'GECKO', false);
+  goog.testing.events.fireKeySequence(
+      root, goog.events.KeyCodes.C, {'metaKey': true});
+  assertEventTypes(['keydown', 'keypress', 'keyup']);
+}
+
+function testKeySequenceForMacActionKeysPositive() {
   stubs.set(goog.userAgent, 'GECKO', true);
   stubs.set(goog.userAgent, 'MAC', true);
   goog.testing.events.fireKeySequence(
       root, goog.events.KeyCodes.C, {'metaKey': true});
-  assertEventTypes(['keydown', 'keyup']);
+  assertEventTypes(['keypress', 'keyup']);
 }
 
 function testKeySequenceForOptionKeysOnMac() {

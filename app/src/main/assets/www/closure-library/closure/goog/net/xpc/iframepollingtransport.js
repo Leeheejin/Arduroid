@@ -24,7 +24,6 @@ goog.provide('goog.net.xpc.IframePollingTransport.Sender');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
 goog.require('goog.log');
 goog.require('goog.log.Level');
 goog.require('goog.net.xpc');
@@ -156,7 +155,7 @@ goog.net.xpc.IframePollingTransport.prototype.ackIframeElm_;
 goog.net.xpc.IframePollingTransport.prototype.ackWinObj_;
 
 
-/** @private {!Function|undefined} */
+/** @private */
 goog.net.xpc.IframePollingTransport.prototype.checkLocalFramesPresentCb_;
 
 
@@ -235,7 +234,7 @@ goog.net.xpc.IframePollingTransport.prototype.isChannelAvailable = function() {
 /**
  * Safely retrieves the frames from the peer window. If an error is thrown
  * (e.g. the window is closing) an empty frame object is returned.
- * @return {!Object<string|number, !Window>} The frames from the peer window.
+ * @return {!Object<!Window>} The frames from the peer window.
  * @private
  */
 goog.net.xpc.IframePollingTransport.prototype.getPeerFrames_ = function() {
@@ -484,7 +483,7 @@ goog.net.xpc.IframePollingTransport.prototype.isRcvFrameReady_ = function(
   goog.log.log(
       goog.net.xpc.logger, goog.log.Level.FINEST,
       'checking for receive frame: ' + frameName);
-
+  /** @preserveTry */
   try {
     var winObj = this.getPeerFrame_(frameName);
     if (!winObj || winObj.location.href.indexOf(this.rcvUri_) != 0) {
@@ -719,7 +718,7 @@ goog.net.xpc.IframePollingTransport.prototype.MAX_FRAME_LENGTH_ = 3800;
 /**
  * Sends a message. Splits it in multiple frames if too long (exceeds IE's
  * URL-length maximum.
- * Wireformat: `<seq>[,<frame_no>/<#frames>]|<frame_content>`
+ * Wireformat: <seq>[,<frame_no>/<#frames>]|<frame_content>
  *
  * @param {string} service Name of service this the message has to be delivered.
  * @param {string} payload The message content.
@@ -806,7 +805,7 @@ goog.net.xpc.IframePollingTransport.receive_ = function() {
   var receiver;
   var rcvd = false;
 
-
+  /** @preserveTry */
   try {
     for (var i = 0; receiver = receivers[i]; i++) {
       rcvd = rcvd || receiver.receive();
@@ -885,7 +884,7 @@ goog.net.xpc.IframePollingTransport.Sender = function(url, windowObj) {
   // elsewhere than IframePollingTransport the url needs to be sanitized
   // here too.
   if (!/^https?:\/\//.test(url)) {
-    throw new Error('URL ' + url + ' is invalid');
+    throw Error('URL ' + url + ' is invalid');
   }
 
   /**
@@ -927,11 +926,11 @@ goog.net.xpc.IframePollingTransport.Sender.prototype.send = function(payload) {
       this.sanitizedSendUri_ + '#' + this.cycle_ + encodeURIComponent(payload);
 
   // TODO(user) Find out if try/catch is still needed
-
+  /** @preserveTry */
   try {
     // safari doesn't allow to call location.replace()
     if (goog.userAgent.WEBKIT) {
-      goog.dom.safe.setLocationHref(this.sendFrame_.location, url);
+      this.sendFrame_.location.href = url;
     } else {
       this.sendFrame_.location.replace(url);
     }

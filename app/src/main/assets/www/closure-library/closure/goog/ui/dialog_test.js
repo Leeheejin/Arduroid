@@ -41,7 +41,7 @@ var mockClock;
 
 function setUp() {
   mockClock = new goog.testing.MockClock(true);
-  bodyChildElement = goog.dom.createElement(goog.dom.TagName.DIV);
+  bodyChildElement = document.createElement(goog.dom.TagName.DIV);
   document.body.appendChild(bodyChildElement);
   dialog = new goog.ui.Dialog();
   var buttons = new goog.ui.Dialog.ButtonSet();
@@ -69,8 +69,8 @@ function testCrossFrameFocus() {
   }
   dialog.setVisible(false);
   var iframeWindow = goog.dom.getElement('f').contentWindow;
-  var iframeInput = goog.dom.getElementsByTagName(
-      goog.dom.TagName.INPUT, iframeWindow.document)[0];
+  var iframeInput =
+      iframeWindow.document.getElementsByTagName(goog.dom.TagName.INPUT)[0];
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.OK);
   var dialogElement = dialog.getElement();
   var focusCounter = 0;
@@ -109,8 +109,8 @@ function testNoTitleClose() {
  * @return {boolean} Whether a goog.ui.Dialog.EventType.SELECT was dispatched.
  */
 function checkSelectDispatchedOnButtonClick(disableButton) {
-  var aButton = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getButtonElement())[0];
+  var aButton = dialog.getButtonElement().getElementsByTagName(
+      goog.dom.TagName.BUTTON)[0];
   assertNotEquals(aButton, null);
   aButton.disabled = disableButton;
   var wasCalled = false;
@@ -135,8 +135,8 @@ function testDisabledButtonClicksDontDispatchSelectEvents() {
 }
 
 function testEnterKeyDispatchesDefaultSelectEvents() {
-  var okButton = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getButtonElement())[1];
+  var okButton = dialog.getButtonElement().getElementsByTagName(
+      goog.dom.TagName.BUTTON)[1];
   assertNotEquals(okButton, null);
   var wasCalled = false;
   var callRecorder = function() { wasCalled = true; };
@@ -154,8 +154,8 @@ function testEnterKeyDispatchesDefaultSelectEvents() {
 }
 
 function testEnterKeyOnDisabledDefaultButtonDoesNotDispatchSelectEvents() {
-  var okButton = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getButtonElement())[1];
+  var okButton = dialog.getButtonElement().getElementsByTagName(
+      goog.dom.TagName.BUTTON)[1];
   okButton.focus();
 
   var callRecorder = goog.testing.recordFunction();
@@ -172,21 +172,18 @@ function testEnterKeyOnDisabledDefaultButtonDoesNotDispatchSelectEvents() {
 
 function testEnterKeyDoesNothingOnSpecialFormElements() {
   checkEnterKeyDoesNothingOnSpecialFormElement(
-      goog.html.SafeHtml.create('textarea', {}, 'Hello dialog'),
-      'TEXTAREA');
+      '<textarea>Hello dialog</textarea>', 'TEXTAREA');
 
   checkEnterKeyDoesNothingOnSpecialFormElement(
-      goog.html.SafeHtml.create('select', {}, 'Selection'),
-      'SELECT');
+      '<select>Selection</select>', 'SELECT');
 
   checkEnterKeyDoesNothingOnSpecialFormElement(
-      goog.html.SafeHtml.create('a', {'href': 'http://google.com'},
-          'Hello dialog'),
-      'A');
+      '<a href="http://google.com">Hello dialog</a>', 'A');
 }
 
 function checkEnterKeyDoesNothingOnSpecialFormElement(content, tagName) {
-  dialog.setSafeHtmlContent(content);
+  // TODO(xtof): Switch to setSafeHtmlContent here and elsewhere.
+  dialog.setContent(content);
   var formElement = dialog.getContentElement().getElementsByTagName(tagName)[0];
   var wasCalled = false;
   var callRecorder = function() { wasCalled = true; };
@@ -203,10 +200,9 @@ function checkEnterKeyDoesNothingOnSpecialFormElement(content, tagName) {
 }
 
 function testEscapeKeyDoesNothingOnSpecialFormElements() {
-  dialog.setSafeHtmlContent(goog.html.SafeHtml.create('select', {}, [
-    goog.html.SafeHtml.create('option', {}, 'Hello'),
-    goog.html.SafeHtml.create('option', {}, 'dialog')
-  ]));
+  dialog.setContent(
+      '<select><option>Hello</option>' +
+      '<option>dialog</option></select>');
   var select = dialog.getContentElement().getElementsByTagName('SELECT')[0];
   var wasCalled = false;
   var callRecorder = function() { wasCalled = true; };
@@ -249,9 +245,7 @@ function testKeydownClosesWithoutButtonSet() {
   dialog.setButtonSet(null);
 
   // Create a custom button.
-  dialog.setSafeHtmlContent(goog.html.SafeHtml.create('button',
-      {'id': 'button', 'name': 'ok'},
-      'OK'));
+  dialog.setContent('<button id="button" name="ok">OK</button>');
   var wasCalled = false;
   function called() { wasCalled = true; }
   var element = goog.dom.getElement('button');
@@ -268,9 +262,7 @@ function testEnterKeyWithoutDefaultDoesNotPreventPropagation() {
   buttons.set(goog.ui.Dialog.DefaultButtonKeys.CANCEL, 'Foo!', false);
   // Set a button set without a default selected button
   dialog.setButtonSet(buttons);
-  dialog.setSafeHtmlContent(goog.html.SafeHtml.create('span',
-      {'id': 'linkel', 'tabindex': '0'},
-      'Link Span'));
+  dialog.setContent('<span id="linkel" tabindex="0">Link Span</span>');
 
   var call = false;
   function called() { call = true; }
@@ -362,9 +354,9 @@ function testShiftTabAtTopSetsUpWrapAndDoesNotPreventPropagation() {
 }
 
 function testButtonsWithContentsDispatchSelectEvents() {
-  var aButton = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getButtonElement())[0];
-  var aSpan = goog.dom.createElement(goog.dom.TagName.SPAN);
+  var aButton = dialog.getButtonElement().getElementsByTagName(
+      goog.dom.TagName.BUTTON)[0];
+  var aSpan = document.createElement(goog.dom.TagName.SPAN);
   aButton.appendChild(aSpan);
   var wasCalled = false;
   var callRecorder = function() { wasCalled = true; };
@@ -472,8 +464,8 @@ function testGetButton() {
 
 function testGetAllButtons() {
   dialog.setButtonSet(goog.ui.Dialog.ButtonSet.YES_NO_CANCEL);
-  var buttons = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getElement());
+  var buttons =
+      dialog.getElement().getElementsByTagName(goog.dom.TagName.BUTTON);
   for (var i = 0; i < buttons.length; i++) {
     assertEquals(buttons[i], dialog.getButtonSet().getAllButtons()[i]);
   }
@@ -596,8 +588,8 @@ function testSwapModalForOpenDialog() {
  * @param {Array<string>} keys An array of button keys.
  */
 function assertButtons(keys) {
-  var buttons = goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, dialog.getElement());
+  var buttons =
+      dialog.getElement().getElementsByTagName(goog.dom.TagName.BUTTON);
   var actualKeys = [];
   for (var i = 0; i < buttons.length; i++) {
     actualKeys[i] = buttons[i].name;

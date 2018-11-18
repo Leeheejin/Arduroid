@@ -72,12 +72,6 @@ goog.dom.TextRangeIterator = function(
    */
   this.endOffset_ = 0;
 
-  /**
-   * Whether the node iterator is moving in reverse.
-   * @private {boolean}
-   */
-  this.isReversed_ = !!opt_reverse;
-
   var goNext;
 
   if (startNode) {
@@ -116,8 +110,8 @@ goog.dom.TextRangeIterator = function(
   }
 
   goog.dom.TextRangeIterator.base(
-      this, 'constructor', this.isReversed_ ? this.endNode_ : this.startNode_,
-      this.isReversed_);
+      this, 'constructor', opt_reverse ? this.endNode_ : this.startNode_,
+      opt_reverse);
 
   if (goNext) {
     try {
@@ -187,35 +181,17 @@ goog.dom.TextRangeIterator.prototype.setEndNode = function(node) {
   this.endOffset_ = 0;
 };
 
+
 /** @override */
 goog.dom.TextRangeIterator.prototype.isLast = function() {
-  return this.isStarted() && this.isLastTag_();
+  return this.isStarted() && this.node == this.endNode_ &&
+      (!this.endOffset_ || !this.isStartTag());
 };
 
-/**
- * Returns true if the iterator is on the last step before StopIteration is
- * thrown, otherwise false.
- * @return {boolean}
- * @private
- */
-goog.dom.TextRangeIterator.prototype.isLastTag_ = function() {
-  if (this.node != this.lastNode_()) {
-    return false;
-  }
-  // For a reverse iterator, this function will return true if the end offset is
-  // > 0 and the iterator is not currently on an end tag OR the end offset = 0
-  // and the iterator is currently on a start tag.
-  if (this.isReversed_) {
-    return this.startOffset_ ? !this.isEndTag() : this.isStartTag();
-  }
-  // For a forward-iterating iterator, this function will return true if the end
-  // offset is 0 or the iterator is not currently on a start tag.
-  return !this.endOffset_ || !this.isStartTag();
-};
 
 /**
  * Move to the next position in the selection.
- * Throws `goog.iter.StopIteration` when it passes the end of the range.
+ * Throws {@code goog.iter.StopIteration} when it passes the end of the range.
  * @return {Node} The node at the next position.
  * @override
  */
@@ -228,14 +204,6 @@ goog.dom.TextRangeIterator.prototype.next = function() {
   return goog.dom.TextRangeIterator.superClass_.next.call(this);
 };
 
-/**
- * Get the last node the iterator will hit.
- * @return {?Node} The last node the iterator will hit.
- * @private
- */
-goog.dom.TextRangeIterator.prototype.lastNode_ = function() {
-  return this.isReversed_ ? this.startNode_ : this.endNode_;
-};
 
 /** @override */
 goog.dom.TextRangeIterator.prototype.skipTag = function() {
@@ -243,16 +211,13 @@ goog.dom.TextRangeIterator.prototype.skipTag = function() {
 
   // If the node we are skipping contains the end node, we just skipped past
   // the end, so we stop the iteration.
-  if (goog.dom.contains(this.node, this.lastNode_())) {
+  if (goog.dom.contains(this.node, this.endNode_)) {
     throw goog.iter.StopIteration;
   }
 };
 
 
-/**
- * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
- */
+/** @override */
 goog.dom.TextRangeIterator.prototype.copyFrom = function(other) {
   this.startNode_ = other.startNode_;
   this.endNode_ = other.endNode_;

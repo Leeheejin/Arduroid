@@ -190,10 +190,10 @@ function testIsArray() {
 
 function testIsArrayLike() {
   var nodeList = (function() {
-    var div = goog.dom.createElement(goog.dom.TagName.DIV);
-    div.appendChild(goog.dom.createElement(goog.dom.TagName.P));
-    div.appendChild(goog.dom.createElement(goog.dom.TagName.P));
-    return goog.dom.getElementsByTagName(goog.dom.TagName.DIV, div);
+    var div = document.createElement(goog.dom.TagName.DIV);
+    div.appendChild(document.createElement(goog.dom.TagName.P));
+    div.appendChild(document.createElement(goog.dom.TagName.P));
+    return div.getElementsByTagName(goog.dom.TagName.DIV);
   })();
 
   assertTrue(matchers.isArrayLike.matches([]));
@@ -353,7 +353,8 @@ function testFlexibleArrayMatcher() {
   assertFalse(matchers.flexibleArrayMatcher(a2, a3, mockExpect));
   assertEquals(1, mockExpect.errorMessages.length);
   assertEquals(
-      'Expected <anything> (String) but was <12345> (Number)',
+      'Expected <anything> (String) but was <12345> (Number)\n' +
+          '    Expected <anything> (String) but was <12345> (Number)',
       mockExpect.errorMessages[0]);
 
   // And test we report errors found via the matcher
@@ -365,7 +366,8 @@ function testFlexibleArrayMatcher() {
   // Old error is still there
   assertEquals(2, mockExpect.errorMessages.length);
   assertEquals(
-      'Expected <anything> (String) but was <12345> (Number)',
+      'Expected <anything> (String) but was <12345> (Number)\n' +
+          '    Expected <anything> (String) but was <12345> (Number)',
       mockExpect.errorMessages[0]);
   // plus the new error...
   assertEquals(

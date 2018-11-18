@@ -13,7 +13,7 @@
 // limitations under the License.
 
 /**
- * @fileoverview Similar to {@link goog.ui.FlatButtonRenderer},
+ * @fileoverview Similiar to {@link goog.ui.FlatButtonRenderer},
  * but underlines text instead of adds borders.
  *
  * For accessibility reasons, it is best to use this with a goog.ui.Button

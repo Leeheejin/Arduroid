@@ -29,12 +29,10 @@ goog.require('goog.ui.MenuItemRenderer');
 /**
  * Default renderer for {@link goog.ui.TriStateMenuItemRenderer}s. Each item has
  * the following structure:
- *
  *    <div class="goog-tristatemenuitem">
  *        <div class="goog-tristatemenuitem-checkbox"></div>
  *        <div>...(content)...</div>
  *    </div>
- *
  * @constructor
  * @extends {goog.ui.MenuItemRenderer}
  * @final
@@ -78,11 +76,11 @@ goog.ui.TriStateMenuItemRenderer.prototype.decorate = function(item, element) {
   } else if (
       goog.dom.classlist.contains(
           element, goog.getCssName(this.getCssClass(), 'partially-checked'))) {
-    /** @suppress {missingRequire} */
-    item.setCheckedState(goog.ui.TriStateMenuItem.State.PARTIALLY_CHECKED);
+    item.setCheckedState(/** @suppress {missingRequire} */
+        goog.ui.TriStateMenuItem.State.PARTIALLY_CHECKED);
   } else {
-    /** @suppress {missingRequire} */
-    item.setCheckedState(goog.ui.TriStateMenuItem.State.NOT_CHECKED);
+    item.setCheckedState(/** @suppress {missingRequire} */
+        goog.ui.TriStateMenuItem.State.NOT_CHECKED);
   }
 
   return element;

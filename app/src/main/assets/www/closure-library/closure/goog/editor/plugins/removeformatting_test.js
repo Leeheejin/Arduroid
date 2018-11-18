@@ -27,12 +27,6 @@ goog.require('goog.testing.editor.FieldMock');
 goog.require('goog.testing.editor.TestHelper');
 goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
-goog.require('goog.userAgent.product');
-
-function shouldRunTests() {
-  // This test has not yet been updated to run on IE8 and up. See b/2997691.
-  return !goog.userAgent.IE || !goog.userAgent.isVersionOrHigher(8);
-}
 
 var SAVED_HTML;
 var FIELDMOCK;
@@ -69,12 +63,8 @@ function setUpPage() {
     insertImageBoldGarbage = '<b><br/></b>';
     insertImageFontGarbage = '<font size="1"><br/></font>';
   } else if (goog.userAgent.EDGE) {
-    if (goog.userAgent.product.isVersion(14)) {
-      insertImageFontGarbage = '<fontsize="-1"></fontsize="-1">';
-    } else {
-      insertImageFontGarbage =
-          '<fontsize="-1"><font class="p" size="-1"></font></fontsize="-1">';
-    }
+    insertImageFontGarbage =
+        '<fontsize="-1"><font class="p" size="-1"></font></fontsize="-1">';
   }
   // Extra html to add to test html to make sure removeformatting is actually
   // getting called when you're testing if it leaves certain styles alone
@@ -321,24 +311,9 @@ function testRemoveFormattingNestedDivs() {
 }
 
 
-function testTheJavascriptReplaceMetacharacters() {
-  var div = document.getElementById('html');
-  div.innerHTML = '123 $< $> $" $& $$ $` $\' 456';
-  var expected = '123 $&lt; $&gt; $" $&amp; $$ $` $\' 456' +
-      (goog.userAgent.product.SAFARI ? '<br>' : '');
-  // No idea why these <br> appear, but they're fairly insignificant anyways.
-
-  goog.dom.Range.createFromNodeContents(div).select();
-
-  FORMATTER.removeFormatting_();
-  assertHTMLEquals(
-      'String.prototype.replace metacharacters should not trigger', expected,
-      div.innerHTML);
-}
-
 /**
  * Test that when we perform remove formatting on an entire table,
- * that the visual look is similar to as if there was a table there.
+ * that the visual look is similiar to as if there was a table there.
  */
 function testRemoveFormattingForTableFormatting() {
   // We preserve the table formatting as much as possible.
@@ -373,7 +348,7 @@ function testRemoveFormattingDoesNotShrinkSelection() {
   // <br> to the end of the html.
   var html = '<div>l </div><br class="GECKO WEBKIT">afoo bar' +
       (goog.editor.BrowserFeature.ADDS_NBSPS_IN_REMOVE_FORMAT ? '<br>' : '');
-  if (goog.userAgent.EDGE) {  // TODO(sdh): I have no idea where this comes from
+  if (goog.userAgent.EDGE) {  // TODO(user): I have no idea where this comes from
     html = html.replace(' class="GECKO WEBKIT"', '');
   }
 
@@ -446,13 +421,10 @@ function testPartialListRemoveFormat() {
       goog.userAgent.IE, 'IE leaves behind an empty LI.');
   expectedFailures.expectFailureFor(
       goog.userAgent.WEBKIT, 'WebKit completely loses the "one".');
-  if (goog.userAgent.EDGE) {
-    // Edge leaves "two" and "threeafter" orphaned outside of an li but inside
-    // the ul (invalid HTML).
-    // Skip this test instead of using expectedFailures because this failure
-    // mode wrecks the DOM and causes later tests to fail as well.
-    return;
-  }
+  expectedFailures.expectFailureFor(
+      goog.userAgent.EDGE,
+      'Edge leaves "two" and "threeafter" orphaned outside of an li ' +
+          'but inside the ul (invalid HTML).');
 
   expectedFailures.run(function() {
     FORMATTER.removeFormatting_();
@@ -793,7 +765,7 @@ function testTwoTablesSelectedFullyAndPartiallyRemoveFormatting() {
     var expectedHtml = '<br>foo<br>' +
         '<table><tr><td id="td2">ba<b>r</b></td></tr></table>';
     if (goog.userAgent.EDGE) {
-      // TODO(sdh): Edge inserts an extra empty <b> tag but is otherwise correct
+      // TODO(user): Edge inserts an extra empty <b> tag but is otherwise correct
       expectedHtml = expectedHtml.replace('</b>', '<b></b></b>');
     }
     assertHTMLEquals(expectedHtml, div.innerHTML);
@@ -1014,81 +986,7 @@ function testKeyboardShortcut_other() {
   FIELDMOCK.$replay();
 
   var e = {};
-  var key = 'x';
-  var result = FORMATTER.handleKeyboardShortcut(e, key, true);
-  assertFalse(result);
-
-  FIELDMOCK.$verify();
-}
-
-function testCustomKeyboardShortcut_custom() {
-  FIELDMOCK.$reset();
-
-  FIELDMOCK.execCommand(
-      goog.editor.plugins.RemoveFormatting.REMOVE_FORMATTING_COMMAND);
-
-  FIELDMOCK.$replay();
-
-  var e = {};
-  var key = '\\';
-  FORMATTER.setKeyboardShortcutKey(key);
-  var result = FORMATTER.handleKeyboardShortcut(e, key, true);
-  assertTrue(result);
-
-  FIELDMOCK.$verify();
-}
-
-function testCustomKeyboardShortcut_default() {
-  FIELDMOCK.$reset();
-  FIELDMOCK.$replay();
-
-  var e = {};
-  var key = ' ';
-  FORMATTER.setKeyboardShortcutKey('\\');
-  var result = FORMATTER.handleKeyboardShortcut(e, key, true);
-  assertFalse(result);
-
-  FIELDMOCK.$verify();
-}
-
-function testKeyboardShortcut_withBothModifierKeys() {
-  FIELDMOCK.$reset();
-  FIELDMOCK.$replay();
-
-  var e = {};
-  e.metaKey = true;
-  e.ctrlKey = true;
-  var key = ' ';
-  var result = FORMATTER.handleKeyboardShortcut(e, key, true);
-  assertFalse(result);
-
-  FIELDMOCK.$verify();
-}
-
-
-function testKeyboardShortcut_withMetaKeyAndShiftKey() {
-  FIELDMOCK.$reset();
-  FIELDMOCK.$replay();
-
-  var e = {};
-  e.metaKey = true;
-  e.shiftKey = true;
-  var key = ' ';
-  var result = FORMATTER.handleKeyboardShortcut(e, key, true);
-  assertFalse(result);
-
-  FIELDMOCK.$verify();
-}
-
-
-function testKeyboardShortcut_withCtrlKeyAndShiftKey() {
-  FIELDMOCK.$reset();
-  FIELDMOCK.$replay();
-
-  var e = {};
-  e.ctrlKey = true;
-  e.shiftKey = true;
-  var key = ' ';
+  var key = 'a';
   var result = FORMATTER.handleKeyboardShortcut(e, key, true);
   assertFalse(result);
 

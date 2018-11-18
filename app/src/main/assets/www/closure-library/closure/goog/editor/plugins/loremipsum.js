@@ -29,7 +29,6 @@ goog.require('goog.editor.Field');
 goog.require('goog.editor.Plugin');
 goog.require('goog.editor.node');
 goog.require('goog.functions');
-goog.require('goog.html.SafeHtml');
 goog.require('goog.userAgent');
 
 
@@ -113,7 +112,6 @@ goog.editor.plugins.LoremIpsum.prototype.isSupportedCommand = function(
 /**
  * Set the lorem ipsum text in a goog.editor.Field if needed.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.editor.plugins.LoremIpsum.prototype.updateLorem_ = function() {
   // Try to apply lorem ipsum if:
@@ -141,9 +139,7 @@ goog.editor.plugins.LoremIpsum.prototype.updateLorem_ = function() {
       // clear the lorem ipsum style.
       this.oldFontStyle_ = field.style.fontStyle;
       field.style.fontStyle = 'italic';
-      fieldObj.setSafeHtml(
-          true, goog.html.SafeHtml.htmlEscapePreservingNewlines(this.message_),
-          true);
+      fieldObj.setHtml(true, this.message_, true);
     }
   }
 };
@@ -159,7 +155,6 @@ goog.editor.plugins.LoremIpsum.prototype.updateLorem_ = function() {
  * @param {boolean=} opt_placeCursor Whether to place the cursor in the field
  *     after clearing lorem.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.editor.plugins.LoremIpsum.prototype.clearLorem_ = function(
     opt_placeCursor) {
@@ -178,7 +173,7 @@ goog.editor.plugins.LoremIpsum.prototype.clearLorem_ = function(
     goog.asserts.assert(field);
     this.usingLorem_ = false;
     field.style.fontStyle = this.oldFontStyle_;
-    fieldObj.setSafeHtml(true, null, true);
+    fieldObj.setHtml(true, null, true);
 
     // TODO(nicksantos): I'm pretty sure that this is a hack, but talk to
     // Julie about why this is necessary and what to do with it. Really,

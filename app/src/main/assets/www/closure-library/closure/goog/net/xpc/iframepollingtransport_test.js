@@ -22,19 +22,14 @@ goog.require('goog.functions');
 goog.require('goog.net.xpc.CfgFields');
 goog.require('goog.net.xpc.CrossPageChannel');
 goog.require('goog.net.xpc.CrossPageChannelRole');
-goog.require('goog.net.xpc.IframePollingTransport');
+goog.require('goog.net.xpc.TransportTypes');
 goog.require('goog.object');
 goog.require('goog.testing.MockClock');
 goog.require('goog.testing.jsunit');
 goog.require('goog.testing.recordFunction');
 
-/** @type {?goog.testing.MockClock} */
 var mockClock = null;
-
-/** @type {?goog.net.xpc.CrossPageChannel} */
 var outerChannel = null;
-
-/** @type {?goog.net.xpc.CrossPageChannel} */
 var innerChannel = null;
 
 function setUp() {
@@ -198,7 +193,6 @@ function testSend_innerPeerClosing() {
  * @param {!Object} fromWindow The window hosting the channel.
  * @param {string} toHostName The host name of the peer window.
  * @param {!Object} toWindow The peer window.
- * @return {!goog.net.xpc.CrossPageChannel}
  */
 function createChannel(
     role, channelName, fromHostName, fromWindow, toHostName, toWindow) {
@@ -208,11 +202,11 @@ function createChannel(
       toHostName, goog.net.xpc.CfgFields.CHANNEL_NAME, channelName,
       goog.net.xpc.CfgFields.LOCAL_POLL_URI, fromHostName + '/robots.txt',
       goog.net.xpc.CfgFields.PEER_POLL_URI, toHostName + '/robots.txt',
-      goog.net.xpc.CfgFields.TRANSPORT, goog.net.xpc.IframePollingTransport);
+      goog.net.xpc.CfgFields.TRANSPORT,
+      goog.net.xpc.TransportTypes.IFRAME_POLLING);
 
   // Build the channel.
   var channel = new goog.net.xpc.CrossPageChannel(channelConfig);
-
   channel.setPeerWindowObject(toWindow);
 
   // Update the transport's getWindow, to return the correct host window.
@@ -232,7 +226,7 @@ function createMockPeerWindow(url) {
 
   // Update the appendChild method to use a mock frame window.
   mockPeer.document.body.appendChild = function(el) {
-    assertEquals(String(goog.dom.TagName.IFRAME), el.tagName);
+    assertEquals(goog.dom.TagName.IFRAME, el.tagName);
     mockPeer.frames[el.name] = createMockWindow(el.src);
     mockPeer.document.body.element.appendChild(el);
   };

@@ -85,7 +85,7 @@ function remoteStorageEvent(data) {
         goog.labs.pubsub.BroadcastPubSub.IE8_EVENTS_KEY_PREFIX_ + '1234567890';
     var ie8Events = mockHtml5LocalStorage.get(uniqueKey);
     if (goog.isDefAndNotNull(ie8Events)) {
-      ie8Events = JSON.parse(ie8Events);
+      ie8Events = goog.json.parse(ie8Events);
       // Events should never overlap in IE8 mode.
       if (ie8Events.length > 0 &&
           ie8Events[ie8Events.length - 1]['timestamp'] >= data['timestamp']) {
@@ -126,13 +126,11 @@ function setUp() {
   mockHtml5LocalStorage.key = function(idx) {
     return mockHtml5LocalStorage.getKeys()[idx];
   };
-  mockHtml5LocalStorage.isAvailable = function() {
-    return true;
-  };
+  mockHtml5LocalStorage.isAvailable = function() { return true; };
 
 
   // IE has problems. IE9+ still dispatches storage events locally. IE8 also
-  // doesn't include the key/value information. So for IE, every time we get a
+  // doesn't include the key/value information. So for IE, everytime we get a
   // "set" on localStorage we simulate for the appropriate browser.
   if (goog.userAgent.IE) {
     var target = isIe8 ? document : window;
@@ -179,11 +177,8 @@ function testConstructor() {
 
 
 function testConstructor_noLocalStorage() {
-  mockHTML5LocalStorageCtor().$returns({
-    isAvailable: function() {
-      return false;
-    }
-  });
+  mockHTML5LocalStorageCtor().$returns(
+      {isAvailable: function() { return false; }});
   mockControl.$replayAll();
   broadcastPubSub = new goog.labs.pubsub.BroadcastPubSub();
   broadcastPubSub.logger_.setLevel(goog.debug.Logger.Level.OFF);
@@ -415,9 +410,7 @@ function testHandleRemoteEventNestedPublish() {
   var foo2 = mockControl.createFunctionMock();
   foo2();
   var bar1 = mockControl.createFunctionMock();
-  bar1().$does(function() {
-    broadcastPubSub.publish('baz');
-  });
+  bar1().$does(function() { broadcastPubSub.publish('baz'); });
   var bar2 = mockControl.createFunctionMock();
   bar2();
   var baz1 = mockControl.createFunctionMock();
@@ -445,7 +438,7 @@ function testHandleRemoteEventNestedPublish() {
 
 /**
  * Local publish that originated from another instance of BroadcastChannel
- * in the same JavaScript context.
+ * in the same Javascript context.
  */
 function testSecondInstancePublish() {
   mockHTML5LocalStorageCtor().$returns(mockHtml5LocalStorage).$times(2);
@@ -702,9 +695,7 @@ function testSubscribeWhilePublishing() {
   var fn1 = mockControl.createFunctionMock();
   var fn2 = mockControl.createFunctionMock();
   fn1()
-      .$does(function() {
-        broadcastPubSub.subscribe('someTopic', fn2);
-      })
+      .$does(function() { broadcastPubSub.subscribe('someTopic', fn2); })
       .$times(2);
   fn2();
 
@@ -1040,9 +1031,8 @@ function testClear() {
       'BroadcastChannel must have 4 subscribers', 4,
       broadcastPubSub.getCount());
 
-  goog.array.forEach(['X', 'Y'], function(topic) {
-    broadcastPubSub.clear(topic);
-  });
+  goog.array.forEach(
+      ['X', 'Y'], function(topic) { broadcastPubSub.clear(topic); });
   assertEquals(
       'BroadcastChannel must have 2 subscriber', 2, broadcastPubSub.getCount());
 

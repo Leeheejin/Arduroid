@@ -250,8 +250,8 @@ function incremental() {
 }
 
 window['P'] = function(iframe, data) {
-  goog.net.IframeIo.getInstanceByName(iframe.name);
-  goog.log.info(testLogger, 'Data received - ' + data);
+  var iframeIo = goog.net.IframeIo.getInstanceByName(iframe.name);
+  goog.log.info(testLogger, 'Data recieved - ' + data);
 };
 
 
@@ -275,9 +275,9 @@ function testGetForm() {
 
 
 function testAddFormInputs() {
-  var form = goog.dom.createElement(goog.dom.TagName.FORM);
+  var form = document.createElement(goog.dom.TagName.FORM);
   goog.net.IframeIo.addFormInputs_(form, {'a': 1, 'b': 2, 'c': 3});
-  var inputs = goog.dom.getElementsByTagName(goog.dom.TagName.INPUT, form);
+  var inputs = form.getElementsByTagName(goog.dom.TagName.INPUT);
   assertEquals(3, inputs.length);
   for (var i = 0; i < inputs.length; i++) {
     assertEquals('hidden', inputs[i].type);
@@ -287,10 +287,10 @@ function testAddFormInputs() {
 }
 
 function testAddFormArrayInputs() {
-  var form = goog.dom.createElement(goog.dom.TagName.FORM);
+  var form = document.createElement(goog.dom.TagName.FORM);
   var data = {'a': ['blue', 'green'], 'b': ['red', 'pink', 'white']};
   goog.net.IframeIo.addFormInputs_(form, data);
-  var inputs = goog.dom.getElementsByTagName(goog.dom.TagName.INPUT, form);
+  var inputs = form.getElementsByTagName(goog.dom.TagName.INPUT);
   assertEquals(5, inputs.length);
   for (var i = 0; i < inputs.length; i++) {
     assertEquals('hidden', inputs[i].type);

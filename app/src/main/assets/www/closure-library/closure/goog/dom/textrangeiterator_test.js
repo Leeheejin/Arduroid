@@ -116,7 +116,7 @@ function testSkipTagDoesNotSkipEnd() {
   assertEquals('T', node.nodeValue);
 
   node = iterator.next();
-  assertEquals(String(goog.dom.TagName.B), node.tagName);
+  assertEquals(goog.dom.TagName.B, node.tagName);
 
   iterator.skipTag();
 
@@ -128,65 +128,16 @@ function testSkipTagSkipsEnd() {
   // Iterate over 'Te'.
   var iterator = new goog.dom.TextRangeIterator(
       test.firstChild.firstChild, 0,
-      goog.dom.getElementsByTagName(goog.dom.TagName.B, test)[0].firstChild, 1);
+      test.getElementsByTagName(goog.dom.TagName.B)[0].firstChild, 1);
 
   var node = iterator.next();
   assertEquals('T', node.nodeValue);
 
   node = iterator.next();
-  assertEquals(String(goog.dom.TagName.B), node.tagName);
+  assertEquals(goog.dom.TagName.B, node.tagName);
 
   var ex = assertThrows('Should stop iteration when skipping B', function() {
     iterator.skipTag();
   });
   assertEquals(goog.iter.StopIteration, ex);
-}
-
-function testReverseIteration() {
-  goog.testing.dom.assertNodesMatch(
-      new goog.dom.TextRangeIterator(test, 0, test, 2, true), [
-        '#p1', 'Text', '#p1', '#span1', '#span1', '#a1', 'xt', '#b1', 'e',
-        '#b1', 'T', '#a1'
-      ]);
-}
-
-function testReverseIterationWithOffsets() {
-  var iterator = new goog.dom.TextRangeIterator(
-      test2.firstChild, 1, test2.lastChild, 2, true);
-
-  // bar
-  var node = iterator.next();
-  assertEquals(
-      'Should have start offset at iteration step 1', 0,
-      iterator.getStartTextOffset());
-  assertEquals(
-      'Should not have end offset at iteration step 1', 2,
-      iterator.getEndTextOffset());
-
-  // </br>
-  node = iterator.next();
-  assertEquals(
-      'Should not have start offset at iteration step 2', -1,
-      iterator.getStartTextOffset());
-  assertEquals(
-      'Should not have end offset at iteration step 2', -1,
-      iterator.getEndTextOffset());
-
-  // <br>
-  node = iterator.next();
-  assertEquals(
-      'Should not have start offset at iteration step 3', -1,
-      iterator.getStartTextOffset());
-  assertEquals(
-      'Should not have end offset at iteration step 3', -1,
-      iterator.getEndTextOffset());
-
-  // foo
-  node = iterator.next();
-  assertEquals(
-      'Should not have start offset at iteration step 4', 1,
-      iterator.getStartTextOffset());
-  assertEquals(
-      'Should have end offset at iteration step 4', node.nodeValue.length,
-      iterator.getEndTextOffset());
 }

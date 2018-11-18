@@ -310,7 +310,7 @@ function testAriaRoles() {
 }
 
 
-function testInputActiveDescendant() {
+function testInputActiveDecendant() {
   menu = new goog.ui.FilteredMenu();
   var menuItem1 = new goog.ui.MenuItem('Item 1');
   var menuItem2 = new goog.ui.MenuItem('Item 2');

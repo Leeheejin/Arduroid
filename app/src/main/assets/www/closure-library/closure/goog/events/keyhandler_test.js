@@ -206,14 +206,9 @@ function testIe9StyleKeyHandling() {
 
 
 /**
- * Tests the key handler for the Gecko legacy behavior. This means the
- * following:
- * - `keypress` events are dispatched on non-printable character events.
- *    See: https://github.com/google/closure-library/issues/883
- * - `keyCode` is set to 0 on keypress events for non-function keys.
- *    See: https://github.com/google/closure-library/issues/932
+ * Tests the key handler for the Gecko behavior.
  */
-function testGeckoStyleKeyHandling_legacyBehavior() {
+function testGeckoStyleKeyHandling() {
   goog.userAgent.OPERA = false;
   goog.userAgent.IE = false;
   goog.userAgent.GECKO = true;
@@ -221,15 +216,12 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   goog.userAgent.MAC = false;
   goog.userAgent.WINDOWS = true;
   goog.userAgent.LINUX = false;
-  goog.events.KeyHandler.USES_KEYDOWN_ = true;
+  goog.events.KeyHandler.USES_KEYDOWN_ = false;
 
-  var eventsFired = 0;
   var keyEvent, keyHandler = new goog.events.KeyHandler();
   goog.events.listen(
-      keyHandler, goog.events.KeyHandler.EventType.KEY, function(e) {
-        keyEvent = e;
-        eventsFired++;
-      });
+      keyHandler, goog.events.KeyHandler.EventType.KEY,
+      function(e) { keyEvent = e; });
 
   fireKeyDown(keyHandler, goog.events.KeyCodes.ENTER);
   fireKeyPress(keyHandler, goog.events.KeyCodes.ENTER);
@@ -239,9 +231,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Enter should fire a key event with the charcode 0', 0,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.ESC);
   fireKeyPress(keyHandler, goog.events.KeyCodes.ESC);
   assertEquals(
@@ -249,9 +239,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
       goog.events.KeyCodes.ESC, keyEvent.keyCode);
   assertEquals(
       'Esc should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.UP);
   fireKeyPress(keyHandler, goog.events.KeyCodes.UP);
   assertEquals(
@@ -259,9 +247,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
       keyEvent.keyCode);
   assertEquals(
       'Up should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(
       keyHandler, goog.events.KeyCodes.SEVEN, undefined, undefined, undefined,
       undefined, true);
@@ -273,9 +259,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Shift+7 should fire a key event with the charcode 38', 38,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.A);
   fireKeyPress(keyHandler, undefined, 97);
   assertEquals(
@@ -284,9 +268,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Lower case a should fire a key event with the charcode 97', 97,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.A);
   fireKeyPress(keyHandler, undefined, 65);
   assertEquals(
@@ -295,9 +277,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Upper case A should fire a key event with the charcode 65', 65,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.DELETE);
   fireKeyPress(keyHandler, goog.events.KeyCodes.DELETE);
   assertEquals(
@@ -306,9 +286,7 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Delete should fire a key event with the charcode 0', 0,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 
-  eventsFired = 0;
   fireKeyDown(keyHandler, goog.events.KeyCodes.PERIOD);
   fireKeyPress(keyHandler, undefined, 46);
   assertEquals(
@@ -317,231 +295,6 @@ function testGeckoStyleKeyHandling_legacyBehavior() {
   assertEquals(
       'Period should fire a key event with the charcode 46', 46,
       keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-}
-
-
-/**
- * Tests the key handler for the Gecko behavior with the following experiment
- * rolled out on Gecko:
- * - `keypress` events are not dispatched on non-printable character events.
- *    See: https://github.com/google/closure-library/issues/883
- */
-function testGeckoStyleKeyHandling_noKeyPressEventsOnNonPrintable() {
-  goog.userAgent.OPERA = false;
-  goog.userAgent.IE = false;
-  goog.userAgent.GECKO = true;
-  goog.userAgent.WEBKIT = false;
-  goog.userAgent.MAC = false;
-  goog.userAgent.WINDOWS = true;
-  goog.userAgent.LINUX = false;
-  goog.events.KeyHandler.USES_KEYDOWN_ = true;
-
-  var eventsFired = 0;
-  var keyEvent, keyHandler = new goog.events.KeyHandler();
-  goog.events.listen(
-      keyHandler, goog.events.KeyHandler.EventType.KEY, function(e) {
-        keyEvent = e;
-        eventsFired++;
-      });
-
-  fireKeyDown(keyHandler, goog.events.KeyCodes.ENTER);
-  fireKeyPress(keyHandler, goog.events.KeyCodes.ENTER);
-  assertEquals(
-      'Enter should fire a key event with the keycode 13',
-      goog.events.KeyCodes.ENTER, keyEvent.keyCode);
-  assertEquals(
-      'Enter should fire a key event with the charcode 0', 0,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.ESC);
-  assertEquals(
-      'Esc should fire a key event with the keycode 27',
-      goog.events.KeyCodes.ESC, keyEvent.keyCode);
-  assertEquals(
-      'Esc should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.UP);
-  assertEquals(
-      'Up should fire a key event with the keycode 38', goog.events.KeyCodes.UP,
-      keyEvent.keyCode);
-  assertEquals(
-      'Up should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(
-      keyHandler, goog.events.KeyCodes.SEVEN, undefined, undefined, undefined,
-      undefined, true);
-  fireKeyPress(
-      keyHandler, undefined, 38, undefined, undefined, undefined, true);
-  assertEquals(
-      'Shift+7 should fire a key event with the keycode 55',
-      goog.events.KeyCodes.SEVEN, keyEvent.keyCode);
-  assertEquals(
-      'Shift+7 should fire a key event with the charcode 38', 38,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.A);
-  fireKeyPress(keyHandler, undefined, 97);
-  assertEquals(
-      'Lower case a should fire a key event with the keycode 65',
-      goog.events.KeyCodes.A, keyEvent.keyCode);
-  assertEquals(
-      'Lower case a should fire a key event with the charcode 97', 97,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.A);
-  fireKeyPress(keyHandler, undefined, 65);
-  assertEquals(
-      'Upper case A should fire a key event with the keycode 65',
-      goog.events.KeyCodes.A, keyEvent.keyCode);
-  assertEquals(
-      'Upper case A should fire a key event with the charcode 65', 65,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.DELETE);
-  assertEquals(
-      'Delete should fire a key event with the keycode 46',
-      goog.events.KeyCodes.DELETE, keyEvent.keyCode);
-  assertEquals(
-      'Delete should fire a key event with the charcode 0', 0,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.PERIOD);
-  fireKeyPress(keyHandler, undefined, 46);
-  assertEquals(
-      'Period should fire a key event with the keycode 190',
-      goog.events.KeyCodes.PERIOD, keyEvent.keyCode);
-  assertEquals(
-      'Period should fire a key event with the charcode 46', 46,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-}
-
-
-/**
- * Tests the key handler for the Gecko behavior with the following experiments
- * rolled out on Gecko:
- * - `keypress` events are not dispatched on non-printable character events.
- *    See: https://github.com/google/closure-library/issues/883
- * - `keyCode` is set to `charCode on keypress events for non-function keys.
- *    See: https://github.com/google/closure-library/issues/932
- */
-function testGeckoStyleKeyHandling_includeBothExperiments() {
-  goog.userAgent.OPERA = false;
-  goog.userAgent.IE = false;
-  goog.userAgent.GECKO = true;
-  goog.userAgent.WEBKIT = false;
-  goog.userAgent.MAC = false;
-  goog.userAgent.WINDOWS = true;
-  goog.userAgent.LINUX = false;
-  goog.events.KeyHandler.USES_KEYDOWN_ = true;
-
-  var eventsFired = 0;
-  var keyEvent, keyHandler = new goog.events.KeyHandler();
-  goog.events.listen(
-      keyHandler, goog.events.KeyHandler.EventType.KEY, function(e) {
-        keyEvent = e;
-        eventsFired++;
-      });
-
-  fireKeyDown(keyHandler, goog.events.KeyCodes.ENTER);
-  fireKeyPress(
-      keyHandler, goog.events.KeyCodes.ENTER, goog.events.KeyCodes.ENTER);
-  assertEquals(
-      'Enter should fire a key event with the keycode 13',
-      goog.events.KeyCodes.ENTER, keyEvent.keyCode);
-  assertEquals(
-      'Enter should fire a key event with the charcode 0', 0,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.ESC);
-  assertEquals(
-      'Esc should fire a key event with the keycode 27',
-      goog.events.KeyCodes.ESC, keyEvent.keyCode);
-  assertEquals(
-      'Esc should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.UP);
-  assertEquals(
-      'Up should fire a key event with the keycode 38', goog.events.KeyCodes.UP,
-      keyEvent.keyCode);
-  assertEquals(
-      'Up should fire a key event with the charcode 0', 0, keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(
-      keyHandler, goog.events.KeyCodes.SEVEN, undefined, undefined, undefined,
-      undefined, true);
-  fireKeyPress(keyHandler, 38, 38, undefined, undefined, undefined, true);
-  assertEquals(
-      'Shift+7 should fire a key event with the keycode 55',
-      goog.events.KeyCodes.SEVEN, keyEvent.keyCode);
-  assertEquals(
-      'Shift+7 should fire a key event with the charcode 38', 38,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.A);
-  fireKeyPress(keyHandler, 97, 97);
-  assertEquals(
-      'Lower case a should fire a key event with the keycode 65',
-      goog.events.KeyCodes.A, keyEvent.keyCode);
-  assertEquals(
-      'Lower case a should fire a key event with the charcode 97', 97,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.A);
-  fireKeyPress(keyHandler, 65, 65);
-  assertEquals(
-      'Upper case A should fire a key event with the keycode 65',
-      goog.events.KeyCodes.A, keyEvent.keyCode);
-  assertEquals(
-      'Upper case A should fire a key event with the charcode 65', 65,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.DELETE);
-  assertEquals(
-      'Delete should fire a key event with the keycode 46',
-      goog.events.KeyCodes.DELETE, keyEvent.keyCode);
-  assertEquals(
-      'Delete should fire a key event with the charcode 0', 0,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
-
-  eventsFired = 0;
-  fireKeyDown(keyHandler, goog.events.KeyCodes.PERIOD);
-  fireKeyPress(keyHandler, 46, 46);
-  assertEquals(
-      'Period should fire a key event with the keycode 190',
-      goog.events.KeyCodes.PERIOD, keyEvent.keyCode);
-  assertEquals(
-      'Period should fire a key event with the charcode 46', 46,
-      keyEvent.charCode);
-  assertEquals('Only one key event should have been fired.', 1, eventsFired);
 }
 
 
@@ -814,7 +567,7 @@ function testGeckoEqualSign() {
   goog.userAgent.MAC = false;
   goog.userAgent.WINDOWS = true;
   goog.userAgent.LINUX = false;
-  goog.events.KeyHandler.USES_KEYDOWN_ = true;
+  goog.events.KeyHandler.USES_KEYDOWN_ = false;
 
   var keyEvent, keyHandler = new goog.events.KeyHandler();
   goog.events.listen(
@@ -839,17 +592,14 @@ function testMacGeckoSlash() {
   goog.userAgent.MAC = true;
   goog.userAgent.WINDOWS = false;
   goog.userAgent.LINUX = false;
-  goog.events.KeyHandler.USES_KEYDOWN_ = true;
+  goog.events.KeyHandler.USES_KEYDOWN_ = false;
 
   var keyEvent, keyHandler = new goog.events.KeyHandler();
   goog.events.listen(
       keyHandler, goog.events.KeyHandler.EventType.KEY,
       function(e) { keyEvent = e; });
 
-  // On OS X Gecko, the following events are fired when pressing Shift+/
-  // 1. keydown with keyCode=191 (/), charCode=0, shiftKey
-  // 2. keypress with keyCode=0, charCode=63 (?), shiftKey
-  fireKeyDown(keyHandler, 191, 0, null, false, false, true);
+  fireKeyDown(keyHandler, 0, 63, null, false, false, true);
   fireKeyPress(keyHandler, 0, 63, null, false, false, true);
   assertEquals(
       '/ should fire a key event with the keyCode 191',

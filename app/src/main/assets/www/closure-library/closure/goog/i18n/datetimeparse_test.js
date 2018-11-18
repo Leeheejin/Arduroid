@@ -309,7 +309,7 @@ function testEnglishDate() {
 function testChineseDate() {
   goog.i18n.DateTimeSymbols = goog.i18n.DateTimeSymbols_zh;
 
-  // JavaScript month start from 0, July is 7 - 1
+  // Javascript month start from 0, July is 7 - 1
   var date = new Date(2006, 7 - 1, 24, 12, 12, 12, 0);
   var formatter =
       new goog.i18n.DateTimeFormat(goog.i18n.DateTimeFormat.Format.FULL_DATE);
@@ -349,7 +349,7 @@ function testDatesWithNativeDigits() {
   // goog.i18n.DateTimeSymbols.ZERODIGIT defined.
   goog.i18n.DateTimeSymbols = goog.i18n.DateTimeSymbols_fa;
 
-  // JavaScript month starts from 0, July is 7 - 1
+  // Javascript month starts from 0, July is 7 - 1
   var date = new Date(2006, 7 - 1, 24, 12, 12, 12, 0);
   var formatter =
       new goog.i18n.DateTimeFormat(goog.i18n.DateTimeFormat.Format.FULL_DATE);
@@ -646,42 +646,4 @@ function testConstructorSymbols() {
 
   assertParsedDateEquals(y, m, d, parserFr, dateStrFr, dateFr);
   assertParsedDateEquals(y, m, d, parserZh, dateStrZh, dateZh);
-}
-
-function testQuotedPattern() {
-  // Regression test for b/29990921.
-  goog.i18n.DateTimeSymbols = goog.i18n.DateTimeSymbols_en;
-  var y = 2013, m = 10, d = 15;
-
-  // Literal apostrophe
-  var date = new Date(y, m, d);
-  var parser = new goog.i18n.DateTimeParse('MMM \'\'yy');
-  assertParsedDateEquals(y, m, d, parser, 'Nov \'13', date);
-  // Quoted text
-  date = new Date(y, m, d);
-  parser = new goog.i18n.DateTimeParse('MMM dd\'th\' yyyy');
-  assertParsedDateEquals(y, m, d, parser, 'Nov 15th 2013', date);
-  // Quoted text (only opening apostrophe)
-  date = new Date(y, m, d);
-  parser = new goog.i18n.DateTimeParse('MMM dd\'th yyyy');
-  assertParsedDateEquals(y, m, d, parser, 'Nov 15th yyyy', date);
-  // Quoted text with literal apostrophe
-  date = new Date(y, m, d);
-  parser = new goog.i18n.DateTimeParse('MMM dd\'th\'\'\'');
-  assertParsedDateEquals(y, m, d, parser, 'Nov 15th\'', date);
-  // Quoted text with literal apostrophe (only opening apostrophe)
-  date = new Date(y, m, d);
-  parser = new goog.i18n.DateTimeParse('MMM dd\'th\'\'');
-  assertParsedDateEquals(y, m, d, parser, 'Nov 15th\'', date);
-}
-
-function testNullDate() {
-  var date = new Date();
-  var parser = new goog.i18n.DateTimeParse('MM/dd, yyyyG');
-  assertNotThrows(function() {
-    parser.parse('11/22, 1999', date);
-  });
-  assertThrows(function() {
-    parser.parse('11/22, 1999', null);
-  });
 }

@@ -199,8 +199,7 @@ goog.format.numericValueToString_ = function(
  * @type {RegExp}
  * @private
  */
-goog.format.SCALED_NUMERIC_RE_ =
-    /^([-]?\d+\.?\d*)([K,M,G,T,P,E,Z,Y,k,m,u,n]?)[B]?$/;
+goog.format.SCALED_NUMERIC_RE_ = /^([-]?\d+\.?\d*)([K,M,G,T,P,k,m,u,n]?)[B]?$/;
 
 
 /**
@@ -208,7 +207,7 @@ goog.format.SCALED_NUMERIC_RE_ =
  * @private {Array<string>}
  */
 goog.format.NUMERIC_SCALE_PREFIXES_ =
-    ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'K', '', 'm', 'u', 'n'];
+    ['P', 'T', 'G', 'M', 'K', '', 'm', 'u', 'n'];
 
 
 /**
@@ -226,10 +225,7 @@ goog.format.NUMERIC_SCALES_SI_ = {
   'M': 1e6,
   'G': 1e9,
   'T': 1e12,
-  'P': 1e15,
-  'E': 1e18,
-  'Z': 1e21,
-  'Y': 1e24
+  'P': 1e15
 };
 
 
@@ -249,10 +245,7 @@ goog.format.NUMERIC_SCALES_BINARY_ = {
   'M': Math.pow(1024, 2),
   'G': Math.pow(1024, 3),
   'T': Math.pow(1024, 4),
-  'P': Math.pow(1024, 5),
-  'E': Math.pow(1024, 6),
-  'Z': Math.pow(1024, 7),
-  'Y': Math.pow(1024, 8)
+  'P': Math.pow(1024, 5)
 };
 
 
@@ -407,7 +400,6 @@ goog.format.insertWordBreaksGeneric_ = function(
  * @param {number=} opt_maxlen Maximum length after which to ensure there is a
  *     break.  Default is 10 characters.
  * @return {string} The string including word breaks.
- * @deprecated Prefer wrapping with CSS word-wrap: break-word.
  */
 goog.format.insertWordBreaks = function(str, opt_maxlen) {
   return goog.format.insertWordBreaksGeneric_(
@@ -458,7 +450,6 @@ goog.format.conservativelyHasGraphemeBreak_ = function(
  * @param {number=} opt_maxlen Maximum length after which to ensure there is a
  *     break.  Default is 10 characters.
  * @return {string} The string including word breaks.
- * @deprecated Prefer wrapping with CSS word-wrap: break-word.
  */
 goog.format.insertWordBreaksBasic = function(str, opt_maxlen) {
   return goog.format.insertWordBreaksGeneric_(
@@ -477,9 +468,9 @@ goog.format.IS_IE8_OR_ABOVE_ =
 
 /**
  * Constant for the WBR replacement used by insertWordBreaks.  Safari requires
- * &lt;wbr&gt;&lt;/wbr&gt;, Opera needs the &shy; entity, though this will give
- * a visible hyphen at breaks.  IE8 uses a zero width space. Other browsers just
- * use &lt;wbr&gt;.
+ * <wbr></wbr>, Opera needs the &shy; entity, though this will give a visible
+ * hyphen at breaks.  IE8 uses a zero width space.
+ * Other browsers just use <wbr>.
  * @type {string}
  */
 goog.format.WORD_BREAK_HTML =

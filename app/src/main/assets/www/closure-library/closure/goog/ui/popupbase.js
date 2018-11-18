@@ -438,7 +438,7 @@ goog.ui.PopupBase.prototype.getHandler = function() {
  */
 goog.ui.PopupBase.prototype.ensureNotVisible_ = function() {
   if (this.isVisible_) {
-    throw new Error('Can not change this state of the popup while showing.');
+    throw Error('Can not change this state of the popup while showing.');
   }
 };
 
@@ -522,8 +522,7 @@ goog.ui.PopupBase.prototype.show_ = function() {
 
   // Allow callers to set the element in the BEFORE_SHOW event.
   if (!this.element_) {
-    throw new Error(
-        'Caller must call setElement before trying to show the popup');
+    throw Error('Caller must call setElement before trying to show the popup');
   }
 
   // Call reposition after onBeforeShow, as it may change the style and/or
@@ -556,7 +555,7 @@ goog.ui.PopupBase.prototype.show_ = function() {
       // The active element in the top-level document will remain the iframe
       // itself.
       var activeElement;
-
+      /** @preserveTry */
       try {
         activeElement = doc.activeElement;
       } catch (e) {
@@ -566,7 +565,7 @@ goog.ui.PopupBase.prototype.show_ = function() {
       }
       while (activeElement &&
              activeElement.nodeName == goog.dom.TagName.IFRAME) {
-
+        /** @preserveTry */
         try {
           var tempDoc = goog.dom.getFrameContentDocument(activeElement);
         } catch (e) {
@@ -624,7 +623,7 @@ goog.ui.PopupBase.prototype.show_ = function() {
 /**
  * Hides the popup. This call is idempotent.
  *
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @return {boolean} Whether the popup was hidden and not cancelled.
  * @private
  */
@@ -662,7 +661,7 @@ goog.ui.PopupBase.prototype.hide_ = function(opt_target) {
 /**
  * Continues hiding the popup. This is a continuation from hide_. It is
  * a separate method so that we can add a transition before hiding.
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @private
  */
 goog.ui.PopupBase.prototype.continueHidingPopup_ = function(opt_target) {
@@ -739,7 +738,7 @@ goog.ui.PopupBase.prototype.onShow = function() {
  * Called before the popup is hidden. Derived classes can override to hook this
  * event but should make sure to call the parent class method.
  *
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @return {boolean} If anyone called preventDefault on the event object (or
  *     if any of the handlers returns false this will also return false.
  * @protected
@@ -753,7 +752,7 @@ goog.ui.PopupBase.prototype.onBeforeHide = function(opt_target) {
 /**
  * Called after the popup is hidden. Derived classes can override to hook this
  * event but should make sure to call the parent class method.
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @protected
  */
 goog.ui.PopupBase.prototype.onHide = function(opt_target) {

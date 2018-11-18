@@ -71,7 +71,7 @@ goog.structs.CircularBuffer.prototype.add = function(item) {
 /**
  * Returns the item at the specified index.
  * @param {number} index The index of the item. The index of an item can change
- *     after calls to `add()` if the buffer is at maximum size.
+ *     after calls to {@code add()} if the buffer is at maximum size.
  * @return {T} The item at the specified index.
  */
 goog.structs.CircularBuffer.prototype.get = function(index) {
@@ -83,7 +83,7 @@ goog.structs.CircularBuffer.prototype.get = function(index) {
 /**
  * Sets the item at the specified index.
  * @param {number} index The index of the item. The index of an item can change
- *     after calls to `add()` if the buffer is at maximum size.
+ *     after calls to {@code add()} if the buffer is at maximum size.
  * @param {T} item The item to add.
  */
 goog.structs.CircularBuffer.prototype.set = function(index, item) {
@@ -118,9 +118,7 @@ goog.structs.CircularBuffer.prototype.clear = function() {
 };
 
 
-/**
- * @return {!Array<T>} The values in the buffer ordered from oldest to newest.
- */
+/** @return {!Array<T>} The values in the buffer. */
 goog.structs.CircularBuffer.prototype.getValues = function() {
   // getNewestValues returns all the values if the maxCount parameter is the
   // count
@@ -129,11 +127,10 @@ goog.structs.CircularBuffer.prototype.getValues = function() {
 
 
 /**
- * Returns the newest values in the buffer up to `count`.
+ * Returns the newest values in the buffer up to {@code count}.
  * @param {number} maxCount The maximum number of values to get. Should be a
  *     positive number.
- * @return {!Array<T>} The newest values in the buffer up to `count`. The
- *     values are ordered from oldest to newest.
+ * @return {!Array<T>} The newest values in the buffer up to {@code count}.
  */
 goog.structs.CircularBuffer.prototype.getNewestValues = function(maxCount) {
   var l = this.getCount();
@@ -208,7 +205,7 @@ goog.structs.CircularBuffer.prototype.getLast = function() {
  */
 goog.structs.CircularBuffer.prototype.normalizeIndex_ = function(index) {
   if (index >= this.buff_.length) {
-    throw new Error('Out of bounds exception');
+    throw Error('Out of bounds exception');
   }
 
   if (this.buff_.length < this.maxSize_) {

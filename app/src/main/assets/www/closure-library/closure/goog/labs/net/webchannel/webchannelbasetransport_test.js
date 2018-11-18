@@ -119,48 +119,6 @@ function testOpenWithCustomHeaders() {
   assertEquals(undefined, extraHeaders_['X-Client-Protocol']);
 }
 
-function testOpenWithInitHeaders() {
-  var webChannelTransport =
-      new goog.labs.net.webChannel.WebChannelBaseTransport();
-  var options = {'initMessageHeaders': {'foo-key': 'foo-value'}};
-  webChannel = webChannelTransport.createWebChannel(channelUrl, options);
-  webChannel.open();
-
-  var initHeaders_ = webChannel.channel_.initHeaders_;
-  assertNotNullNorUndefined(initHeaders_);
-  assertEquals('foo-value', initHeaders_['foo-key']);
-}
-
-function testOpenWithMessageContentType() {
-  var webChannelTransport =
-      new goog.labs.net.webChannel.WebChannelBaseTransport();
-  var options = {'messageContentType': 'application/protobuf+json'};
-  webChannel = webChannelTransport.createWebChannel(channelUrl, options);
-  webChannel.open();
-
-  var initHeaders_ = webChannel.channel_.initHeaders_;
-  assertNotNullNorUndefined(initHeaders_);
-  assertEquals(
-      'application/protobuf+json', initHeaders_['X-WebChannel-Content-Type']);
-}
-
-function testOpenWithMessageContentTypeAndInitHeaders() {
-  var webChannelTransport =
-      new goog.labs.net.webChannel.WebChannelBaseTransport();
-  var options = {
-    'messageContentType': 'application/protobuf+json',
-    'initMessageHeaders': {'foo-key': 'foo-value'}
-  };
-  webChannel = webChannelTransport.createWebChannel(channelUrl, options);
-  webChannel.open();
-
-  var initHeaders_ = webChannel.channel_.initHeaders_;
-  assertNotNullNorUndefined(initHeaders_);
-  assertEquals(
-      'application/protobuf+json', initHeaders_['X-WebChannel-Content-Type']);
-  assertEquals('foo-value', initHeaders_['foo-key']);
-}
-
 function testClientProtocolHeaderRequired() {
   var webChannelTransport =
       new goog.labs.net.webChannel.WebChannelBaseTransport();
@@ -208,34 +166,6 @@ function testOpenWithCustomParams() {
 
   var extraParams = webChannel.channel_.extraParams_;
   assertNotNullNorUndefined(extraParams);
-}
-
-function testOpenWithHttpSessionIdParam() {
-  var webChannelTransport =
-      new goog.labs.net.webChannel.WebChannelBaseTransport();
-  var options = {'httpSessionIdParam': 'xsessionid'};
-  webChannel = webChannelTransport.createWebChannel(channelUrl, options);
-  webChannel.open();
-
-  var httpSessionIdParam = webChannel.channel_.getHttpSessionIdParam();
-  assertEquals('xsessionid', httpSessionIdParam);
-}
-
-function testOpenWithDuplicatedHttpSessionIdParam() {
-  var webChannelTransport =
-      new goog.labs.net.webChannel.WebChannelBaseTransport();
-  var options = {
-    'messageUrlParams': {'xsessionid': 'abcd1234'},
-    'httpSessionIdParam': 'xsessionid'
-  };
-  webChannel = webChannelTransport.createWebChannel(channelUrl, options);
-  webChannel.open();
-
-  var httpSessionIdParam = webChannel.channel_.getHttpSessionIdParam();
-  assertEquals('xsessionid', httpSessionIdParam);
-
-  var extraParams = webChannel.channel_.extraParams_;
-  assertUndefined(extraParams['xsessionid']);
 }
 
 function testOpenWithCorsEnabled() {

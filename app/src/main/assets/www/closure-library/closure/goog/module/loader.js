@@ -15,7 +15,7 @@
 /**
  *
  * @fileoverview This class supports the dynamic loading of compiled
- * javascript modules at runtime, as described in the designdoc.
+ * javascript modules at runtime, as descibed in the designdoc.
  *
  *   <http://go/js_modules_design>
  *
@@ -28,8 +28,6 @@ goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
-goog.require('goog.html.legacyconversions');
 /** @suppress {extraRequire} */
 goog.require('goog.module');
 goog.require('goog.object');
@@ -56,7 +54,7 @@ goog.module.Loader = function() {
 
   /**
    * Provides associative access to each module and the symbols of each module
-   * that have already been loaded (one lookup for the module, another lookup
+   * that have aready been loaded (one lookup for the module, another lookup
    * on the module for the symbol).
    * @type {Object}
    * @private
@@ -179,7 +177,7 @@ goog.module.Loader.prototype.getModuleUrl_ = function(urlBase, module) {
 
 /**
  * The globally exported name of the load callback. Matches the
- * definition in the js_module_binary() BUILD rule.
+ * definition in the js_modular_binary() BUILD rule.
  * @type {string}
  */
 goog.module.Loader.LOAD_CALLBACK = '__gjsload__';
@@ -274,6 +272,7 @@ goog.module.Loader.prototype.require = function(module, symbol, callback) {
  * Registers a symbol in a loaded module. When called without symbol,
  * registers the module to be fully loaded and executes all callbacks
  * from pending require() callbacks for this module.
+ *
  * @param {string} module The name of the module. Cf. parameter module
  *     of method require().
  * @param {number|string=} opt_symbol The symbol being defined, or nothing when
@@ -281,7 +280,6 @@ goog.module.Loader.prototype.require = function(module, symbol, callback) {
  *     require().
  * @param {Object=} opt_object The object bound to the symbol, or nothing when
  *     all symbols of the module are defined.
- * @suppress {strictPrimitiveOperators} Part of the go/strict_warnings_migration
  */
 goog.module.Loader.prototype.provide = function(
     module, opt_symbol, opt_object) {
@@ -340,9 +338,7 @@ goog.module.Loader.prototype.load_ = function(module) {
     }
 
     var s = goog.dom.createDom(
-        goog.dom.TagName.SCRIPT, {'type': 'text/javascript'});
-    goog.dom.safe.setScriptSrc(
-        s, goog.html.legacyconversions.trustedResourceUrlFromString(url));
+        goog.dom.TagName.SCRIPT, {'type': 'text/javascript', 'src': url});
     document.body.appendChild(s);
   }, 0, this);
 };

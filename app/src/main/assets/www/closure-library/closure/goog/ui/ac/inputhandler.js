@@ -205,7 +205,6 @@ goog.ui.ac.InputHandler = function(
   this.lastKeyCode_ = -1;  // Initialize to a non-existent value.
 };
 goog.inherits(goog.ui.ac.InputHandler, goog.Disposable);
-goog.tagUnsealableClass(goog.ui.ac.InputHandler);
 
 
 /**
@@ -263,7 +262,7 @@ goog.ui.ac.InputHandler.prototype.defaultSeparator_;
 
 /**
  * Regular expression used from trimming tokens or null for no trimming.
- * @type {?RegExp}
+ * @type {RegExp}
  * @private
  */
 goog.ui.ac.InputHandler.prototype.trimmer_;
@@ -271,7 +270,7 @@ goog.ui.ac.InputHandler.prototype.trimmer_;
 
 /**
  * Regular expression to test whether a separator exists
- * @type {?RegExp}
+ * @type {RegExp}
  * @private
  */
 goog.ui.ac.InputHandler.prototype.separatorCheck_;
@@ -526,7 +525,7 @@ goog.ui.ac.InputHandler.prototype.detachInputs = function(var_args) {
 
 /**
  * Selects the given row.  Implements the SelectionHandler interface.
- * @param {?} row The row to select.
+ * @param {Object} row The row to select.
  * @param {boolean=} opt_multi Should this be treated as a single or multi-token
  *     auto-complete?  Overrides previous setting of opt_multi on constructor.
  * @return {boolean} Whether to suppress the update event.
@@ -559,7 +558,7 @@ goog.ui.ac.InputHandler.prototype.setTokenText = function(
     var replaceValue = tokenText;
 
     // Only add punctuation if there isn't already a separator available.
-    if (this.separatorCheck_ && !this.separatorCheck_.test(replaceValue)) {
+    if (!this.separatorCheck_.test(replaceValue)) {
       replaceValue =
           goog.string.trimRight(replaceValue) + this.defaultSeparator_;
     }
@@ -691,24 +690,10 @@ goog.ui.ac.InputHandler.prototype.setGenerateNewTokenOnLiteral = function(
  * Sets the regular expression used to trim the tokens before passing them to
  * the matcher:  every substring that matches the given regular expression will
  * be removed.  This can also be set to null to disable trimming.
- * @param {?RegExp} trimmer Regexp to use for trimming or null to disable it.
+ * @param {RegExp} trimmer Regexp to use for trimming or null to disable it.
  */
 goog.ui.ac.InputHandler.prototype.setTrimmingRegExp = function(trimmer) {
   this.trimmer_ = trimmer;
-};
-
-
-/**
- * Sets the regular expression used to check whether the replacement (used to
- * update the text area after a row is selected) ends with a separator. This can
- * be set to null if the input handler should never automatically append a
- * separator to the replacement string.
- * @param {?RegExp} separatorCheck Regexp to use for checking whether the
- *     replacement ends with a separator.
- */
-goog.ui.ac.InputHandler.prototype.setEndsWithSeparatorRegExp = function(
-    separatorCheck) {
-  this.separatorCheck_ = separatorCheck;
 };
 
 
@@ -1101,7 +1086,7 @@ goog.ui.ac.InputHandler.prototype.onKeyDownOnInactiveElement_ = function(e) {
 
 /**
  * Handles typing in the active input element.  Checks if the key is a special
- * key and does the relevant action as appropriate.
+ * key and does the relevent action as appropriate.
  * @param {goog.events.BrowserEvent} e Browser event object.
  * @private
  */
@@ -1307,7 +1292,7 @@ goog.ui.ac.InputHandler.prototype.getTokenIndex_ = function(text, caret) {
 
 
 /**
- * Splits an input string of text at the occurrence of a character in
+ * Splits an input string of text at the occurance of a character in
  * {@link goog.ui.ac.InputHandler.prototype.separators_} and creates
  * an array of tokens.  Each token may contain additional whitespace and
  * formatting marks.  If necessary use

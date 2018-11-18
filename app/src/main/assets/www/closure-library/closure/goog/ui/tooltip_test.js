@@ -36,7 +36,7 @@ goog.require('goog.userAgent');
 
 
 /**
- * A subclass of Tooltip that overrides `getPositioningStrategy`
+ * A subclass of Tooltip that overrides {@code getPositioningStrategy}
  * for testing purposes.
  * @constructor
  */

@@ -412,11 +412,8 @@ function simulateKeyDownOnBubble(keyCode, isCtrl) {
   // bubble element shares the same window and hence the designMode. In this
   // mode, activeElement remains the <body> and isn't changed along with the
   // focus as a result of tab key.
-  if (goog.userAgent.GECKO) {
-    bubblePlugin.getSharedBubble_()
-        .getContentElement()
-        .ownerDocument.designMode = 'off';
-  }
+  bubblePlugin.getSharedBubble_().getContentElement().ownerDocument.designMode =
+      'off';
 
   var event =
       new goog.testing.events.Event(goog.events.EventType.KEYDOWN, null);

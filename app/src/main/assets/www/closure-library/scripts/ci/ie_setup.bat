@@ -1,17 +1,3 @@
-:: Copyright 2018 The Closure Library Authors. All Rights Reserved.
-::
-:: Licensed under the Apache License, Version 2.0 (the "License");
-:: you may not use this file except in compliance with the License.
-:: You may obtain a copy of the License at
-::
-::      http://www.apache.org/licenses/LICENSE-2.0
-::
-:: Unless required by applicable law or agreed to in writing, software
-:: distributed under the License is distributed on an "AS-IS" BASIS,
-:: WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-:: See the License for the specific language governing permissions and
-:: limitations under the License.
-
 :: Disable "Stop running this script?" alert dialog.
 reg add "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Styles" ^
     /v "MaxScriptStatements" /t REG_DWORD /d 0xffffffff /f
@@ -59,12 +45,3 @@ reg add "HKEY_CURRENT_USER\Software\Microsoft\Internet Explorer\Main" ^
 :: Disable cross-origin XHRs. Sauce enables this in IE by default.
 @ECHO OFF
 REG ADD "HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3" /v 1406 /t REG_DWORD /d 3 /f
-
-setlocal
-
-set "URL=https://raw.githubusercontent.com/google/closure-library/master/scripts/ci/CloseAdobeDialog.exe"
-set "SaveAs=C:\Users\Administrator\Desktop\CloseAdobeDialog.exe"
-powershell "Import-Module BitsTransfer; Start-BitsTransfer '%URL%' '%SaveAs%'"
-
-start C:\Users\Administrator\Desktop\CloseAdobeDialog.exe
-exit

@@ -50,23 +50,25 @@ goog.require('goog.string.format');
  *     ]
  *   }
  * }</code>
- * @param {?goog.format.JsonPrettyPrinter.TextDelimiters=} opt_delimiters
- *     Container for the various strings to use to delimit objects, arrays,
- *     newlines, and other pieces of the output.
+ * @param {goog.format.JsonPrettyPrinter.TextDelimiters} delimiters Container
+ *     for the various strings to use to delimit objects, arrays, newlines, and
+ *     other pieces of the output.
  * @constructor
  */
-goog.format.JsonPrettyPrinter = function(opt_delimiters) {
+goog.format.JsonPrettyPrinter = function(delimiters) {
 
   /**
    * The set of characters to use as delimiters.
-   * @private @const {!goog.format.JsonPrettyPrinter.TextDelimiters}
+   * @type {goog.format.JsonPrettyPrinter.TextDelimiters}
+   * @private
    */
   this.delimiters_ =
-      opt_delimiters || new goog.format.JsonPrettyPrinter.TextDelimiters();
+      delimiters || new goog.format.JsonPrettyPrinter.TextDelimiters();
 
   /**
    * Used to serialize property names and values.
-   * @private @const {!goog.json.Serializer}
+   * @type {goog.json.Serializer}
+   * @private
    */
   this.jsonSerializer_ = new goog.json.Serializer();
 };
@@ -119,7 +121,7 @@ goog.format.JsonPrettyPrinter.prototype.format_ = function(json) {
       return [];
     }
     // Try to coerce a string into a JSON object.
-    json = JSON.parse(json);
+    json = goog.json.parse(json);
   }
   var outputBuffer = [];
   this.printObject_(json, outputBuffer, 0);
@@ -135,7 +137,6 @@ goog.format.JsonPrettyPrinter.prototype.format_ = function(json) {
  * @param {number} indent The number of spaces to indent each line of the
  *     output.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.format.JsonPrettyPrinter.prototype.printObject_ = function(
     val, outputBuffer, indent) {

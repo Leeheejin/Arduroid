@@ -102,11 +102,6 @@ goog.fx.DragScrollSupport = function(
    * @private
    */
   this.containerBounds_ = goog.style.getBounds(containerNode);
-  if (containerNode.tagName === 'BODY' || containerNode.tagName === 'HTML') {
-    var size = goog.dom.getViewportSize();
-    this.containerBounds_.height = size.height;
-    this.containerBounds_.width = size.width;
-  }
 
   /**
    * The margin for triggering a scroll.

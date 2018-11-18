@@ -18,7 +18,6 @@
  *
  */
 
-goog.setTestOnly('goog.testing.MockUserAgent');
 goog.provide('goog.testing.MockUserAgent');
 
 goog.require('goog.Disposable');
@@ -54,17 +53,10 @@ goog.testing.MockUserAgent = function() {
 
   /**
    * The navigator object used by goog.userAgent
-   * @type {?Navigator}
+   * @type {Object}
    * @private
    */
-  this.navigator_ = goog.userAgent.getNavigatorTyped();
-
-  /**
-   * The documentMode number used by goog.userAgent
-   * @type {number|undefined}
-   * @private
-   */
-  this.documentMode_ = goog.userAgent.DOCUMENT_MODE;
+  this.navigator_ = goog.userAgent.getNavigator();
 };
 goog.inherits(goog.testing.MockUserAgent, goog.Disposable);
 
@@ -83,30 +75,17 @@ goog.testing.MockUserAgent.prototype.installed_;
 goog.testing.MockUserAgent.prototype.install = function() {
   if (!this.installed_) {
     // Stub out user agent functions.
-    this.propertyReplacer_.replace(
+    this.propertyReplacer_.set(
         goog.userAgent, 'getUserAgentString',
         goog.bind(this.getUserAgentString, this));
 
-    this.propertyReplacer_.replace(
+    this.propertyReplacer_.set(
         goog.labs.userAgent.util, 'getUserAgent',
         goog.bind(this.getUserAgentString, this));
 
     // Stub out navigator functions.
-    this.propertyReplacer_.replace(
+    this.propertyReplacer_.set(
         goog.userAgent, 'getNavigator', goog.bind(this.getNavigator, this));
-
-    // Stub out navigator functions.
-    this.propertyReplacer_.replace(
-        goog.userAgent, 'getNavigatorTyped',
-        goog.bind(this.getNavigator, this));
-
-    // Stub out documentMode functions.
-    this.propertyReplacer_.replace(
-        goog.userAgent, 'getDocumentMode_',
-        goog.bind(this.getDocumentMode, this));
-
-    this.propertyReplacer_.replace(
-        goog.userAgent, 'DOCUMENT_MODE', this.getDocumentMode());
 
     this.installed_ = true;
   }
@@ -130,7 +109,7 @@ goog.testing.MockUserAgent.prototype.setUserAgentString = function(userAgent) {
 
 
 /**
- * @return {?Object} The Navigator set in this class.
+ * @return {Object} The Navigator set in this class.
  */
 goog.testing.MockUserAgent.prototype.getNavigator = function() {
   return this.navigator_;
@@ -138,33 +117,12 @@ goog.testing.MockUserAgent.prototype.getNavigator = function() {
 
 
 /**
- * @return {?Navigator} The Navigator set in this class.
- */
-goog.testing.MockUserAgent.prototype.getNavigatorTyped = function() {
-  return this.navigator_;
-};
-
-/**
  * @param {Object} navigator The desired Navigator object to use.
  */
 goog.testing.MockUserAgent.prototype.setNavigator = function(navigator) {
-  this.navigator_ = /** @type {?Navigator} */ (navigator);
+  this.navigator_ = navigator;
 };
 
-/**
- * @return {number|undefined} The documentMode set in this class.
- */
-goog.testing.MockUserAgent.prototype.getDocumentMode = function() {
-  return this.documentMode_;
-};
-
-/**
- * @param {number} documentMode The desired documentMode to use.
- */
-goog.testing.MockUserAgent.prototype.setDocumentMode = function(documentMode) {
-  this.documentMode_ = documentMode;
-  this.propertyReplacer_.set(goog.userAgent, 'DOCUMENT_MODE', documentMode);
-};
 
 /**
  * Uninstalls the MockUserAgent.
@@ -183,6 +141,5 @@ goog.testing.MockUserAgent.prototype.disposeInternal = function() {
   this.uninstall();
   delete this.propertyReplacer_;
   delete this.navigator_;
-  delete this.documentMode_;
   goog.testing.MockUserAgent.base(this, 'disposeInternal');
 };

@@ -41,7 +41,7 @@ goog.require('goog.userAgent');
 /**
  * Plugin to handle enter keys. This subclass normalizes all browsers to use
  * the given block tag on enter.
- * @param {!goog.dom.TagName} tag The type of tag to add on enter.
+ * @param {goog.dom.TagName} tag The type of tag to add on enter.
  * @constructor
  * @extends {goog.editor.plugins.EnterHandler}
  */
@@ -92,7 +92,7 @@ goog.editor.plugins.TagOnEnterHandler.prototype.isSupportedCommand = function(
 /** @override */
 goog.editor.plugins.TagOnEnterHandler.prototype.queryCommandValue = function(
     command) {
-  return command == goog.editor.Command.DEFAULT_TAG ? String(this.tag) : null;
+  return command == goog.editor.Command.DEFAULT_TAG ? this.tag : null;
 };
 
 
@@ -216,7 +216,7 @@ goog.editor.plugins.TagOnEnterHandler.prototype.ensureNodeIsWrappedW3c_ =
     var isChildOfFn = function(child) { return container == child.parentNode; };
     var nodeToWrap = goog.dom.getAncestor(node, isChildOfFn, true);
     container = goog.editor.plugins.TagOnEnterHandler.wrapInContainerW3c_(
-        String(this.tag), {node: nodeToWrap, offset: 0}, container);
+        this.tag, {node: nodeToWrap, offset: 0}, container);
   }
   return container;
 };
@@ -272,8 +272,7 @@ goog.editor.plugins.TagOnEnterHandler.prototype
     // before BR and empty text nodes cause the cursor position bug in Firefox.
     // See http://b/5220858
     elementAfterCursor.normalize();
-    var br = goog.dom.getElementsByTagName(
-        goog.dom.TagName.BR, elementAfterCursor)[0];
+    var br = elementAfterCursor.getElementsByTagName(goog.dom.TagName.BR)[0];
     if (br.previousSibling &&
         br.previousSibling.nodeType == goog.dom.NodeType.TEXT) {
       // If there is some whitespace before the BR, don't put the selection on
@@ -446,7 +445,7 @@ goog.editor.plugins.TagOnEnterHandler.prototype.removeBrIfNecessary_ = function(
   if (focusNode.nodeType == goog.dom.NodeType.TEXT) {
     // Sometimes firefox inserts extra whitespace. Do our best to deal.
     // This is buggy though.
-    /** @type {!Text} */ (focusNode).data =
+    focusNode.data =
         goog.editor.plugins.TagOnEnterHandler.trimTabsAndLineBreaks_(
             focusNode.data);
     // When we strip whitespace, make sure that our cursor is still at
@@ -486,8 +485,7 @@ goog.editor.plugins.TagOnEnterHandler.prototype.handleRegularEnterGecko_ =
       // If the field contains only a single BR, this code ensures we don't
       // try to clone the body tag.
       container = this.ensureNodeIsWrappedW3c_(
-          goog.dom.getElementsByTagName(goog.dom.TagName.BR, container)[0],
-          container);
+          container.getElementsByTagName(goog.dom.TagName.BR)[0], container);
     }
 
     newNode = container.cloneNode(true);
@@ -595,8 +593,7 @@ goog.editor.plugins.TagOnEnterHandler.splitDom_ = function(
 
   // Split the node.
   var textSplit = positionNode.nodeType == goog.dom.NodeType.TEXT;
-  /** @type {?Node} */
-  var secondHalfOfSplitNode = null;
+  var secondHalfOfSplitNode;
   if (textSplit) {
     if (goog.userAgent.IE && positionOffset == positionNode.nodeValue.length) {
       // Since splitText fails in IE at the end of a node, we split it manually.

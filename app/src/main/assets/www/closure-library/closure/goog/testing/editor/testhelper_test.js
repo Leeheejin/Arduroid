@@ -77,18 +77,13 @@ function findNodeWithHierarchy() {
   // Test a more complicated hierarchy.
   root.innerHTML = '<div>a<p>b<span>c</span>d</p>e</div>';
   assertEquals(
-      String(goog.dom.TagName.DIV),
-      helper.findTextNode('a').parentNode.tagName);
+      goog.dom.TagName.DIV, helper.findTextNode('a').parentNode.tagName);
+  assertEquals(goog.dom.TagName.P, helper.findTextNode('b').parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.P), helper.findTextNode('b').parentNode.tagName);
+      goog.dom.TagName.SPAN, helper.findTextNode('c').parentNode.tagName);
+  assertEquals(goog.dom.TagName.P, helper.findTextNode('d').parentNode.tagName);
   assertEquals(
-      String(goog.dom.TagName.SPAN),
-      helper.findTextNode('c').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.P), helper.findTextNode('d').parentNode.tagName);
-  assertEquals(
-      String(goog.dom.TagName.DIV),
-      helper.findTextNode('e').parentNode.tagName);
+      goog.dom.TagName.DIV, helper.findTextNode('e').parentNode.tagName);
 }
 
 function setUpAssertHtmlMatches() {

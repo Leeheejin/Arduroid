@@ -1,12 +1,25 @@
 package com.example.leina.example2;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.DownloadListener;
+import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -17,31 +30,46 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
         setContentView(R.layout.activity_main);
 
-        mWebView = (WebView) findViewById(R.id.WebView);
+        WebView mWebView = (WebView) findViewById(R.id.WebView);
+        mWebView.getSettings().setJavaScriptEnabled(true);
 
-        // Scroll 안보이게 변경
-        mWebView .setHorizontalScrollBarEnabled(false);
-        mWebView .setVerticalScrollBarEnabled(false);
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setLoadWithOverviewMode(true);
+        mWebView.getSettings().setUseWideViewPort(true);
 
-        WebSettings webSettings = mWebView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
+        mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // 접속 URL
+        mWebView.setWebChromeClient(new WebChromeClient());
+        mWebView.setWebViewClient(new WebViewClientClass());
 
-        mWebView.setWebViewClient(new WebViewClient() {
+        mWebView.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                view.loadUrl(url);
-                return true;
+            public  boolean onTouch(View view, MotionEvent motionEvent) {
+                WebView.HitTestResult hr = ((WebView)view).getHitTestResult();
+
+                Log.i("TAG", "getExtra = "+ hr.getExtra() + "\t\t Type=" + hr.getType());
+                return false;
             }
         });
-
-
-        mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html");
-
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && mWebView.canGoBack()) {
+            mWebView.goBack();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private class WebViewClientClass extends WebViewClient {
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            Log.d("check URL",url);
+            view.loadUrl(url);
+            return true;
+        }
+    }
 
 }
-

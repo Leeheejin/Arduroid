@@ -275,7 +275,7 @@ goog.tweak.BaseSetting.prototype.isInitializing = function() {
 /**
  * Sets the initial query parameter value for this setting. May not be called
  * after the setting has been initialized.
- * @param {string} value The initial query parameter value for this setting.
+ * @param {string} value The inital query parameter value for this setting.
  */
 goog.tweak.BaseSetting.prototype.setInitialQueryParamValue = function(value) {
   this.assertNotInitialized('setInitialQueryParamValue');
@@ -340,21 +340,21 @@ goog.tweak.BasePrimitiveSetting = function(id, description, defaultValue) {
   goog.tweak.BaseSetting.call(this, id, description);
   /**
    * The default value of the setting.
-   * @type {?}
+   * @type {*}
    * @private
    */
   this.defaultValue_ = defaultValue;
 
   /**
    * The value of the tweak.
-   * @type {?}
+   * @type {*}
    * @private
    */
   this.value_;
 
   /**
    * The value of the tweak once "Apply Tweaks" is pressed.
-   * @type {?}
+   * @type {*}
    * @private
    */
   this.newValue_;
@@ -381,9 +381,9 @@ goog.tweak.BasePrimitiveSetting.prototype.encodeNewValue = goog.abstractMethod;
 
 
 /**
- * If the setting has the restartRequired option, then returns its initial
+ * If the setting has the restartRequired option, then returns its inital
  * value. Otherwise, returns its current value.
- * @return {?} The value.
+ * @return {*} The value.
  */
 goog.tweak.BasePrimitiveSetting.prototype.getValue = function() {
   this.ensureInitialized();
@@ -393,7 +393,7 @@ goog.tweak.BasePrimitiveSetting.prototype.getValue = function() {
 
 /**
  * Returns the value of the setting to use once "Apply Tweaks" is clicked.
- * @return {?} The value.
+ * @return {*} The value.
  */
 goog.tweak.BasePrimitiveSetting.prototype.getNewValue = function() {
   this.ensureInitialized();
@@ -406,7 +406,7 @@ goog.tweak.BasePrimitiveSetting.prototype.getNewValue = function() {
  * option, then the value will not be changed until the "Apply Tweaks" button
  * is clicked. If it does not have the option, the value will be update
  * immediately and all registered callbacks will be called.
- * @param {?} value The value.
+ * @param {*} value The value.
  */
 goog.tweak.BasePrimitiveSetting.prototype.setValue = function(value) {
   this.ensureInitialized();
@@ -430,7 +430,7 @@ goog.tweak.BasePrimitiveSetting.prototype.setValue = function(value) {
 
 /**
  * Returns the default value for this setting.
- * @return {?} The default value.
+ * @return {*} The default value.
  */
 goog.tweak.BasePrimitiveSetting.prototype.getDefaultValue = function() {
   return this.defaultValue_;
@@ -439,7 +439,7 @@ goog.tweak.BasePrimitiveSetting.prototype.getDefaultValue = function() {
 
 /**
  * Sets the default value for the tweak.
- * @param {?} value The new value.
+ * @param {*} value The new value.
  */
 goog.tweak.BasePrimitiveSetting.prototype.setDefaultValue = function(value) {
   this.assertNotInitialized('setDefaultValue');

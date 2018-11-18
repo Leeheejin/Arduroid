@@ -29,7 +29,6 @@ goog.require('goog.events');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.graphics.AbstractGraphics');
-goog.require('goog.graphics.Font');
 goog.require('goog.graphics.LinearGradient');
 goog.require('goog.graphics.Path');
 goog.require('goog.graphics.SolidFill');
@@ -288,7 +287,6 @@ goog.graphics.VmlGraphics.prototype.append_ = function(element, opt_group) {
  * @param {goog.graphics.StrokeAndFillElement} element The element wrapper.
  * @param {goog.graphics.Fill?} fill The fill object.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.graphics.VmlGraphics.prototype.setElementFill = function(element, fill) {
   var vmlElement = element.getElement();
@@ -341,7 +339,6 @@ goog.graphics.VmlGraphics.prototype.setElementFill = function(element, fill) {
  * @param {goog.graphics.StrokeAndFillElement} element The element wrapper.
  * @param {goog.graphics.Stroke?} stroke The stroke object.
  * @override
- * @suppress {strictPrimitiveOperators,strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.graphics.VmlGraphics.prototype.setElementStroke = function(
     element, stroke) {
@@ -404,7 +401,6 @@ goog.graphics.VmlGraphics.prototype.setElementTransform = function(
  * @param {!goog.graphics.AffineTransform} affineTransform The
  *     transformation applied to this element.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.graphics.VmlGraphics.prototype.setElementAffineTransform = function(
     element, affineTransform) {
@@ -436,8 +432,7 @@ goog.graphics.VmlGraphics.prototype.setElementAffineTransform = function(
  * @private
  */
 goog.graphics.VmlGraphics.removeSkew_ = function(element) {
-  goog.array.forEach(element.childNodes, /** @suppress {strictMissingProperties} Part of the go/strict_warnings_migration */
-                                         function(child) {
+  goog.array.forEach(element.childNodes, function(child) {
     if (child.tagName == 'skew') {
       element.removeChild(child);
     }
@@ -452,8 +447,7 @@ goog.graphics.VmlGraphics.removeSkew_ = function(element) {
  */
 goog.graphics.VmlGraphics.removeFill_ = function(element) {
   element.fillcolor = '';
-  goog.array.forEach(element.childNodes, /** @suppress {strictMissingProperties} Part of the go/strict_warnings_migration */
-                                         function(child) {
+  goog.array.forEach(element.childNodes, function(child) {
     if (child.tagName == 'fill') {
       element.removeChild(child);
     }
@@ -549,7 +543,7 @@ goog.graphics.VmlGraphics.prototype.createDom = function() {
   }
 
   // Outer a DIV with overflow hidden for clipping.
-  // All inner elements are absolutely positioned on-top of this div.
+  // All inner elements are absolutly positioned on-top of this div.
   var pixelWidth = this.width;
   var pixelHeight = this.height;
   var divElement = this.dom_.createDom(goog.dom.TagName.DIV, {
@@ -564,7 +558,7 @@ goog.graphics.VmlGraphics.prototype.createDom = function() {
   var style = group.style;
 
   style.position = 'absolute';
-  style.left = style.top = '0';
+  style.left = style.top = 0;
   style.width = this.width;
   style.height = this.height;
   if (this.coordWidth) {
@@ -684,7 +678,6 @@ goog.graphics.VmlGraphics.prototype.setSize = function(
  * @return {!goog.math.Size} Returns the number of pixels spanned by the
  *     surface.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.graphics.VmlGraphics.prototype.getPixelSize = function() {
   var el = this.getElement();
@@ -931,7 +924,7 @@ goog.graphics.VmlGraphics.prototype.createGroup = function(opt_group) {
  * Measure and return the width (in pixels) of a given text string.
  * Text measurement is needed to make sure a text can fit in the allocated
  * area. The way text length is measured is by writing it into a div that is
- * after the visible area, measure the div width, and immediately erase the
+ * after the visible area, measure the div width, and immediatly erase the
  * written value.
  *
  * @param {string} text The text string to measure.

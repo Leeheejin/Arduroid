@@ -148,9 +148,7 @@ function testMessageCallbacks() {
   });
   assertNull(handler.logRecord);
 
-  logger.log(goog.log.Level.WARNING, function() {
-    return 'heya';
-  });
+  logger.log(goog.log.Level.WARNING, function() { return 'heya' });
   assertNotNull(handler.logRecord);
   assertEquals(goog.log.Level.WARNING, handler.logRecord.getLevel());
   assertEquals('heya', handler.logRecord.getMessage());

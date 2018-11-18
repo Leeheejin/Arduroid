@@ -242,36 +242,12 @@ goog.ui.Palette.prototype.handleMouseDown = function(e) {
  * @override
  */
 goog.ui.Palette.prototype.performActionInternal = function(e) {
-  var highlightedItem = this.getHighlightedItem();
-  if (highlightedItem) {
-    if (e && this.shouldSelectHighlightedItem_(e)) {
-      this.setSelectedItem(highlightedItem);
-    }
+  var item = this.getHighlightedItem();
+  if (item) {
+    this.setSelectedItem(item);
     return goog.ui.Palette.base(this, 'performActionInternal', e);
   }
   return false;
-};
-
-
-/**
- * Determines whether to select the highlighted item while handling an internal
- * action. The highlighted item should not be selected if the action is a mouse
- * event occurring outside the palette or in an "empty" cell.
- * @param {!goog.events.Event} e Mouseup or key event being handled.
- * @return {boolean} True if the highlighted item should be selected.
- * @private
- */
-goog.ui.Palette.prototype.shouldSelectHighlightedItem_ = function(e) {
-  if (!this.getSelectedItem()) {
-    // It's always ok to select when nothing is selected yet.
-    return true;
-  } else if (e.type != 'mouseup') {
-    // Keyboard can only act on valid cells.
-    return true;
-  } else {
-    // Return whether or not the mouse action was in the palette.
-    return !!this.getRenderer().getContainingItem(this, e.target);
-  }
 };
 
 
@@ -400,7 +376,7 @@ goog.ui.Palette.prototype.getSize = function() {
  */
 goog.ui.Palette.prototype.setSize = function(size, opt_rows) {
   if (this.getElement()) {
-    throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+    throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
   }
 
   this.size_ = goog.isNumber(size) ?

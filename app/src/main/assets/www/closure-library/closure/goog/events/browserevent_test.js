@@ -24,7 +24,6 @@ goog.require('goog.userAgent');
 
 var stubs = new goog.testing.PropertyReplacer();
 var Button = goog.events.BrowserEvent.MouseButton;
-var PointerType = goog.events.BrowserEvent.PointerType;
 
 function setUp() {
   stubs.reset();
@@ -40,7 +39,7 @@ function testInvalidNodeBug() {
   var event = {};
   event.relatedTarget = {};
   event.relatedTarget.__defineGetter__('nodeName', function() {
-    throw new Error('https://bugzilla.mozilla.org/show_bug.cgi?id=497780');
+    throw Error('https://bugzilla.mozilla.org/show_bug.cgi?id=497780');
   });
   assertThrows(function() { return event.relatedTarget.nodeName; });
 
@@ -121,77 +120,11 @@ function testTouchEventHandling() {
   assertEquals(target, touchCancel.target);
 }
 
-function testGuardAgainstUndefinedTouchCoordinates() {
-  const noChangedTouches = new goog.events.BrowserEvent({
-    type: 'touchstart',
-    target: document.body,
-    changedTouches: [],
-  });
-
-  const emptyTouchObject = new goog.events.BrowserEvent({
-    type: 'touchstart',
-    target: document.body,
-    changedTouches: [{}],
-  });
-
-  const onlyPageCoords = new goog.events.BrowserEvent({
-    type: 'touchstart',
-    target: document.body,
-    changedTouches: [{pageX: 6, pageY: 7}],
-  });
-
-  assertEquals(undefined, noChangedTouches.clientX);
-  assertEquals(undefined, noChangedTouches.clientY);
-  assertEquals(0, noChangedTouches.screenX);
-  assertEquals(0, noChangedTouches.screenY);
-
-  assertEquals(undefined, emptyTouchObject.clientX);
-  assertEquals(undefined, emptyTouchObject.clientY);
-  assertEquals(0, emptyTouchObject.screenX);
-  assertEquals(0, emptyTouchObject.screenY);
-
-  assertEquals(6, onlyPageCoords.clientX);
-  assertEquals(7, onlyPageCoords.clientY);
-  assertEquals(0, onlyPageCoords.screenX);
-  assertEquals(0, onlyPageCoords.screenY);
-}
-
-function testPointerEvent() {
-  var event = createPointerEvent('pointerdown', 123, PointerType.MOUSE);
-  assertEquals(123, event.pointerId);
-  assertEquals(PointerType.MOUSE, event.pointerType);
-}
-
-function testMSPointerEvent() {
-  var event = createPointerEvent('MSPointerDown', 123, 4 /* mouse */);
-  assertEquals(123, event.pointerId);
-  assertEquals(PointerType.MOUSE, event.pointerType);
-}
-
-function testUnsupportedPointerEvent() {
-  var event = createMouseEvent('mousedown', 1);
-  assertEquals(0, event.pointerId);
-  assertEquals('', event.pointerType);
-}
-
-/**
- * @param {string} type
- * @param {number} button
- * @param {boolean=} opt_ctrlKey
- * @return {!goog.events.BrowserEvent}
- */
 function createMouseEvent(type, button, opt_ctrlKey) {
   return new goog.events.BrowserEvent(
       {type: type, button: button, ctrlKey: !!opt_ctrlKey});
 }
 
-/**
- * @param {string} type
- * @param {!Element} target
- * @param {!goog.math.Coordinate} clientCoords
- * @param {!goog.math.Coordinate} screenCoords
- * @return {!goog.events.BrowserEvent}
- */
 function createTouchEvent(type, target, clientCoords, screenCoords) {
   return new goog.events.BrowserEvent({
     type: type,
@@ -205,23 +138,6 @@ function createTouchEvent(type, target, clientCoords, screenCoords) {
   });
 }
 
-/**
- * @param {string} type
- * @param {number} pointerId
- * @param {string} pointerType
- * @return {!goog.events.BrowserEvent}
- */
-function createPointerEvent(type, pointerId, pointerType) {
-  return new goog.events.BrowserEvent(
-      {type: type, pointerId: pointerId, pointerType: pointerType});
-}
-
-/**
- * @param {!goog.events.BrowserEvent} event
- * @param {goog.events.BrowserEvent.MouseButton} button
- * @param {boolean} isActionButton
- * @return {!goog.events.BrowserEvent}
- */
 function assertIsButton(event, button, isActionButton) {
   for (var key in Button) {
     assertEquals(

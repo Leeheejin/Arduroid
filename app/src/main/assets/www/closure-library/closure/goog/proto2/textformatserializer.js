@@ -25,6 +25,7 @@ goog.provide('goog.proto2.TextFormatSerializer');
 
 goog.require('goog.array');
 goog.require('goog.asserts');
+goog.require('goog.json');
 goog.require('goog.math');
 goog.require('goog.object');
 goog.require('goog.proto2.FieldDescriptor');
@@ -73,10 +74,10 @@ goog.inherits(goog.proto2.TextFormatSerializer, goog.proto2.Serializer);
  * @param {*} data The text format data.
  * @return {?string} The parse error or null on success.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.proto2.TextFormatSerializer.prototype.deserializeTo = function(
     message, data) {
+  var descriptor = message.getDescriptor();
   var textData = data.toString();
   var parser = new goog.proto2.TextFormatSerializer.Parser();
   if (!parser.parse(message, textData, this.ignoreMissingFields_)) {
@@ -193,7 +194,6 @@ goog.proto2.TextFormatSerializer.prototype.serializeUnknown_ = function(
  * @param {goog.proto2.TextFormatSerializer.Printer_} printer The printer to
  *    which the value will be printed.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.proto2.TextFormatSerializer.prototype.printFieldValue_ = function(
     value, field, printer) {
@@ -355,7 +355,6 @@ goog.proto2.TextFormatSerializer.Printer_.prototype.dedent = function() {
 /**
  * Appends the given value to the printer.
  * @param {*} value The value to append.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.proto2.TextFormatSerializer.Printer_.prototype.append = function(value) {
   if (this.requiresIndentation_) {
@@ -678,7 +677,7 @@ goog.proto2.TextFormatSerializer.Parser.prototype.consumeFieldValue_ = function(
 /**
  * Attempts to convert a string to a number.
  * @param {string} num in hexadecimal or float format.
- * @return {number} The converted number or null on error.
+ * @return {!number} The converted number or null on error.
  * @private
  */
 goog.proto2.TextFormatSerializer.Parser.getNumberFromString_ = function(num) {
@@ -1031,7 +1030,6 @@ goog.proto2.TextFormatSerializer.Parser.prototype.consumeNumber_ = function() {
  * are automatically concatenated, like in C or Python.
  * @return {?string} The *deescaped* string value or null on error.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.proto2.TextFormatSerializer.Parser.prototype.consumeString_ = function() {
   var types = goog.proto2.TextFormatSerializer.Tokenizer_.TokenTypes;
@@ -1040,10 +1038,10 @@ goog.proto2.TextFormatSerializer.Parser.prototype.consumeString_ = function() {
     return null;
   }
 
-  var stringValue = JSON.parse(/** @type {string} */ (value)).toString();
+  var stringValue = goog.json.parse(value).toString();
   while (this.lookingAtType_(types.STRING)) {
     value = this.consumeToken_(types.STRING);
-    stringValue += JSON.parse(/** @type {string} */ (value)).toString();
+    stringValue += goog.json.parse(value).toString();
   }
 
   return stringValue;

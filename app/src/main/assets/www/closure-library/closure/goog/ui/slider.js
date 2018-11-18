@@ -109,22 +109,12 @@ goog.ui.Slider.prototype.getCssClass = function(orient) {
 };
 
 
-/**
- * Returns CSS class applied to the slider's thumb element.
- * @return {string} The CSS class applied to the slider's thumb element.
- * @protected
- */
-goog.ui.Slider.prototype.getThumbCssClass = function() {
-  return goog.ui.Slider.THUMB_CSS_CLASS;
-};
-
-
 /** @override */
 goog.ui.Slider.prototype.createThumbs = function() {
   // find thumb
   var element = this.getElement();
   var thumb = goog.dom.getElementsByTagNameAndClass(
-      null, this.getThumbCssClass(), element)[0];
+      null, goog.ui.Slider.THUMB_CSS_CLASS, element)[0];
   if (!thumb) {
     thumb = this.createThumb_();
     element.appendChild(thumb);
@@ -140,7 +130,7 @@ goog.ui.Slider.prototype.createThumbs = function() {
  */
 goog.ui.Slider.prototype.createThumb_ = function() {
   var thumb = this.getDomHelper().createDom(
-      goog.dom.TagName.DIV, this.getThumbCssClass());
+      goog.dom.TagName.DIV, goog.ui.Slider.THUMB_CSS_CLASS);
   goog.a11y.aria.setRole(thumb, goog.a11y.aria.Role.BUTTON);
   return /** @type {!HTMLDivElement} */ (thumb);
 };

@@ -36,9 +36,9 @@ goog.provide('goog.math.Integer');
  * The internal representation of an integer is an array of 32-bit signed
  * pieces, along with a sign (0 or -1) that indicates the contents of all the
  * other 32-bit pieces out to infinity.  We use 32-bit pieces because these are
- * the size of integers on which JavaScript performs bit-operations.  For
+ * the size of integers on which Javascript performs bit-operations.  For
  * operations like addition and multiplication, we split each number into 16-bit
- * pieces, which can easily be multiplied within JavaScript's floating-point
+ * pieces, which can easily be multiplied within Javascript's floating-point
  * representation without overflow or change in sign.
  *
  * @struct
@@ -153,18 +153,18 @@ goog.math.Integer.fromBits = function(bits) {
  */
 goog.math.Integer.fromString = function(str, opt_radix) {
   if (str.length == 0) {
-    throw new Error('number format error: empty string');
+    throw Error('number format error: empty string');
   }
 
   var radix = opt_radix || 10;
   if (radix < 2 || 36 < radix) {
-    throw new Error('radix out of range: ' + radix);
+    throw Error('radix out of range: ' + radix);
   }
 
   if (str.charAt(0) == '-') {
     return goog.math.Integer.fromString(str.substring(1), radix).negate();
   } else if (str.indexOf('-') >= 0) {
-    throw new Error('number format error: interior "-" character');
+    throw Error('number format error: interior "-" character');
   }
 
   // Do several (8) digits each time through the loop, so as to
@@ -244,7 +244,7 @@ goog.math.Integer.prototype.toNumber = function() {
 goog.math.Integer.prototype.toString = function(opt_radix) {
   var radix = opt_radix || 10;
   if (radix < 2 || 36 < radix) {
-    throw new Error('radix out of range: ' + radix);
+    throw Error('radix out of range: ' + radix);
   }
 
   if (this.isZero()) {
@@ -566,7 +566,6 @@ goog.math.Integer.carry16_ = function(bits, index) {
   while ((bits[index] & 0xFFFF) != bits[index]) {
     bits[index + 1] += bits[index] >>> 16;
     bits[index] &= 0xFFFF;
-    index++;
   }
 };
 
@@ -589,7 +588,7 @@ goog.math.Integer.carry16_ = function(bits, index) {
  */
 goog.math.Integer.prototype.slowDivide_ = function(other) {
   if (this.isNegative() || other.isNegative()) {
-    throw new Error('slowDivide_ only works with positive integers.');
+    throw Error('slowDivide_ only works with positive integers.');
   }
 
   var twoPower = goog.math.Integer.ONE;
@@ -636,7 +635,7 @@ goog.math.Integer.prototype.slowDivide_ = function(other) {
  */
 goog.math.Integer.prototype.divide = function(other) {
   if (other.isZero()) {
-    throw new Error('division by zero');
+    throw Error('division by zero');
   } else if (this.isZero()) {
     return goog.math.Integer.ZERO;
   }

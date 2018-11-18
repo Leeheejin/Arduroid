@@ -53,6 +53,7 @@ goog.require('goog.style');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.Menu');
 goog.require('goog.ui.PopupBase');
+goog.require('goog.userAgent');
 
 
 
@@ -113,7 +114,6 @@ goog.ui.PopupMenu.prototype.currentAnchor_ = null;
  * made from HR elements.
  * @param {?Element} element Element to decorate.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PopupMenu.prototype.decorateInternal = function(element) {
   goog.ui.PopupMenu.superClass_.decorateInternal.call(this, element);
@@ -138,6 +138,16 @@ goog.ui.PopupMenu.prototype.enterDocument = function() {
   handler.listen(
       this.getDomHelper().getDocument(), goog.events.EventType.MOUSEDOWN,
       this.onDocClick, true);
+
+  // Webkit doesn't fire a mousedown event when opening the context menu,
+  // but we need one to update menu visibility properly. So in Safari handle
+  // contextmenu mouse events like mousedown.
+  // {@link http://bugs.webkit.org/show_bug.cgi?id=6595}
+  if (goog.userAgent.WEBKIT) {
+    handler.listen(
+        this.getDomHelper().getDocument(), goog.events.EventType.CONTEXTMENU,
+        this.onDocClick, true);
+  }
 };
 
 
@@ -229,7 +239,7 @@ goog.ui.PopupMenu.prototype.onMenuKeyboardAction_ = function(element, e) {
 /**
  * Creates an object describing how the popup menu should be attached to the
  * anchoring element based on the given parameters. The created object is
- * stored, keyed by `element` and is retrievable later by invoking
+ * stored, keyed by {@code element} and is retrievable later by invoking
  * {@link #getAttachTarget(element)} at a later point.
  *
  * Subclass may add more properties to the returned object, as needed.
@@ -274,14 +284,14 @@ goog.ui.PopupMenu.prototype.createAttachTarget = function(
 
 /**
  * Returns the object describing how the popup menu should be attach to given
- * element or `null`. The object is created and the association is formed
+ * element or {@code null}. The object is created and the association is formed
  * when {@link #attach} is invoked.
  *
  * @param {?Element} element DOM element.
  * @return {?Object} The object created when {@link attach} is invoked on
- *     `element`. Returns `null` if the element does not trigger
+ *     {@code element}. Returns {@code null} if the element does not trigger
  *     the menu (i.e. {@link attach} has never been invoked on
- *     `element`).
+ *     {@code element}).
  * @protected
  */
 goog.ui.PopupMenu.prototype.getAttachTarget = function(element) {
@@ -317,7 +327,6 @@ goog.ui.PopupMenu.prototype.getAttachedElement = function() {
  * and one with the KEYDOWN event type for accessibility purposes.
  * @param {?Object} target The target to attach an event to.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PopupMenu.prototype.attachEvent_ = function(target) {
   this.getHandler().listen(
@@ -351,7 +360,7 @@ goog.ui.PopupMenu.prototype.detachAll = function() {
  */
 goog.ui.PopupMenu.prototype.detach = function(element) {
   if (!this.isAttachTarget(element)) {
-    throw new Error('Menu not attached to provided element, unable to detach.');
+    throw Error('Menu not attached to provided element, unable to detach.');
   }
 
   var key = goog.getUid(element);
@@ -367,7 +376,6 @@ goog.ui.PopupMenu.prototype.detach = function(element) {
  * Detaches an event listener to a target
  * @param {!Object} target The target to detach events from.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PopupMenu.prototype.detachEvent_ = function(target) {
   this.getHandler().unlisten(
@@ -456,7 +464,6 @@ goog.ui.PopupMenu.prototype.showWithPosition = function(
  * @param {number} x The client-X associated with the show event.
  * @param {number} y The client-Y associated with the show event.
  * @protected
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PopupMenu.prototype.showMenu = function(target, x, y) {
   var position = goog.isDef(target.targetCorner_) ?
@@ -588,7 +595,6 @@ goog.ui.PopupMenu.prototype.onTargetKeyboardAction_ = function(e) {
  * Handles a browser event on one of the popup targets.
  * @param {?goog.events.BrowserEvent} e The browser event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PopupMenu.prototype.onTargetActivation_ = function(e) {
   var keys = this.targets_.getKeys();
@@ -618,7 +624,7 @@ goog.ui.PopupMenu.prototype.onDocClick = function(e) {
 
 
 /**
- * Handles the key event target losing focus.
+ * Handles the key event target loosing focus.
  * @param {?goog.events.BrowserEvent} e The browser event.
  * @protected
  * @override

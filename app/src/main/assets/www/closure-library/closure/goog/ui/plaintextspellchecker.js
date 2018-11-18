@@ -56,7 +56,8 @@ goog.ui.PlainTextSpellChecker = function(handler, opt_domHelper) {
    * Correction UI container.
    * @private {!HTMLDivElement}
    */
-  this.overlay_ = this.getDomHelper().createDom(goog.dom.TagName.DIV);
+  this.overlay_ = /** @type {!HTMLDivElement} */
+      (this.getDomHelper().createDom(goog.dom.TagName.DIV));
   goog.style.setPreWrap(this.overlay_);
 
   /**
@@ -198,7 +199,6 @@ goog.ui.PlainTextSpellChecker.prototype.initSuggestionsMenu = function() {
 /**
  * Checks spelling for all text and displays correction UI.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PlainTextSpellChecker.prototype.check = function() {
   var text = this.getElement().value;
@@ -259,9 +259,9 @@ goog.ui.PlainTextSpellChecker.prototype.preChargeDictionary_ = function(text) {
 
 /**
  * Loads few initial dictionary words into the cache.
+ *
  * @param {goog.events.Event} e goog.spell.SpellCheck.EventType.READY event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PlainTextSpellChecker.prototype.onDictionaryCharged_ = function(e) {
   e.stopPropagation();
@@ -421,7 +421,6 @@ goog.ui.PlainTextSpellChecker.prototype.processRange = function(node, text) {
 /**
  * Hides correction UI.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PlainTextSpellChecker.prototype.resume = function() {
   var wasVisible = this.isVisible();
@@ -468,9 +467,9 @@ goog.ui.PlainTextSpellChecker.prototype.getElementProperties = function(
 
 /**
  * Handles the click events.
+ *
  * @param {goog.events.BrowserEvent} event Event object.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.PlainTextSpellChecker.prototype.onWordClick_ = function(event) {
   if (event.target.className == this.invalidWordClassName ||

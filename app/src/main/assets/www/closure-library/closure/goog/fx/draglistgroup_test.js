@@ -27,11 +27,9 @@ goog.require('goog.events.EventType');
 goog.require('goog.fx.DragEvent');
 goog.require('goog.fx.DragListDirection');
 goog.require('goog.fx.DragListGroup');
-goog.require('goog.fx.DragListPermission');
 goog.require('goog.fx.Dragger');
 goog.require('goog.math.Coordinate');
 goog.require('goog.object');
-goog.require('goog.style');
 goog.require('goog.testing.events');
 goog.require('goog.testing.jsunit');
 
@@ -42,10 +40,6 @@ var dlg;
 
 /** @type {goog.dom.Element} */
 var list;
-
-
-/** @type {!goog.dom.Element} */
-var list2;
 
 
 /** @type {goog.events.BrowserEvent} */
@@ -91,8 +85,7 @@ function setUp() {
   initialListenerCount = goog.object.getCount(dlg.eventHandler_.keys_);
 
   event = new goog.events.BrowserEvent();
-  event.currentTarget =
-      goog.dom.getElementsByTagName(goog.dom.TagName.DIV, list)[0];
+  event.currentTarget = list.getElementsByTagName(goog.dom.TagName.DIV)[0];
 
   firedEventTypes = [];
   goog.events.listen(
@@ -306,7 +299,6 @@ function testRemoveCurrentDragItemClasses() {
  * @param {!goog.fx.DragListGroup} dlg The DragListGroup to examine.
  */
 function assertIdle(dlg) {
-  assertFalse(dlg.isDragging());
   assertNull('dragger element has been cleaned up', dlg.draggerEl_);
   assertNull('dragger has been cleaned up', dlg.dragger_);
   assertEquals(
@@ -319,12 +311,10 @@ function testFiredEvents() {
   assertArrayEquals(
       'event types in case of zero distance dragging',
       [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGEND.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString(),
-        goog.fx.DragListGroup.EventType.DRAGEND.toString()
+        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART,
+        goog.fx.DragListGroup.EventType.DRAGSTART,
+        goog.fx.DragListGroup.EventType.BEFOREDRAGEND,
+        goog.fx.DragListGroup.EventType.DRAGEND
       ],
       firedEventTypes);
   assertIdle(dlg);
@@ -335,13 +325,7 @@ function testFiredEventsWithHysteresis() {
 
   goog.testing.events.fireClickSequence(list.firstChild);
   assertArrayEquals(
-      'only clone events are fired on click if hysteresis is enabled',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
+      'no events fired on click if hysteresis is enabled', [], firedEventTypes);
   assertIdle(dlg);
 
   goog.testing.events.fireMouseDownEvent(
@@ -349,23 +333,19 @@ function testFiredEventsWithHysteresis() {
   goog.testing.events.fireMouseMoveEvent(
       list.firstChild, new goog.math.Coordinate(1, 0));
   assertArrayEquals(
-      'only potential-start event is fired on click if hysteresis is enabled',
-      [goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString()],
-      firedEventTypes);
-  firedEventTypes.length = 0;
+      'no events fired below hysteresis distance', [], firedEventTypes);
 
   goog.testing.events.fireMouseMoveEvent(
       list.firstChild, new goog.math.Coordinate(3, 0));
   assertArrayEquals(
       'start+move events are fired over hysteresis distance',
       [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE.toString(),
-        goog.fx.DragListGroup.EventType.DRAGMOVE.toString()
+        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART,
+        goog.fx.DragListGroup.EventType.DRAGSTART,
+        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE,
+        goog.fx.DragListGroup.EventType.DRAGMOVE
       ],
       firedEventTypes);
-  assertTrue(dlg.isDragging());
 
   firedEventTypes.length = 0;
   goog.testing.events.fireMouseUpEvent(
@@ -373,9 +353,8 @@ function testFiredEventsWithHysteresis() {
   assertArrayEquals(
       'end events are fired on mouseup',
       [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGEND.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString(),
-        goog.fx.DragListGroup.EventType.DRAGEND.toString()
+        goog.fx.DragListGroup.EventType.BEFOREDRAGEND,
+        goog.fx.DragListGroup.EventType.DRAGEND
       ],
       firedEventTypes);
   assertIdle(dlg);
@@ -389,12 +368,7 @@ function testPreventDefaultBeforeDragStart() {
   goog.testing.events.fireMouseDownEvent(list.firstChild);
   assertArrayEquals(
       'event types if dragging is prevented',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
+      [goog.fx.DragListGroup.EventType.BEFOREDRAGSTART], firedEventTypes);
   assertIdle(dlg);
 }
 
@@ -410,12 +384,7 @@ function testPreventDefaultBeforeDragStartWithHysteresis() {
       list.firstChild, new goog.math.Coordinate(10, 0));
   assertArrayEquals(
       'event types if dragging is prevented',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
+      [goog.fx.DragListGroup.EventType.BEFOREDRAGSTART], firedEventTypes);
   assertIdle(dlg);
 }
 
@@ -425,13 +394,7 @@ function testRightClick() {
   goog.testing.events.fireMouseUpEvent(
       list.firstChild, goog.events.BrowserEvent.MouseButton.RIGHT);
 
-  assertArrayEquals(
-      'only clone events are fired on right click',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
+  assertArrayEquals('no events fired', [], firedEventTypes);
   assertIdle(dlg);
 }
 
@@ -454,14 +417,10 @@ function testAddItemToDragList() {
       goog.events.Event.preventDefault);
 
   goog.testing.events.fireMouseDownEvent(item);
-  assertArrayEquals(
+  assertTrue(
       'Should fire beforedragstart event when clicked',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
+      goog.array.equals(
+          [goog.fx.DragListGroup.EventType.BEFOREDRAGSTART], firedEventTypes));
 }
 
 
@@ -483,229 +442,8 @@ function testInsertItemInDragList() {
       goog.events.Event.preventDefault);
 
   goog.testing.events.fireMouseDownEvent(item);
-  assertArrayEquals(
-      'Should fire beforedragstart event when clicked',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGGERREMOVED.toString()
-      ],
-      firedEventTypes);
-}
-
-
-/** @param {!goog.fx.DragListPermission} dragListPermission */
-function setUpWithDragListPermission(dragListPermission) {
-  dlg.dispose();
-  var sandbox = goog.dom.getElement('sandbox');
-  goog.dom.removeChildren(sandbox);
-
-  list = goog.dom.createDom(goog.dom.TagName.DIV, {'id': 'horiz_div'});
-  list.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('1')));
-  list.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('2')));
-  list.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('3')));
-  sandbox.appendChild(list);
-
-
-  list2 = goog.dom.createDom(goog.dom.TagName.DIV, {'id': 'horiz_div2'});
-  list2.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('A')));
-  list2.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('B')));
-  list2.appendChild(goog.dom.createDom(
-      goog.dom.TagName.DIV, null, goog.dom.createTextNode('C')));
-  sandbox.appendChild(list2);
-
-  dlg = new goog.fx.DragListGroup();
-  dlg.addDragList(
-      list, goog.fx.DragListDirection.RIGHT, null /** opt_unused */,
-      'test_hover_class', dragListPermission);
-  dlg.addDragList(list2, goog.fx.DragListDirection.RIGHT);
-  dlg.init();
-
-  initialListenerCount = goog.object.getCount(dlg.eventHandler_.keys_);
-
-  event = new goog.events.BrowserEvent();
-  event.currentTarget =
-      goog.dom.getElementsByTagName(goog.dom.TagName.DIV, list)[0];
-
-  firedEventTypes = [];
-  goog.events.listen(
-      dlg, goog.object.getValues(goog.fx.DragListGroup.EventType), function(e) {
-        firedEventTypes.push(e.type);
-      });
-}
-
-function testOnlyDropDragPermission_noItemDragEvents() {
-  setUpWithDragListPermission(goog.fx.DragListPermission.ONLY_DROP);
-
-  goog.testing.events.fireMouseDownEvent(list.firstChild);
-  assertArrayEquals(
-      'Expect no events to be fired on a list with only drop permission.', [],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-
-  goog.testing.events.fireMouseDownEvent(list2.firstChild);
-  assertArrayEquals(
-      'Expect normal events to be fired on a list with the default permission.',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGSTART.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-}
-
-function testOnlyDropDragPermission_allowsDropOnList() {
-  setUpWithDragListPermission(goog.fx.DragListPermission.ONLY_DROP);
-
-  // When the user starts a drag on the first item of the second list.
-  goog.testing.events.fireMouseDownEvent(list2.firstChild);
-  assertEquals(
-      'Expect the current drag item to be the first child of the second list.',
-      dlg.currDragItem_, list2.firstChild);
-  firedEventTypes.length = 0;
-
-  var be = new goog.events.BrowserEvent({
-    type: goog.events.EventType.MOUSEMOVE,
-    button: goog.events.BrowserFeature.HAS_W3C_BUTTON ? 0 : 1
-  });
-  event.event_ = be;
-
-  var posList2 = goog.style.getPosition(list2.children[1]);
-  be.clientX = posList2.x + 2;
-  be.clientY = posList2.y + 2;
-
-  var dragEvent = new goog.fx.DragEvent(
-      goog.fx.Dragger.EventType.DRAG, dlg.dragger_, be.clientX, be.clientY, be);
-  dlg.handleDragMove_(dragEvent);
-
-  assertArrayEquals(
-      'Expect drag events to be fired.',
-      [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE.toString(),
-        goog.fx.DragListGroup.EventType.DRAGMOVE.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-
-  assertNotEquals(
-      'Expect the current drag item to not start display: none.', 'none',
-      dlg.currDragItem_.style.display);
-
-  // When the user drags the item over the first list.
-  var posList = goog.style.getPosition(list.children[1]);
-  be.clientX = posList.x + 2;
-  dlg.draggerEl_.style.left = be.clientX + 'px';
-  be.clientY = posList.y + 2;
-  dlg.draggerEl_.style.top = be.clientY + 'px';
-
-  dragEvent = new goog.fx.DragEvent(
-      goog.fx.Dragger.EventType.DRAG, dlg.dragger_, be.clientX, be.clientY, be);
-
-  dlg.handleDragMove_(dragEvent);
-  assertArrayEquals(
-      'Expect drag events to be fired.',
-      [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE.toString(),
-        goog.fx.DragListGroup.EventType.DRAGMOVE.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-  assertTrue(dlg.isDragging());
-
-  assertNotEquals(
-      'Expect the current drag item to still not be shown.', 'none',
-      dlg.currDragItem_.style.display);
-
   assertTrue(
-      'Expect the first list to have the list hover class.',
-      goog.dom.classlist.contains(list, 'test_hover_class'));
-}
-
-function testOnlyDragOutDragPermission_hasItemDragEvents() {
-  setUpWithDragListPermission(goog.fx.DragListPermission.ONLY_DRAG_OUT);
-
-  goog.testing.events.fireMouseDownEvent(list.firstChild);
-  assertArrayEquals(
-      'Expect normal events to be fired on a list with the only drag out ' +
-          'permission.',
-      [
-        goog.fx.DragListGroup.EventType.DRAGGERCREATED.toString(),
-        goog.fx.DragListGroup.EventType.BEFOREDRAGSTART.toString(),
-        goog.fx.DragListGroup.EventType.DRAGSTART.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-}
-
-function testOnlyDragOutDragPermission_doesNotAllowDropOnList() {
-  setUpWithDragListPermission(goog.fx.DragListPermission.ONLY_DRAG_OUT);
-
-  // When the user starts a drag on the first item of the second list.
-  goog.testing.events.fireMouseDownEvent(list2.firstChild);
-  assertEquals(
-      'Expect the current drag item to be the first child of the second list.',
-      dlg.currDragItem_, list2.firstChild);
-  firedEventTypes.length = 0;
-
-  var be = new goog.events.BrowserEvent({
-    type: goog.events.EventType.MOUSEMOVE,
-    button: goog.events.BrowserFeature.HAS_W3C_BUTTON ? 0 : 1
-  });
-  event.event_ = be;
-
-  var posList2 = goog.style.getPosition(list2.children[1]);
-  be.clientX = posList2.x + 2;
-  be.clientY = posList2.y + 2;
-
-  var dragEvent = new goog.fx.DragEvent(
-      goog.fx.Dragger.EventType.DRAG, dlg.dragger_, be.clientX, be.clientY, be);
-  dlg.handleDragMove_(dragEvent);
-
-  assertArrayEquals(
-      'Expect drag events to be fired.',
-      [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE.toString(),
-        goog.fx.DragListGroup.EventType.DRAGMOVE.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-
-  assertNotEquals(
-      'Expect the current drag item to not start display: none.', 'none',
-      dlg.currDragItem_.style.display);
-
-  // When the user drags the item over the first list.
-  var posList = goog.style.getPosition(list.children[1]);
-  be.clientX = posList.x + 2;
-  be.clientY = posList.y + 2;
-  dlg.draggerEl_.style.left = be.clientX + 'px';
-  dlg.draggerEl_.style.top = be.clientY + 'px';
-
-  dragEvent = new goog.fx.DragEvent(
-      goog.fx.Dragger.EventType.DRAG, dlg.dragger_, be.clientX, be.clientY, be);
-
-  dlg.handleDragMove_(dragEvent);
-  assertArrayEquals(
-      'Expect drag events to be fired.',
-      [
-        goog.fx.DragListGroup.EventType.BEFOREDRAGMOVE.toString(),
-        goog.fx.DragListGroup.EventType.DRAGMOVE.toString()
-      ],
-      firedEventTypes);
-  firedEventTypes.length = 0;
-  assertTrue(dlg.isDragging());
-
-  assertEquals(
-      'Expect the current drag item to now be display: none.', 'none',
-      dlg.currDragItem_.style.display);
-
-  assertFalse(
-      'Expect the first list to not have the list hover class.',
-      goog.dom.classlist.contains(list, 'test_hover_class'));
+      'Should fire beforedragstart event when clicked',
+      goog.array.equals(
+          [goog.fx.DragListGroup.EventType.BEFOREDRAGSTART], firedEventTypes));
 }

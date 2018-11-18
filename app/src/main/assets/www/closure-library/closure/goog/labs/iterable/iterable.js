@@ -15,10 +15,6 @@
 /**
  * @fileoverview Utilities for working with ES6 iterables.
  * Note that this file is written ES5-only.
- *
- * The goal is that this should be a replacement for goog.iter which uses
- * a now non-standard approach to iterables.
- *
  * @see https://goo.gl/Rok5YQ
  */
 
@@ -42,7 +38,7 @@ exports.getIterator = function(iterable) {
  * Warning: this function will never halt if given an iterable that
  * is never exhausted.
  *
- * @param {function(VALUE): void} f
+ * @param {!function(VALUE): void} f
  * @param {!Iterable<VALUE>} iterable
  * @template VALUE
  */
@@ -62,10 +58,10 @@ exports.forEach = function(f, iterable) {
  * Maps the values of one iterable to create another iterable.
  *
  * When next() is called on the returned iterable, it will call the given
- * function `f` with the next value of the given iterable
- * `iterable` until the given iterable is exhausted.
+ * function {@code f} with the next value of the given iterable
+ * {@code iterable} until the given iterable is exhausted.
  *
- * @param {function(this: THIS, VALUE): RESULT} f
+ * @param {!function(this: THIS, VALUE): RESULT} f
  * @param {!Iterable<VALUE>} iterable
  * @return {!Iterable<RESULT>} The created iterable that gives the mapped
  *     values.
@@ -81,8 +77,8 @@ exports.map = function(f, iterable) {
 
 
 /**
- * Helper class for `map`.
- * @param {function(VALUE): RESULT} f
+ * Helper class for {@code map}.
+ * @param {!function(VALUE): RESULT} f
  * @param {!Iterator<VALUE>} iterator
  * @constructor
  * @implements {Iterator<RESULT>}

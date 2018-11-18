@@ -55,7 +55,8 @@ goog.html.utils.stripHtmlTags = function(value) {
 /**
  * Matches all tags that do not require extra space.
  *
- * @private @const
+ * @const
+ * @private {RegExp}
  */
 goog.html.utils.INLINE_HTML_TAG_REGEX_ =
     /^(?:abbr|acronym|address|b|em|i|small|strong|su[bp]|u)$/i;
@@ -67,6 +68,7 @@ goog.html.utils.INLINE_HTML_TAG_REGEX_ =
  * entities we guarantee that the result can be embedded into
  * an attribute without introducing a tag boundary.
  *
- * @private @const
+ * @private {RegExp}
+ * @const
  */
 goog.html.utils.HTML_TAG_REGEX_ = /<[!\/]?([a-z0-9]+)([\/ ][^>]*)?>/gi;

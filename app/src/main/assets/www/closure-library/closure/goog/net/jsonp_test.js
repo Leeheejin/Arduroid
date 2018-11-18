@@ -15,9 +15,7 @@
 goog.provide('goog.net.JsonpTest');
 goog.setTestOnly('goog.net.JsonpTest');
 
-goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.net.Jsonp');
-goog.require('goog.string.Const');
 goog.require('goog.testing.PropertyReplacer');
 goog.require('goog.testing.jsunit');
 goog.require('goog.testing.recordFunction');
@@ -28,9 +26,7 @@ goog.require('goog.userAgent');
 var timeoutWasCalled;
 var timeoutHandler;
 
-var fakeUrl = 'https://fake-site.eek/';
-var fakeTrustedUrl =
-    goog.html.TrustedResourceUrl.fromConstant(goog.string.Const.from(fakeUrl));
+var fakeUrl = 'http://fake-site.eek/';
 
 var originalTimeout;
 function setUp() {
@@ -47,7 +43,7 @@ function setUp() {
 // ensure the test case doesn't fail because of it.
 var originalOnError = window.onerror;
 window.onerror = function(msg, url, line) {
-  // TODO(user): Safari 3 on the farm returns an object instead of the typical
+  // TODO(user): Safari 3 on the farm returns an object instead of the typcial
   // params.  Pass through errors for safari for now.
   if (goog.userAgent.WEBKIT ||
       msg == 'Error loading script' && url.indexOf('fake-site') != -1) {
@@ -72,15 +68,9 @@ function newCleanupGuard() {
       var propCounter = 0;
 
       // All callbacks should have been deleted or be the null function.
-      for (var key in goog.global) {
-        // NOTES: callbacks are stored on goog.global with property
-        // name prefixed with goog.net.Jsonp.CALLBACKS.
-        if (key.indexOf(goog.net.Jsonp.CALLBACKS) == 0) {
-          var callbackId = goog.net.Jsonp.getCallbackId_(key);
-          if (goog.global[callbackId] &&
-              goog.global[callbackId] != goog.nullFunction) {
-            propCounter++;
-          }
+      for (var id in goog.global[goog.net.Jsonp.CALLBACKS]) {
+        if (goog.global[goog.net.Jsonp.CALLBACKS][id] != goog.nullFunction) {
+          propCounter++;
         }
       }
 
@@ -88,7 +78,7 @@ function newCleanupGuard() {
           'script cleanup', bodyChildCount, document.body.childNodes.length);
       assertEquals('window jsonp array empty', 0, propCounter);
     }, 0);
-  };
+  }
 }
 
 function getScriptElement(result) {
@@ -99,7 +89,7 @@ function getScriptElement(result) {
 // Check that send function is sane when things go well.
 function testSend() {
   var replyReceived;
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
 
   var checkCleanup = newCleanupGuard();
 
@@ -139,7 +129,7 @@ function testSend() {
 // Check that send function is sane when things go well.
 function testSendWhenCallbackHasTwoParameters() {
   var replyReceived, replyReceived2;
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
 
   var checkCleanup = newCleanupGuard();
 
@@ -172,7 +162,7 @@ function testSendWhenCallbackHasTwoParameters() {
 // specified.
 function testSendWithCallbackParamValue() {
   var replyReceived;
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
 
   var checkCleanup = newCleanupGuard();
 
@@ -190,14 +180,12 @@ function testSendWithCallbackParamValue() {
   assertTrue('payload in url', script.src.indexOf('basket=yellow') > -1);
   assertTrue(
       'dummyId in url',
-      script.src.indexOf(
-          'callback=' + goog.net.Jsonp.getCallbackId_('dummyId')) > -1);
+      script.src.indexOf('callback=_callbacks_.dummyId') > -1);
   assertTrue('server url', script.src.indexOf(fakeUrl) == 0);
 
   // Now, we simulate a returned request using the known callback function
   // name.
-  var callbackFunc =
-      eval('callback=' + goog.net.Jsonp.getCallbackId_('dummyId'));
+  var callbackFunc = _callbacks_.dummyId;
   callbackFunc({some: 'data', another: ['data', 'right', 'here']});
   assertEquals('input was received', 'right', replyReceived.another[1]);
 
@@ -216,7 +204,7 @@ function testSendFailure() {
   var replyReceived = false;
   var errorReplyReceived = false;
 
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
 
   var checkCleanup = newCleanupGuard();
 
@@ -259,19 +247,14 @@ function testCancel() {
   var successCallback = function() { successCalled = true; };
 
   // Send and cancel a request, then make sure it was cleaned up.
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
   var requestObject = jsonp.send({test: 'foo'}, successCallback);
   jsonp.cancel(requestObject);
 
   for (var key in goog.global[goog.net.Jsonp.CALLBACKS]) {
-    // NOTES: callbacks are stored on goog.global with property
-    // name prefixed with goog.net.Jsonp.CALLBACKS.
-    if (key.indexOf('goog.net.Jsonp.CALLBACKS') == 0) {
-      var callbackId = goog.net.Jsonp.getCallbackId_(key);
-      assertNotEquals(
-          'The success callback should have been removed',
-          goog.global[callbackId], successCallback);
-    }
+    assertNotEquals(
+        'The success callback should have been removed',
+        goog.global[goog.net.Jsonp.CALLBACKS][key], successCallback);
   }
 
   // Make sure cancelling removes the script tag
@@ -282,29 +265,13 @@ function testCancel() {
 function testPayloadParameters() {
   var checkCleanup = newCleanupGuard();
 
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
   var result = jsonp.send({'foo': 3, 'bar': 'baz'});
 
   var script = getScriptElement(result);
   assertEquals(
       'Payload parameters should have been added to url.',
       fakeUrl + '?foo=3&bar=baz', script.src);
-
-  checkCleanup();
-  timeoutHandler();
-}
-
-function testNonce() {
-  var checkCleanup = newCleanupGuard();
-
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
-  jsonp.setNonce('foo');
-  var result = jsonp.send();
-
-  var script = getScriptElement(result);
-  assertEquals(
-      'Nonce attribute should have been added to script element.', 'foo',
-      (script['nonce'] || script.getAttribute('nonce')));
 
   checkCleanup();
   timeoutHandler();
@@ -319,7 +286,7 @@ function testOptionalPayload() {
   stubs.set(
       goog.global, 'setTimeout', function(errorHandler) { errorHandler(); });
 
-  var jsonp = new goog.net.Jsonp(fakeTrustedUrl);
+  var jsonp = new goog.net.Jsonp(fakeUrl);
   var result = jsonp.send(null, null, errorCallback);
 
   var script = getScriptElement(result);
@@ -333,7 +300,7 @@ function testOptionalPayload() {
 
   var errorCallbackArguments = errorCallback.getLastCall().getArguments();
   assertEquals(1, errorCallbackArguments.length);
-  assertObjectEquals({}, errorCallbackArguments[0]);
+  assertNull(errorCallbackArguments[0]);
 
   checkCleanup();
   stubs.reset();

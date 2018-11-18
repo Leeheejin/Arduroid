@@ -24,7 +24,6 @@ goog.require('goog.editor.Command');
 goog.require('goog.editor.Field');
 goog.require('goog.editor.Link');
 goog.require('goog.editor.plugins.LinkDialogPlugin');
-goog.require('goog.html.SafeHtml');
 goog.require('goog.string');
 goog.require('goog.string.Unicode');
 goog.require('goog.testing.MockControl');
@@ -60,7 +59,7 @@ var linkObj;
 
 function setUp() {
   testDiv = goog.dom.getDocument().getElementById('test');
-  goog.dom.setTextContent(testDiv, 'Some preceding text');
+  goog.dom.setTextContent(testDiv, 'Some preceeding text');
 
   anchorElem = goog.dom.createElement(goog.dom.TagName.A);
   anchorElem.href = 'http://www.google.com/';
@@ -636,10 +635,7 @@ function testBug2215546() {
   setUpRealEditableField();
 
   var elem = fieldObj.getElement();
-  fieldObj.setSafeHtml(
-      false,
-      goog.html.SafeHtml.create(
-          'div', {}, goog.html.SafeHtml.create('a', {'href': '/'}, '')));
+  fieldObj.setHtml(false, '<div><a href="/"></a></div>');
   anchorElem = elem.firstChild.firstChild;
   linkObj = new goog.editor.Link(anchorElem, true);
 
@@ -680,7 +676,7 @@ function testBug7279077ScrollOnFocus() {
   elem.style.contenteditable = 'true';
 
   // Add a bunch of text before the anchor tag.
-  var longTextElem = goog.dom.createElement(goog.dom.TagName.SPAN);
+  var longTextElem = document.createElement(goog.dom.TagName.SPAN);
   longTextElem.innerHTML = goog.string.repeat('All work and no play.<p>', 20);
   elem.insertBefore(longTextElem, elem.firstChild);
 
@@ -718,7 +714,7 @@ function testBug7279077ScrollOnFocus() {
  * it.
  */
 function setUpRealEditableField() {
-  fieldElem = goog.dom.createElement(goog.dom.TagName.DIV);
+  fieldElem = document.createElement(goog.dom.TagName.DIV);
   fieldElem.id = 'myField';
   document.body.appendChild(fieldElem);
   fieldElem.appendChild(anchorElem);

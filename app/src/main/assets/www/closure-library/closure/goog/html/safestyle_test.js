@@ -19,7 +19,6 @@
 goog.provide('goog.html.safeStyleTest');
 
 goog.require('goog.html.SafeStyle');
-goog.require('goog.html.SafeUrl');
 goog.require('goog.object');
 goog.require('goog.string.Const');
 goog.require('goog.testing.jsunit');
@@ -95,9 +94,10 @@ function testEmpty() {
 
 
 function testCreate() {
-  assertCreateEquals(
-      'background:url(i.png);margin:0;',
+  var style = goog.html.SafeStyle.create(
       {'background': goog.string.Const.from('url(i.png)'), 'margin': '0'});
+  assertEquals(
+      'background:url(i.png);margin:0;', goog.html.SafeStyle.unwrap(style));
 }
 
 
@@ -113,154 +113,25 @@ function testCreate_skipsNull() {
 
 
 function testCreate_allowsLengths() {
-  assertCreateEquals(
-      'padding:0 1px .2% 3.4em;',  // expected
-      {'padding': '0 1px .2% 3.4em'});
+  var style = goog.html.SafeStyle.create({'padding': '0 1px .2% 3.4em'});
+  assertEquals('padding:0 1px .2% 3.4em;', goog.html.SafeStyle.unwrap(style));
 }
 
 
 function testCreate_allowsRgb() {
-  assertCreateEquals(
-      'color:rgb(10,20,30);',  // expected
-      {'color': 'rgb(10,20,30)'});
-  assertCreateEquals(
-      'color:rgb(10%, 20%, 30%);',  // expected
-      {'color': 'rgb(10%, 20%, 30%)'});
-  assertCreateEquals(
-      'background:0 5px rgb(10,20,30);',  // expected
-      {'background': '0 5px rgb(10,20,30)'});
-  assertCreateEquals(
-      'background:rgb(10,0,0), rgb(0,0,30);',
-      {'background': 'rgb(10,0,0), rgb(0,0,30)'});
+  var style = goog.html.SafeStyle.create({'color': 'rgb(10,20,30)'});
+  assertEquals('color:rgb(10,20,30);', goog.html.SafeStyle.unwrap(style));
+  style = goog.html.SafeStyle.create({'color': 'rgb(10%, 20%, 30%)'});
+  assertEquals('color:rgb(10%, 20%, 30%);', goog.html.SafeStyle.unwrap(style));
 }
 
 
 function testCreate_allowsRgba() {
-  assertCreateEquals(
-      'color:rgba(10,20,30,0.1);',  // expected
-      {'color': 'rgba(10,20,30,0.1)'});
-  assertCreateEquals(
-      'color:rgba(10%, 20%, 30%, .5);',  // expected
-      {'color': 'rgba(10%, 20%, 30%, .5)'});
-}
-
-
-function testCreate_allowsCalc() {
-  assertCreateEquals(
-      'height:calc(100% * 0.8 - 20px + 3vh);',  // expected
-      {'height': 'calc(100% * 0.8 - 20px + 3vh)'});
-}
-
-
-function testCreate_allowsRepeat() {
-  assertCreateEquals(
-      'grid-template-columns:repeat(3, [start] 100px [end]);',
-      {'grid-template-columns': 'repeat(3, [start] 100px [end])'});
-}
-
-
-function testCreate_allowsMinmax() {
-  assertCreateEquals(
-      'grid-template-columns:minmax(max-content, 50px) 20px;',
-      {'grid-template-columns': 'minmax(max-content, 50px) 20px'});
-}
-
-
-function testCreate_allowsFitContent() {
-  assertCreateEquals(
-      'grid-template-columns:fit-content(50px) 20px;',
-      {'grid-template-columns': 'fit-content(50px) 20px'});
-}
-
-
-function testCreate_allowsScale() {
-  assertCreateEquals(
-      'transform:scale(.5, 2);',  // expected
-      {'transform': 'scale(.5, 2)'});
-}
-
-
-function testCreate_allowsRotate() {
-  assertCreateEquals(
-      'transform:rotate(45deg);',  // expected
-      {'transform': 'rotate(45deg)'});
-}
-
-
-function testCreate_allowsTranslate() {
-  assertCreateEquals(
-      'transform:translate(10px);',  // expected
-      {'transform': 'translate(10px)'});
-  assertCreateEquals(
-      'transform:translateX(5px);',  // expected
-      {'transform': 'translateX(5px)'});
-}
-
-
-function testCreate_allowsSafeUrl() {
-  assertCreateEquals('background:url("http://example.com");', {
-    'background': goog.html.SafeUrl.fromConstant(
-        goog.string.Const.from('http://example.com'))
-  });
-}
-
-
-function testCreate_allowsSafeUrlWithSpecialCharacters() {
-  assertCreateEquals('background:url("http://example.com/\\"");', {
-    'background': goog.html.SafeUrl.fromConstant(
-        goog.string.Const.from('http://example.com/"'))
-  });
-  assertCreateEquals('background:url("http://example.com/%3c");', {
-    'background': goog.html.SafeUrl.fromConstant(
-        goog.string.Const.from('http://example.com/<'))
-  });
-  assertCreateEquals('background:url("http://example.com/;");', {
-    'background': goog.html.SafeUrl.fromConstant(
-        goog.string.Const.from('http://example.com/;'))
-  });
-}
-
-
-function testCreate_allowsArray() {
-  var url = goog.html.SafeUrl.fromConstant(
-      goog.string.Const.from('http://example.com'));
-  assertCreateEquals(
-      'background:red url("http://example.com") repeat-y;',
-      {'background': ['red', url, 'repeat-y']});
-}
-
-
-function testCreate_allowsUrl() {
-  assertCreateEquals(
-      'background:url(http://example.com);',
-      {'background': 'url(http://example.com)'});
-  assertCreateEquals(
-      'background:url("http://example.com");',
-      {'background': 'url("http://example.com")'});
-  assertCreateEquals(
-      'background:url( \'http://example.com\' );',
-      {'background': 'url( \'http://example.com\' )'});
-  assertCreateEquals(
-      'background:url(http://example.com) red;',
-      {'background': 'url(http://example.com) red'});
-  assertCreateEquals(
-      'background:url(' + goog.html.SafeUrl.INNOCUOUS_STRING + ');',
-      {'background': 'url(javascript:alert)'});
-  assertCreateEquals(
-      'background:url(")");',  // Expected.
-      {'background': 'url(")")'});
-  assertCreateEquals(
-      'background:url(" ");',  // Expected.
-      {'background': 'url(" ")'});
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'background': 'url(\'http://example.com\'"")'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'background': 'url("\\\\")'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'background': 'url(a""b)'});
-  });
+  var style = goog.html.SafeStyle.create({'color': 'rgba(10,20,30,0.1)'});
+  assertEquals('color:rgba(10,20,30,0.1);', goog.html.SafeStyle.unwrap(style));
+  style = goog.html.SafeStyle.create({'color': 'rgba(10%, 20%, 30%, .5)'});
+  assertEquals(
+      'color:rgba(10%, 20%, 30%, .5);', goog.html.SafeStyle.unwrap(style));
 }
 
 
@@ -268,48 +139,6 @@ function testCreate_throwsOnForbiddenCharacters() {
   assertThrows(function() { goog.html.SafeStyle.create({'<': '0'}); });
   assertThrows(function() {
     goog.html.SafeStyle.create({'color': goog.string.Const.from('<')});
-  });
-}
-
-
-function testCreate_allowsNestedFunctions() {
-  assertCreateEquals(
-      'grid-template-columns:repeat(3, minmax(100px, 200px));',
-      {'grid-template-columns': 'repeat(3, minmax(100px, 200px))'});
-  assertThrows(function() {
-    goog.html.SafeStyle.create({
-      'grid-template-columns': 'repeat(3, minmax(100px, minmax(200px, 300px)))'
-    });
-  });
-}
-
-
-function testCreate_disallowsComments() {
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'color': 'rgb(/*)'});
-  });
-}
-
-
-function testCreate_allowBalancedSquareBrackets() {
-  assertCreateEquals(
-      'grid-template-columns:[trackName] 20px [other_track-name];',
-      {'grid-template-columns': '[trackName] 20px [other_track-name]'});
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'grid-template-columns': '20px ["trackName"]'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'grid-template-columns': '20px [tra[ckName]'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'grid-template-columns': '20px [tra'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create({'grid-template-columns': '20px [tra ckName]'});
-  });
-  assertThrows(function() {
-    goog.html.SafeStyle.create(
-        {'grid-template-columns': '20px [trackName] 20px]'});
   });
 }
 
@@ -322,13 +151,15 @@ function testCreate_values() {
   ];
   for (var i = 0; i < valids.length; i++) {
     var value = valids[i];
-    assertCreateEquals(
-        'background:' + value + ';',  // expected
-        {'background': value});
+    assertEquals(
+        'background:' + value + ';',
+        goog.html.SafeStyle.unwrap(
+            goog.html.SafeStyle.create({'background': value})));
   }
 
   var invalids = [
-    '', 'expression(alert(1))', '"', '"\'"\'', goog.string.Const.from('red;')
+    '', 'expression(alert(1))', 'url(i.png)', '"', '"\'"\'',
+    goog.string.Const.from('red;')
   ];
   for (var i = 0; i < invalids.length; i++) {
     var value = invalids[i];
@@ -336,17 +167,6 @@ function testCreate_values() {
       goog.html.SafeStyle.create({'background': value});
     });
   }
-}
-
-
-/**
- * Asserts that created SafeStyle matches expected value.
- * @param {string} expected
- * @param {!goog.html.SafeStyle.PropertyMap} style
- */
-function assertCreateEquals(expected, style) {
-  var style = goog.html.SafeStyle.create(style);
-  assertEquals(expected, goog.html.SafeStyle.unwrap(style));
 }
 
 

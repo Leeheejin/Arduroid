@@ -79,7 +79,7 @@ goog.ui.Menu = function(opt_domHelper, opt_renderer) {
 
   // Unlike Containers, Menus aren't keyboard-accessible by default.  This line
   // preserves backwards compatibility with code that depends on menus not
-  // receiving focus - e.g. `goog.ui.MenuButton`.
+  // receiving focus - e.g. {@code goog.ui.MenuButton}.
   this.setFocusable(false);
 };
 goog.inherits(goog.ui.Menu, goog.ui.Container);
@@ -137,7 +137,7 @@ goog.ui.Menu.prototype.allowAutoFocus_ = true;
 
 
 /**
- * Whether the menu should use windows style behavior and allow disabled menu
+ * Whether the menu should use windows syle behavior and allow disabled menu
  * items to be highlighted (though not selectable).  Defaults to false
  * @type {boolean}
  * @private
@@ -344,9 +344,6 @@ goog.ui.Menu.prototype.getAllowHighlightDisabled = function() {
 
 /**
  * @override
- * @param {boolean} show Whether to show or hide the menu.
- * @param {boolean=} opt_force If true, doesn't check whether the menu
- *     already has the requested visibility, and doesn't dispatch any events.
  * @param {goog.events.Event=} opt_e Mousedown event that caused this menu to
  *     be made visible (ignored if show is false).
  */
@@ -460,7 +457,7 @@ goog.ui.Menu.prototype.setHighlightedIndex = function(index) {
 
 
 /**
- * Decorate menu items located in any descendant node which as been explicitly
+ * Decorate menu items located in any descendent node which as been explicitly
  * marked as a 'content' node.
  * @param {Element} element Element to decorate.
  * @protected

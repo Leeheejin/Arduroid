@@ -35,9 +35,7 @@ goog.require('goog.events.InputHandler');
 goog.require('goog.events.KeyCodes');
 goog.require('goog.events.KeyHandler');
 goog.require('goog.i18n.CharListDecompressor');
-goog.require('goog.i18n.CharPickerData');
 goog.require('goog.i18n.uChar');
-goog.require('goog.i18n.uChar.NameFetcher');
 goog.require('goog.structs.Set');
 goog.require('goog.style');
 goog.require('goog.ui.Button');
@@ -575,7 +573,7 @@ goog.ui.CharPicker.prototype.enterDocument = function() {
  */
 goog.ui.CharPicker.prototype.handleFocus_ = function(e) {
   var button = e.target;
-  var element = /** @type {!Element} */ (button.getElement());
+  var element = button.getElement();
   var ch = this.getChar_(element);
 
   // Clear the aria label to avoid speaking the old value in case the button
@@ -742,6 +740,7 @@ goog.ui.CharPicker.prototype.setSelectedCategory_ = function(
   }
 
   var subcategories = this.data_.subcategories[category];
+  var charList = this.data_.charList[category];
   for (var i = 0; i < subcategories.length; i++) {
     var item = this.createMenuItem_(i, subcategories[i]);
     this.submenu_.addChild(item, true);

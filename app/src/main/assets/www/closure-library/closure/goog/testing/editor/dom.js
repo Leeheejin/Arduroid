@@ -17,10 +17,8 @@
  *
  */
 
-goog.setTestOnly('goog.testing.editor.dom');
 goog.provide('goog.testing.editor.dom');
 
-goog.require('goog.dom.AbstractRange');
 goog.require('goog.dom.NodeType');
 goog.require('goog.dom.TagIterator');
 goog.require('goog.dom.TagWalkType');
@@ -151,12 +149,7 @@ goog.testing.editor.dom.getPreviousNextNonEmptyTextNodeHelper_ = function(
  * @private
  */
 goog.testing.editor.dom.isNonEmptyTextNode_ = function(node) {
-  if (node && node.nodeType == goog.dom.NodeType.TEXT) {
-    node = /** @type {!Text} */ (node);
-    return node.length > 0;
-  }
-
-  return false;
+  return !!node && node.nodeType == goog.dom.NodeType.TEXT && node.length > 0;
 };
 
 

@@ -33,13 +33,13 @@ goog.require('goog.ui.ControlRenderer');
 /**
  * Default renderer for {@link goog.ui.MenuItem}s.  Each item has the following
  * structure:
- *
- *    <div class="goog-menuitem">
- *      <div class="goog-menuitem-content">
- *        ...(menu item contents)...
- *      </div>
- *    </div>
- *
+ * <pre>
+ *   <div class="goog-menuitem">
+ *     <div class="goog-menuitem-content">
+ *       ...(menu item contents)...
+ *     </div>
+ *   </div>
+ * </pre>
  * @constructor
  * @extends {goog.ui.ControlRenderer}
  */
@@ -267,7 +267,7 @@ goog.ui.MenuItemRenderer.prototype.hasCheckBoxStructure = function(element) {
 /**
  * Adds or removes extra markup and CSS styling to the menu item to make it
  * selectable or non-selectable, depending on the value of the
- * `selectable` argument.
+ * {@code selectable} argument.
  * @param {!goog.ui.Control} item Menu item to update.
  * @param {!Element} element Menu item element to update.
  * @param {boolean} enable Whether to add or remove the checkbox structure.

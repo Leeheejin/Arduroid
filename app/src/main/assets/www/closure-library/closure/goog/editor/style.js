@@ -32,12 +32,10 @@
 goog.provide('goog.editor.style');
 
 goog.require('goog.array');
-goog.require('goog.asserts');
 goog.require('goog.dom');
 goog.require('goog.dom.NodeType');
 goog.require('goog.dom.TagName');
 goog.require('goog.editor.BrowserFeature');
-goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventType');
 goog.require('goog.object');
 goog.require('goog.style');
@@ -128,7 +126,6 @@ goog.editor.style.SELECTABLE_INPUT_TYPES_ =
  * Prevent the default action on mousedown events.
  * @param {goog.events.Event} e The mouse down event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.editor.style.cancelMouseDownHelper_ = function(e) {
   var targetTagName = e.target.tagName;
@@ -160,8 +157,7 @@ goog.editor.style.makeUnselectable = function(element, eventHandler) {
   goog.style.setUnselectable(element, true);
 
   // Make inputs and text areas selectable.
-  var inputs = goog.dom.getElementsByTagName(
-      goog.dom.TagName.INPUT, goog.asserts.assert(element));
+  var inputs = element.getElementsByTagName(goog.dom.TagName.INPUT);
   for (var i = 0, len = inputs.length; i < len; i++) {
     var input = inputs[i];
     if (input.type in goog.editor.style.SELECTABLE_INPUT_TYPES_) {
@@ -169,8 +165,7 @@ goog.editor.style.makeUnselectable = function(element, eventHandler) {
     }
   }
   goog.array.forEach(
-      goog.dom.getElementsByTagName(
-          goog.dom.TagName.TEXTAREA, goog.asserts.assert(element)),
+      element.getElementsByTagName(goog.dom.TagName.TEXTAREA),
       goog.editor.style.makeSelectable);
 };
 
@@ -180,7 +175,7 @@ goog.editor.style.makeUnselectable = function(element, eventHandler) {
  *
  * For IE this simply turns off the "unselectable" property.
  *
- * Under FF no descendant of an unselectable node can be selectable:
+ * Under FF no descendent of an unselectable node can be selectable:
  *
  * https://bugzilla.mozilla.org/show_bug.cgi?id=203291
  *
@@ -190,16 +185,16 @@ goog.editor.style.makeUnselectable = function(element, eventHandler) {
  * This may cause certain text nodes which should be unselectable, to become
  * selectable. For example:
  *
- *    <div id=div1 style="-moz-user-select: none">
- *      Text1
- *      <span id=span1>Text2</span>
- *    </div>
+ * <div id=div1 style="-moz-user-select: none">
+ *   Text1
+ *   <span id=span1>Text2</span>
+ * </div>
  *
  * If we call makeSelectable on span1, then it will cause "Text1" to become
  * selectable, since it had to make div1 selectable in order for span1 to be
  * selectable.
  *
- * If "Text1" were enclosed within a `<p>` or `<span>`, then this problem would
+ * If "Text1" were enclosed within a <p> or <span>, then this problem would
  * not arise.  Text nodes do not have styles, so its style can't be set to
  * unselectable.
  *

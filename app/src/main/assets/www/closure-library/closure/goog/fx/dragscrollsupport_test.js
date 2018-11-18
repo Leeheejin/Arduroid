@@ -205,11 +205,8 @@ function testDragMarginDivVContainer() {
 
   clock.tick(goog.fx.DragScrollSupport.TIMER_STEP_ + 1);
 
-  // 5 timeouts are scheduled, but the last one is cancelled.
   assertEquals(
-      'Scroll timer should have ticked 4 times',
-      4,
-      clock.getCallbacksTriggered());
+      'Scroll timer should have ticked 5 times', 5, clock.getTimeoutsMade());
 
   dsc.dispose();
 }
@@ -310,11 +307,8 @@ function testDragMarginScrollConstrainedDivVContainer() {
 
   clock.tick(goog.fx.DragScrollSupport.TIMER_STEP_ + 1);
 
-  // 5 timeouts are scheduled, but the last one is cancelled.
   assertEquals(
-      'Scroll timer should have ticked 4 times',
-      4,
-      clock.getCallbacksTriggered());
+      'Scroll timer should have ticked 5 times', 5, clock.getTimeoutsMade());
 
   dsc.dispose();
 }

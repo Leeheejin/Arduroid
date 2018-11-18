@@ -96,7 +96,7 @@ function tearDownDomTree() {
 }
 
 function testGetCompatModeQuirks() {
-  var quirksIfr = goog.dom.createElement(goog.dom.TagName.IFRAME);
+  var quirksIfr = document.createElement(goog.dom.TagName.IFRAME);
   document.body.appendChild(quirksIfr);
   // Webkit used to default to standards mode, but fixed this in
   // Safari 4/Chrome 2, aka, WebKit 530.
@@ -121,7 +121,7 @@ function testGetCompatModeQuirks() {
 }
 
 function testGetCompatModeStandards() {
-  var standardsIfr = goog.dom.createElement(goog.dom.TagName.IFRAME);
+  var standardsIfr = document.createElement(goog.dom.TagName.IFRAME);
   document.body.appendChild(standardsIfr);
   var doc = goog.dom.getFrameContentDocument(standardsIfr);
   doc.open();
@@ -259,7 +259,7 @@ function testIsImportant() {
   var nbspNode = document.createTextNode('\u00a0');
   assertTrue(
       'Node with nbsp is important', goog.editor.node.isImportant(nbspNode));
-  var imageNode = goog.dom.createElement(goog.dom.TagName.IMG);
+  var imageNode = document.createElement(goog.dom.TagName.IMG);
   assertTrue(
       'Image node is important', goog.editor.node.isImportant(imageNode));
 }
@@ -388,7 +388,7 @@ function testIsEmpty() {
       'Text node with text should not be empty',
       goog.editor.node.isEmpty(textNode));
 
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   assertTrue('Empty div should be empty', goog.editor.node.isEmpty(div));
   div.innerHTML = '<iframe></iframe>';
   assertFalse(
@@ -412,14 +412,14 @@ function testIsEmpty() {
       'Div containing tags and text is not empty',
       goog.editor.node.isEmpty(div));
 
-  var img = goog.dom.createElement(goog.dom.TagName.IMG);
+  var img = document.createElement(goog.dom.TagName.IMG);
   assertFalse('Empty img should not be empty', goog.editor.node.isEmpty(img));
 
-  var iframe = goog.dom.createElement(goog.dom.TagName.IFRAME);
+  var iframe = document.createElement(goog.dom.TagName.IFRAME);
   assertFalse(
       'Empty iframe should not be empty', goog.editor.node.isEmpty(iframe));
 
-  var embed = goog.dom.createElement(goog.dom.TagName.EMBED);
+  var embed = document.createElement(goog.dom.TagName.EMBED);
   assertFalse(
       'Empty embed should not be empty', goog.editor.node.isEmpty(embed));
 }
@@ -431,7 +431,7 @@ function testIsEmpty() {
  * and the length of the node if the node does have length
  */
 function testGetLength() {
-  var parentNode = goog.dom.createElement(goog.dom.TagName.P);
+  var parentNode = document.createElement(goog.dom.TagName.P);
 
   assertEquals(
       'Length 0 and no children', 0, goog.editor.node.getLength(parentNode));
@@ -451,7 +451,7 @@ function testGetLength() {
 }
 
 function testFindInChildrenSuccess() {
-  var parentNode = goog.dom.createElement(goog.dom.TagName.DIV);
+  var parentNode = document.createElement(goog.dom.TagName.DIV);
   parentNode.innerHTML = '<div>foo</div><b>foo2</b>';
 
   var index = goog.editor.node.findInChildren(parentNode, function(node) {
@@ -461,7 +461,7 @@ function testFindInChildrenSuccess() {
 }
 
 function testFindInChildrenFailure() {
-  var parentNode = goog.dom.createElement(goog.dom.TagName.DIV);
+  var parentNode = document.createElement(goog.dom.TagName.DIV);
   parentNode.innerHTML = '<div>foo</div><b>foo2</b>';
 
   var index = goog.editor.node.findInChildren(
@@ -506,9 +506,8 @@ function testIsBlock() {
   // only a block element in WEBKIT.
   var ambiguousTags = [
     goog.dom.TagName.DETAILS, goog.dom.TagName.HR, goog.dom.TagName.ISINDEX,
-    goog.dom.TagName.LEGEND, goog.dom.TagName.MAIN, goog.dom.TagName.MAP,
-    goog.dom.TagName.NOFRAMES, goog.dom.TagName.OPTGROUP,
-    goog.dom.TagName.OPTION, goog.dom.TagName.SUMMARY
+    goog.dom.TagName.LEGEND, goog.dom.TagName.MAP, goog.dom.TagName.NOFRAMES,
+    goog.dom.TagName.OPTGROUP, goog.dom.TagName.OPTION, goog.dom.TagName.SUMMARY
   ];
 
   // Older versions of IE and Gecko consider the following elements to be
@@ -537,9 +536,8 @@ function testIsBlock() {
     tagsToIgnore.push(goog.dom.TagName.EMBED);
   }
 
-  var failures = [];
   for (var tag in goog.dom.TagName) {
-    if (goog.array.contains(tagsToIgnore, goog.dom.TagName[tag])) {
+    if (goog.array.contains(tagsToIgnore, tag)) {
       continue;
     }
 
@@ -550,17 +548,14 @@ function testIsBlock() {
     goog.dom.removeNode(el);
 
     if (goog.editor.node.isBlockTag(el)) {
-      if (!goog.array.contains(blockDisplays, display)) {
-        failures.push('Display for ' + tag + ' should be block-like');
-      }
+      assertContains(
+          'Display for ' + tag + ' should be block-like', display,
+          blockDisplays);
     } else {
-      if (goog.array.contains(blockDisplays, display)) {
-        failures.push('Display for ' + tag + ' should not be block-like');
-      }
+      assertNotContains(
+          'Display for ' + tag + ' should not be block-like', display,
+          blockDisplays);
     }
-  }
-  if (failures.length) {
-    fail(failures.join('\n'));
   }
 }
 
@@ -604,8 +599,8 @@ function testIsEditableContainer() {
 function testIsEditable() {
   var editableContainerElement = document.getElementById('editableTest');
   var childNode = editableContainerElement.firstChild;
-  var childElement = goog.dom.getElementsByTagName(
-      goog.dom.TagName.SPAN, editableContainerElement)[0];
+  var childElement =
+      editableContainerElement.getElementsByTagName(goog.dom.TagName.SPAN)[0];
 
   assertFalse(
       'Container element should not be considered editable',
@@ -626,7 +621,7 @@ function testIsEditable() {
 
 function testFindTopMostEditableAncestor() {
   var root = document.getElementById('editableTest');
-  var span = goog.dom.getElementsByTagName(goog.dom.TagName.SPAN, root)[0];
+  var span = root.getElementsByTagName(goog.dom.TagName.SPAN)[0];
   var textNode = span.firstChild;
 
   assertEquals(
@@ -657,13 +652,13 @@ function testSplitDomTreeAt() {
 
   root.innerHTML = innerHTML;
   var result = goog.editor.node.splitDomTreeAt(
-      goog.dom.getElementsByTagName(goog.dom.TagName.B, root)[0], null, root);
+      root.getElementsByTagName(goog.dom.TagName.B)[0], null, root);
   goog.testing.dom.assertHtmlContentsMatch('<p>1<b>2</b></p>', root);
   goog.testing.dom.assertHtmlContentsMatch('<p>3</p>', result);
 
   root.innerHTML = innerHTML;
   result = goog.editor.node.splitDomTreeAt(
-      goog.dom.getElementsByTagName(goog.dom.TagName.B, root)[0],
+      root.getElementsByTagName(goog.dom.TagName.B)[0],
       goog.dom.createTextNode('and'), root);
   goog.testing.dom.assertHtmlContentsMatch('<p>1<b>2</b></p>', root);
   goog.testing.dom.assertHtmlContentsMatch('<p>and3</p>', result);
@@ -679,17 +674,17 @@ function testTransferChildren() {
   var root2 = goog.dom.createElement(goog.dom.TagName.P);
   root2.innerHTML = prefix;
 
-  var b = goog.dom.getElementsByTagName(goog.dom.TagName.B, root1)[0];
+  var b = root1.getElementsByTagName(goog.dom.TagName.B)[0];
 
   // Transfer the children.
   goog.editor.node.transferChildren(root2, root1);
   assertEquals(0, root1.childNodes.length);
   goog.testing.dom.assertHtmlContentsMatch(prefix + innerHTML, root2);
-  assertEquals(b, goog.dom.getElementsByTagName(goog.dom.TagName.B, root2)[1]);
+  assertEquals(b, root2.getElementsByTagName(goog.dom.TagName.B)[1]);
 
   // Transfer them back.
   goog.editor.node.transferChildren(root1, root2);
   assertEquals(0, root2.childNodes.length);
   goog.testing.dom.assertHtmlContentsMatch(prefix + innerHTML, root1);
-  assertEquals(b, goog.dom.getElementsByTagName(goog.dom.TagName.B, root1)[1]);
+  assertEquals(b, root1.getElementsByTagName(goog.dom.TagName.B)[1]);
 }

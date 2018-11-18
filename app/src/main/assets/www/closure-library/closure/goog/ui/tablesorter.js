@@ -96,7 +96,7 @@ goog.ui.TableSorter.prototype.sortableHeaderRowIndex_ = 0;
  */
 goog.ui.TableSorter.prototype.setSortableHeaderRowIndex = function(index) {
   if (this.isInDocument()) {
-    throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+    throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
   }
   this.sortableHeaderRowIndex_ = index;
 };
@@ -118,10 +118,7 @@ goog.ui.TableSorter.prototype.canDecorate = function(element) {
 };
 
 
-/**
- * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
- */
+/** @override */
 goog.ui.TableSorter.prototype.enterDocument = function() {
   goog.ui.TableSorter.superClass_.enterDocument.call(this);
 
@@ -218,7 +215,6 @@ goog.ui.TableSorter.prototype.sort_ = function(e) {
  * @param {number} column The column to sort by.
  * @param {boolean=} opt_reverse Whether to sort in reverse.
  * @return {boolean} Whether the sort was executed.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.TableSorter.prototype.sort = function(column, opt_reverse) {
   var sortFunction = this.getSortFunction(column);

@@ -21,7 +21,6 @@
 
 goog.provide('goog.ui.AnimatedZippy');
 
-goog.require('goog.a11y.aria.Role');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events');
@@ -44,12 +43,10 @@ goog.require('goog.ui.ZippyEvent');
  * @param {boolean=} opt_expanded Initial expanded/visibility state. Defaults to
  *     false.
  * @param {goog.dom.DomHelper=} opt_domHelper An optional DOM helper.
- * @param {goog.a11y.aria.Role<string>=} opt_role ARIA role, default TAB.
  * @constructor
  * @extends {goog.ui.Zippy}
  */
-goog.ui.AnimatedZippy = function(
-    header, content, opt_expanded, opt_domHelper, opt_role) {
+goog.ui.AnimatedZippy = function(header, content, opt_expanded, opt_domHelper) {
   var domHelper = opt_domHelper || goog.dom.getDomHelper();
 
   // Create wrapper element and move content into it.
@@ -75,7 +72,7 @@ goog.ui.AnimatedZippy = function(
 
   // Call constructor of super class.
   goog.ui.Zippy.call(
-      this, header, elContent, opt_expanded, undefined, domHelper, opt_role);
+      this, header, elContent, opt_expanded, undefined, domHelper);
 
   // Set initial state.
   // NOTE: Set the class names as well otherwise animated zippys
@@ -86,19 +83,6 @@ goog.ui.AnimatedZippy = function(
 };
 goog.inherits(goog.ui.AnimatedZippy, goog.ui.Zippy);
 goog.tagUnsealableClass(goog.ui.AnimatedZippy);
-
-
-/**
- * Constants for event names.
- *
- * @const
- */
-goog.ui.AnimatedZippy.Events = {
-  // The beginning of the animation when the zippy state toggles.
-  TOGGLE_ANIMATION_BEGIN: goog.events.getUniqueId('toggleanimationbegin'),
-  // The end of the animation when the zippy state toggles.
-  TOGGLE_ANIMATION_END: goog.events.getUniqueId('toggleanimationend')
-};
 
 
 /**
@@ -171,9 +155,6 @@ goog.ui.AnimatedZippy.prototype.setExpanded = function(expanded) {
   ];
   goog.events.listen(this.anim_, events, this.onAnimate_, false, this);
   goog.events.listen(
-      this.anim_, goog.fx.Transition.EventType.BEGIN,
-      goog.bind(this.onAnimationBegin_, this, expanded));
-  goog.events.listen(
       this.anim_, goog.fx.Transition.EventType.END,
       goog.bind(this.onAnimationCompleted_, this, expanded));
 
@@ -192,18 +173,6 @@ goog.ui.AnimatedZippy.prototype.onAnimate_ = function(e) {
   var contentElement = this.getContentElement();
   var h = contentElement.offsetHeight;
   contentElement.style.marginTop = (e.y - h) + 'px';
-};
-
-
-/**
- * Called once the expand/collapse animation has started.
- *
- * @param {boolean} expanding Expanded/visibility state.
- * @private
- */
-goog.ui.AnimatedZippy.prototype.onAnimationBegin_ = function(expanding) {
-  this.dispatchEvent(new goog.ui.ZippyEvent(
-      goog.ui.AnimatedZippy.Events.TOGGLE_ANIMATION_BEGIN, this, expanding));
 };
 
 
@@ -230,6 +199,4 @@ goog.ui.AnimatedZippy.prototype.onAnimationCompleted_ = function(expanded) {
   // Fire toggle event.
   this.dispatchEvent(
       new goog.ui.ZippyEvent(goog.ui.Zippy.Events.TOGGLE, this, expanded));
-  this.dispatchEvent(new goog.ui.ZippyEvent(
-      goog.ui.AnimatedZippy.Events.TOGGLE_ANIMATION_END, this, expanded));
 };

@@ -15,7 +15,6 @@
 goog.provide('goog.math.LongTest');
 goog.setTestOnly('goog.math.LongTest');
 
-goog.require('goog.asserts');
 goog.require('goog.math.Long');
 goog.require('goog.testing.jsunit');
 
@@ -1340,35 +1339,6 @@ function testToFromNumber() {
     var val = goog.math.Long.fromNumber(num);
     assertEquals(num, val.toNumber());
   }
-  // Test edge cases
-  assertEquals(goog.math.Long.getZero(), goog.math.Long.fromNumber(NaN));
-  assertEquals(
-      goog.math.Long.getMaxValue(), goog.math.Long.fromNumber(Infinity));
-  assertEquals(
-      goog.math.Long.getMinValue(), goog.math.Long.fromNumber(-Infinity));
-}
-
-
-// Make sure we are not leaking longs by incorrect caching of decimal numbers
-// and failing-fast in debug mode.
-function testFromDecimalCachedValues() {
-  try {
-    var handledException;
-    goog.asserts.setErrorHandler(function(e) { handledException = e; });
-
-    assertEquals(goog.math.Long.fromInt(0), goog.math.Long.fromInt(0.1));
-    assertTrue(handledException != null);
-
-    handledException = null;
-    assertEquals(goog.math.Long.fromInt(0), goog.math.Long.fromInt(0.2));
-    assertTrue(handledException != null);
-
-    handledException = null;
-    assertEquals(goog.math.Long.fromInt(1), goog.math.Long.fromInt(1.1));
-    assertTrue(handledException != null);
-  } finally {
-    goog.asserts.setErrorHandler(goog.asserts.DEFAULT_ERROR_HANDLER);
-  }
 }
 
 function testIsZero() {
@@ -1558,7 +1528,7 @@ function createTestDivMod(i, count) {
         assertTrue(vi.equals(combinedResult));
       }
     }
-  };
+  }
 }
 
 var countPerDivModCall = 0;
@@ -1593,50 +1563,15 @@ function createTestToFromString(i) {
           TEST_BITS[i + 1],
           goog.math.Long.fromString(result, radix).getLowBits());
     }
-  };
+  }
 }
 
 for (var i = 0; i < TEST_BITS.length; i += 2) {
   goog.global['testToFromString' + i] = createTestToFromString(i);
 }
 
-function testIsStringInRange() {
-  var string1 = '9223372036854775808';
-  var string2 = '1000000000000000000000000';
-  var string3 = '-9223372036854775809';
-  var string4 = '-1000000000000000000000000';
-  assertEquals(false, goog.math.Long.isStringInRange(string1, 10));
-  assertEquals(false, goog.math.Long.isStringInRange(string2, 10));
-  assertEquals(false, goog.math.Long.isStringInRange(string3, 10));
-  assertEquals(false, goog.math.Long.isStringInRange(string4, 10));
-
-  for (var i = 0; i < TEST_STRINGS.length; i++) {
-    assertEquals(true, goog.math.Long.isStringInRange(TEST_STRINGS[i], 10));
-  }
-}
-testIsStringInRange();
-
 // Regression test for
 // https://github.com/google/closure-library/pull/498
 function testBase36ToString() {
   assertEquals('zzzzzz', goog.math.Long.fromString('zzzzzz', 36).toString(36));
-}
-
-function testBaseDefaultFromString() {
-  assertEquals('0', goog.math.Long.fromString('0xfoobar').toString());
-  assertEquals(
-      '100000000000000000000000000000000000000000000000000000000000001',
-      goog.math.Long.fromBits(1, 0x40000000).toString(2));
-}
-
-function testSafeInteger() {
-  assertTrue(goog.math.Long.fromNumber(1).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(0).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(-1).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(Math.pow(2, 32)).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(-Math.pow(2, 32)).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(Math.pow(2, 53) - 1).isSafeInteger());
-  assertTrue(goog.math.Long.fromNumber(-Math.pow(2, 53) + 1).isSafeInteger());
-  assertFalse(goog.math.Long.fromNumber(Math.pow(2, 53)).isSafeInteger());
-  assertFalse(goog.math.Long.fromNumber(-Math.pow(2, 53)).isSafeInteger());
 }

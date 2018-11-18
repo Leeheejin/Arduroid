@@ -45,8 +45,7 @@ goog.require('goog.userAgent');
 /**
  * This creates a TreeControl object. A tree control provides a way to
  * view a hierarchical set of data.
- * @param {string|!goog.html.SafeHtml} content The content of the node label.
- *     Strings are treated as plain-text and will be HTML escaped.
+ * @param {string|!goog.html.SafeHtml} html The HTML content of the node label.
  * @param {Object=} opt_config The configuration for the tree. See
  *    goog.ui.tree.TreeControl.defaultConfig. If not specified, a default config
  *    will be used.
@@ -54,8 +53,8 @@ goog.require('goog.userAgent');
  * @constructor
  * @extends {goog.ui.tree.BaseNode}
  */
-goog.ui.tree.TreeControl = function(content, opt_config, opt_domHelper) {
-  goog.ui.tree.BaseNode.call(this, content, opt_config, opt_domHelper);
+goog.ui.tree.TreeControl = function(html, opt_config, opt_domHelper) {
+  goog.ui.tree.BaseNode.call(this, html, opt_config, opt_domHelper);
 
   // The root is open and selected by default.
   this.setExpandedInternal(true);
@@ -124,7 +123,7 @@ goog.ui.tree.TreeControl = function(content, opt_config, opt_domHelper) {
   this.showRootLines_ = true;
 
   if (goog.userAgent.IE) {
-
+    /** @preserveTry */
     try {
       // works since IE6SP1
       document.execCommand('BackgroundImageCache', false, true);
@@ -577,14 +576,13 @@ goog.ui.tree.TreeControl.prototype.getNodeFromEvent_ = function(e) {
 
 /**
  * Creates a new tree node using the same config as the root.
- * @param {string=} opt_content The content of the node label. Strings are
- *     treated as plain-text and will be HTML escaped. To set SafeHtml content,
- *     omit opt_content and call setSafeHtml on the resulting node.
+ * @param {string=} opt_html The HTML content of the node label.
  * @return {!goog.ui.tree.TreeNode} The new item.
  */
-goog.ui.tree.TreeControl.prototype.createNode = function(opt_content) {
-  return new goog.ui.tree.TreeNode(opt_content || goog.html.SafeHtml.EMPTY,
-      this.getConfig(), this.getDomHelper());
+goog.ui.tree.TreeControl.prototype.createNode = function(opt_html) {
+  return new goog.ui.tree.TreeNode(
+      opt_html || goog.html.SafeHtml.EMPTY, this.getConfig(),
+      this.getDomHelper());
 };
 
 

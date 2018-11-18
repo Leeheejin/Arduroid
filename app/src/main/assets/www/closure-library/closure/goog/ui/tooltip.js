@@ -33,6 +33,7 @@ goog.require('goog.dom.safe');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.events.FocusHandler');
+goog.require('goog.html.legacyconversions');
 goog.require('goog.math.Box');
 goog.require('goog.math.Coordinate');
 goog.require('goog.positioning');
@@ -70,9 +71,10 @@ goog.ui.Tooltip = function(opt_el, opt_str, opt_domHelper) {
       (opt_el ? goog.dom.getDomHelper(goog.dom.getElement(opt_el)) :
                 goog.dom.getDomHelper());
 
-  goog.ui.Popup.call(this, this.dom_.createDom(goog.dom.TagName.DIV, {
-    'style': 'position:absolute;display:none;'
-  }));
+  goog.ui.Popup.call(
+      this,
+      this.dom_.createDom(
+          goog.dom.TagName.DIV, {'style': 'position:absolute;display:none;'}));
 
   /**
    * Cursor position relative to the page.
@@ -381,6 +383,16 @@ goog.ui.Tooltip.prototype.setText = function(str) {
 
 /**
  * Sets tooltip message as HTML markup.
+ * @param {string} str HTML message to display in tooltip.
+ * @deprecated Use setSafeHtml.
+ */
+goog.ui.Tooltip.prototype.setHtml = function(str) {
+  this.setSafeHtml(goog.html.legacyconversions.safeHtmlFromString(str));
+};
+
+
+/**
+ * Sets tooltip message as HTML markup.
  * @param {!goog.html.SafeHtml} html HTML message to display in tooltip.
  */
 goog.ui.Tooltip.prototype.setSafeHtml = function(html) {
@@ -657,7 +669,7 @@ goog.ui.Tooltip.prototype.positionAndShow_ = function(el, opt_pos) {
 /**
  * Called by timer from mouse out handler. Hides tooltip if cursor is still
  * outside element and tooltip, or if a child of tooltip has the focus.
- * @param {?Element|undefined} el Tooltip's anchor when hide timer was started.
+ * @param {Element} el Tooltip's anchor when hide timer was started.
  */
 goog.ui.Tooltip.prototype.maybeHide = function(el) {
   this.hideTimer = undefined;
@@ -689,7 +701,7 @@ goog.ui.Tooltip.prototype.hasActiveChild = function() {
 
 
 /**
- * Saves the current mouse cursor position to `this.cursorPosition`.
+ * Saves the current mouse cursor position to {@code this.cursorPosition}.
  * @param {goog.events.BrowserEvent} event MOUSEOVER or MOUSEMOVE event.
  * @private
  */
@@ -730,7 +742,7 @@ goog.ui.Tooltip.prototype.handleMouseOver = function(event) {
 goog.ui.Tooltip.prototype.getAnchorFromElement = function(el) {
   // FireFox has a bug where mouse events relating to <input> elements are
   // sometimes duplicated (often in FF2, rarely in FF3): once for the
-  // <input> element and once for a magic hidden <div> element.  JavaScript
+  // <input> element and once for a magic hidden <div> element.  Javascript
   // code does not have sufficient permissions to read properties on that
   // magic element and thus will throw an error in this call to
   // getAnchorFromElement_().  In that case we swallow the error.
@@ -984,21 +996,20 @@ goog.ui.Tooltip.CursorTooltipPosition.prototype.reposition = function(
     element, popupCorner, opt_margin) {
   var viewportElt = goog.style.getClientViewportElement(element);
   var viewport = goog.style.getVisibleRectForElement(viewportElt);
-  var margin = opt_margin ? new goog.math.Box(
-                                opt_margin.top + 10, opt_margin.right,
-                                opt_margin.bottom, opt_margin.left + 10) :
-                            new goog.math.Box(10, 0, 0, 10);
+  var margin = opt_margin ?
+      new goog.math.Box(
+          opt_margin.top + 10, opt_margin.right, opt_margin.bottom,
+          opt_margin.left + 10) :
+      new goog.math.Box(10, 0, 0, 10);
 
   if (goog.positioning.positionAtCoordinate(
           this.coordinate, element, goog.positioning.Corner.TOP_START, margin,
-          viewport,
-          goog.positioning.Overflow.ADJUST_X |
+          viewport, goog.positioning.Overflow.ADJUST_X |
               goog.positioning.Overflow.FAIL_Y) &
       goog.positioning.OverflowStatus.FAILED) {
     goog.positioning.positionAtCoordinate(
         this.coordinate, element, goog.positioning.Corner.TOP_START, margin,
-        viewport,
-        goog.positioning.Overflow.ADJUST_X |
+        viewport, goog.positioning.Overflow.ADJUST_X |
             goog.positioning.Overflow.ADJUST_Y);
   }
 };

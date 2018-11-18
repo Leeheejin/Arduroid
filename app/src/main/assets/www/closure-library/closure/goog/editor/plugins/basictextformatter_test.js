@@ -24,7 +24,6 @@ goog.require('goog.editor.Command');
 goog.require('goog.editor.Field');
 goog.require('goog.editor.Plugin');
 goog.require('goog.editor.plugins.BasicTextFormatter');
-goog.require('goog.html.SafeHtml');
 goog.require('goog.object');
 goog.require('goog.style');
 goog.require('goog.testing.ExpectedFailures');
@@ -35,7 +34,6 @@ goog.require('goog.testing.editor.TestHelper');
 goog.require('goog.testing.jsunit');
 goog.require('goog.testing.mockmatchers');
 goog.require('goog.userAgent');
-goog.require('goog.userAgent.product');
 
 var stubs;
 
@@ -192,7 +190,7 @@ function testWebKitList() {
     goog.dom.Range.createFromNodeContents(ul).select();
 
     FORMATTER.fixSafariLists_();
-    var childULs = goog.dom.getElementsByTagName(goog.dom.TagName.UL, ul);
+    var childULs = ul.getElementsByTagName(goog.dom.TagName.UL);
     assertEquals('UL should have one child UL', 1, childULs.length);
     tearDownListAndBlockquoteTests();
   }
@@ -239,7 +237,7 @@ function testSwitchListType() {
   goog.dom.Range.createFromNodeContents(list).select();
   FORMATTER.execCommandInternal('insertunorderedlist');
   list = goog.dom.getFirstElementChild(parent);
-  assertEquals(String(goog.dom.TagName.UL), list.tagName);
+  assertEquals(goog.dom.TagName.UL, list.tagName);
   assertEquals(
       3, goog.dom.getElementsByTagNameAndClass(goog.dom.TagName.LI, null, list)
              .length);
@@ -247,7 +245,7 @@ function testSwitchListType() {
   goog.dom.Range.createFromNodeContents(list).select();
   FORMATTER.execCommandInternal('insertorderedlist');
   list = goog.dom.getFirstElementChild(parent);
-  assertEquals(String(goog.dom.TagName.OL), list.tagName);
+  assertEquals(goog.dom.TagName.OL, list.tagName);
   assertEquals(
       3, goog.dom.getElementsByTagNameAndClass(goog.dom.TagName.LI, null, list)
              .length);
@@ -407,15 +405,10 @@ function testLinks() {
 
   HELPER.select(url1, 0, url2, url2.length);
   FORMATTER.execCommandInternal(goog.editor.Command.LINK);
-  var expectDialogUrl = false;
-  if (goog.userAgent.IE ||
-      (goog.userAgent.EDGE && !goog.userAgent.product.isVersion(14))) {
-    expectDialogUrl = true;
-  }
   HELPER.assertHtmlMatches(
       '<p><a href="' + url1 + '">' + url1 + '</a></p><p>' +
-      '<a href="' + dialogUrl + '">' + (expectDialogUrl ? dialogUrl : url2) +
-      '</a></p>');
+      '<a href="' + dialogUrl + '">' +
+      (goog.userAgent.EDGE_OR_IE ? dialogUrl : url2) + '</a></p>');
 }
 
 function testSelectedLink() {
@@ -831,8 +824,7 @@ function testConvertBreaksToDivsKeepsP() {
   FORMATTER.convertBreaksToDivs_();
   assertEquals(
       'There should still be a <p> tag', 1,
-      goog.dom.getElementsByTagName(goog.dom.TagName.P, FIELDMOCK.getElement())
-          .length);
+      FIELDMOCK.getElement().getElementsByTagName(goog.dom.TagName.P).length);
   var html = FIELDMOCK.getElement().innerHTML.toLowerCase();
   assertNotBadBrElements(html);
   assertNotContains(
@@ -923,8 +915,9 @@ function testConvertBreaksToDivsKeepsId() {
   assertNotBadBrElements(html);
   var idBr = document.getElementById('br1');
   assertNotNull('There should still be a tag with id="br1"', idBr);
-  assertEquals('The tag with id="br1" should be a <div> now',
-      String(goog.dom.TagName.DIV), idBr.tagName);
+  assertEquals(
+      'The tag with id="br1" should be a <div> now', goog.dom.TagName.DIV,
+      idBr.tagName);
   assertNull(
       'There should not be any tag with id="temp_br"',
       document.getElementById('temp_br'));
@@ -945,7 +938,7 @@ var JUSTIFICATION_COMMANDS = [
 ];
 function doTestIsJustification(command) {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(false, goog.html.SafeHtml.htmlEscape('foo'));
+  REAL_FIELD.setHtml(false, 'foo');
   selectRealField();
   REAL_FIELD.execCommand(command);
 
@@ -1022,8 +1015,7 @@ function testIsJustificationEmptySelection() {
 
 function testIsJustificationSimple1() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false, goog.html.SafeHtml.create('div', {'align': 'right'}, 'foo'));
+  REAL_FIELD.setHtml(false, '<div align="right">foo</div>');
   selectRealField();
 
   assertFalse(
@@ -1036,10 +1028,7 @@ function testIsJustificationSimple1() {
 
 function testIsJustificationSimple2() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.create(
-          'div', {'style': {'text-align': 'right'}}, 'foo'));
+  REAL_FIELD.setHtml(false, '<div style="text-align: right;">foo</div>');
   selectRealField();
 
   assertFalse(
@@ -1052,11 +1041,8 @@ function testIsJustificationSimple2() {
 
 function testIsJustificationComplete1() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.concat(
-          goog.html.SafeHtml.create('div', {'align': 'left'}, 'a'),
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'b')));
+  REAL_FIELD.setHtml(
+      false, '<div align="left">a</div><div align="right">b</div>');
   selectRealField();
 
   assertFalse(
@@ -1069,11 +1055,8 @@ function testIsJustificationComplete1() {
 
 function testIsJustificationComplete2() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.concat(
-          goog.html.SafeHtml.create('div', {'align': 'left'}, 'a'),
-          goog.html.SafeHtml.create('div', {'align': 'left'}, 'b')));
+  REAL_FIELD.setHtml(
+      false, '<div align="left">a</div><div align="left">b</div>');
   selectRealField();
 
   assertTrue(
@@ -1086,11 +1069,8 @@ function testIsJustificationComplete2() {
 
 function testIsJustificationComplete3() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.concat(
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'a'),
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'b')));
+  REAL_FIELD.setHtml(
+      false, '<div align="right">a</div><div align="right">b</div>');
   selectRealField();
 
   assertFalse(
@@ -1103,13 +1083,9 @@ function testIsJustificationComplete3() {
 
 function testIsJustificationComplete4() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.concat(
-          goog.html.SafeHtml.create(
-              'div', {'align': 'right'},
-              goog.html.SafeHtml.create('div', {'align': 'left'}, 'a')),
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'b')));
+  REAL_FIELD.setHtml(
+      false, '<div align="right"><div align="left">a</div></div>' +
+          '<div align="right">b</div>');
   selectRealField();
 
   assertFalse(
@@ -1122,11 +1098,9 @@ function testIsJustificationComplete4() {
 
 function testIsJustificationComplete5() {
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false,
-      goog.html.SafeHtml.concat(
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'a'), 'b',
-          goog.html.SafeHtml.create('div', {'align': 'right'}, 'c')));
+  REAL_FIELD.setHtml(
+      false, '<div align="right">a</div>b' +
+          '<div align="right">c</div>');
   selectRealField();
 
   assertFalse(
@@ -1141,16 +1115,10 @@ function testIsJustificationComplete5() {
 /** @bug 2472589 */
 function doTestIsJustificationPInDiv(useCss, align, command) {
   setUpRealField();
-  var attrs = {};
-  if (useCss) {
-    attrs['style'] = {'text-align': align};
-  } else {
-    attrs['align'] = align;
-  }
-  var html = goog.html.SafeHtml.create(
-      'div', attrs, goog.html.SafeHtml.create('p', {}, 'foo'));
+  var html = '<div ' + (useCss ? 'style="text-align:' : 'align="') + align +
+      '"><p>foo</p></div>';
 
-  REAL_FIELD.setSafeHtml(false, html);
+  REAL_FIELD.setHtml(false, html);
   selectRealField();
   assertTrue(
       'P inside ' + align + ' aligned' + (useCss ? ' (using CSS)' : '') +
@@ -1276,8 +1244,7 @@ function testIEExecCommandFixes() {
   }
 
   setUpRealField();
-  REAL_FIELD.setSafeHtml(
-      false, goog.html.SafeHtml.create('blockquote', {}, 'hi'));
+  REAL_FIELD.setHtml(false, '<blockquote>hi</blockquote>');
   goog.dom.Range.createFromNodeContents(REAL_FIELD.getElement()).select();
 
   var nodes = REAL_PLUGIN.applyExecCommandIEFixes_('insertOrderedList');

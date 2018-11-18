@@ -29,6 +29,7 @@ goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.functions');
 goog.require('goog.html.SafeHtml');
+goog.require('goog.html.legacyconversions');
 goog.require('goog.ui.Component');
 goog.require('goog.ui.Dialog');
 goog.require('goog.userAgent');
@@ -42,8 +43,8 @@ goog.require('goog.userAgent');
  * "Content area" and has the default class-name 'modal-dialog-userInput'
  *
  * @param {string} promptTitle The title of the prompt.
- * @param {string|!goog.html.SafeHtml} promptBody The body of the prompt.
- *     String is treated as plain text and it will be HTML-escaped.
+ * @param {string|!goog.html.SafeHtml} promptHtml The HTML body of the prompt.
+ *     The variable is trusted and it should be already properly escaped.
  * @param {Function} callback The function to call when the user selects Ok or
  *     Cancel. The function should expect a single argument which represents
  *     what the user entered into the prompt. If the user presses cancel, the
@@ -59,7 +60,7 @@ goog.require('goog.userAgent');
  * @extends {goog.ui.Dialog}
  */
 goog.ui.Prompt = function(
-    promptTitle, promptBody, callback, opt_defaultValue, opt_class,
+    promptTitle, promptHtml, callback, opt_defaultValue, opt_class,
     opt_useIframeForIE, opt_domHelper) {
   goog.ui.Prompt.base(
       this, 'constructor', opt_class, opt_useIframeForIE, opt_domHelper);
@@ -75,7 +76,9 @@ goog.ui.Prompt = function(
 
   var label = goog.html.SafeHtml.create(
       'label', {'for': this.inputElementId_},
-      goog.html.SafeHtml.htmlEscapePreservingNewlines(promptBody));
+      promptHtml instanceof goog.html.SafeHtml ?
+          promptHtml :
+          goog.html.legacyconversions.safeHtmlFromString(promptHtml));
   var br = goog.html.SafeHtml.BR;
   this.setSafeHtmlContent(goog.html.SafeHtml.concat(label, br, br));
 
@@ -114,7 +117,7 @@ goog.ui.Prompt.prototype.defaultValue_ = '';
 
 /**
  * Element in which user enters response (HTML <input> text box)
- * @type {?HTMLInputElement|?HTMLTextAreaElement}
+ * @type {HTMLInputElement}
  * @private
  */
 goog.ui.Prompt.prototype.userInputEl_ = null;
@@ -192,8 +195,8 @@ goog.ui.Prompt.prototype.enterDocument = function() {
 
 
 /**
- * @return {?HTMLInputElement|?HTMLTextAreaElement} The user input element. May
- *     be null if the Prompt has not been rendered.
+ * @return {HTMLInputElement} The user input element. May be null if the Prompt
+ *     has not been rendered.
  */
 goog.ui.Prompt.prototype.getInputElement = function() {
   return this.userInputEl_;
@@ -215,22 +218,22 @@ goog.ui.Prompt.prototype.setInputDecoratorFn = function(inputDecoratorFn) {
 
 /**
  * Set the number of rows in the user input element.
- * A values of 1 means use an `<input>` element.  If the prompt is already
- * rendered then you cannot change from `<input>` to `<textarea>` or vice versa.
+ * A values of 1 means use an <input> element.  If the prompt is already
+ * rendered then you cannot change from <input> to <textarea> or vice versa.
  * @param {number} rows Number of rows for user input element.
  * @throws {goog.ui.Component.Error.ALREADY_RENDERED} If the component is
- *    already rendered and an attempt to change between `<input>` and
- *    `<textarea>` is made.
+ *    already rendered and an attempt to change between <input> and <textarea>
+ *    is made.
  */
 goog.ui.Prompt.prototype.setRows = function(rows) {
   if (this.isInDocument()) {
     if (this.userInputEl_.tagName == goog.dom.TagName.INPUT) {
       if (rows > 1) {
-        throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+        throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
       }
     } else {
       if (rows <= 1) {
-        throw new Error(goog.ui.Component.Error.ALREADY_RENDERED);
+        throw Error(goog.ui.Component.Error.ALREADY_RENDERED);
       }
       this.userInputEl_.rows = rows;
     }
@@ -281,23 +284,22 @@ goog.ui.Prompt.prototype.createDom = function() {
   var cls = this.getClass();
 
   // add input box to the content
+  var attrs = {
+    'className': goog.getCssName(cls, 'userInput'),
+    'value': this.defaultValue_
+  };
   if (this.rows_ == 1) {
     // If rows == 1 then use an input element.
-    this.userInputEl_ = this.getDomHelper().createDom(goog.dom.TagName.INPUT, {
-      'className': goog.getCssName(cls, 'userInput'),
-      'value': this.defaultValue_
-    });
+    this.userInputEl_ = /** @type {!HTMLInputElement} */
+        (this.getDomHelper().createDom(goog.dom.TagName.INPUT, attrs));
     this.userInputEl_.type = goog.dom.InputType.TEXT;
     if (this.cols_) {
       this.userInputEl_.size = this.cols_;
     }
   } else {
     // If rows > 1 then use a textarea.
-    this.userInputEl_ =
-        this.getDomHelper().createDom(goog.dom.TagName.TEXTAREA, {
-          'className': goog.getCssName(cls, 'userInput'),
-          'value': this.defaultValue_
-        });
+    this.userInputEl_ = /** @type {!HTMLInputElement} */
+        (this.getDomHelper().createDom(goog.dom.TagName.TEXTAREA, attrs));
     this.userInputEl_.rows = this.rows_;
     if (this.cols_) {
       this.userInputEl_.cols = this.cols_;

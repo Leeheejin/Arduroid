@@ -40,11 +40,10 @@ goog.require('goog.string.TypedString');
  * this type.
  *
  * Instances of this type must be created via the factory method,
- * (`fromConstant`, `fromConstants`, `format` or
- * `formatWithParams`), and not by invoking its constructor. The constructor
- * intentionally takes no parameters and the type is immutable; hence only a
- * default instance corresponding to the empty string can be obtained via
- * constructor invocation.
+ * ({@code goog.html.TrustedResourceUrl.fromConstant}), and not by invoking its
+ * constructor. The constructor intentionally takes no parameters and the type
+ * is immutable; hence only a default instance corresponding to the empty
+ * string can be obtained via constructor invocation.
  *
  * @see goog.html.TrustedResourceUrl#fromConstant
  * @constructor
@@ -65,7 +64,7 @@ goog.html.TrustedResourceUrl = function() {
   /**
    * A type marker used to implement additional run-time type checking.
    * @see goog.html.TrustedResourceUrl#unwrap
-   * @const {!Object}
+   * @const
    * @private
    */
   this.TRUSTED_RESOURCE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ =
@@ -84,8 +83,8 @@ goog.html.TrustedResourceUrl.prototype.implementsGoogStringTypedString = true;
  * Returns this TrustedResourceUrl's value as a string.
  *
  * IMPORTANT: In code where it is security relevant that an object's type is
- * indeed `TrustedResourceUrl`, use
- * `goog.html.TrustedResourceUrl.unwrap` instead of this method. If in
+ * indeed {@code TrustedResourceUrl}, use
+ * {@code goog.html.TrustedResourceUrl.unwrap} instead of this method. If in
  * doubt, assume that it's security relevant. In particular, note that
  * goog.html functions which return a goog.html type do not guarantee that
  * the returned instance is of the right type. For example:
@@ -116,41 +115,11 @@ goog.html.TrustedResourceUrl.prototype.implementsGoogI18nBidiDirectionalString =
 
 
 /**
- * Returns this URLs directionality, which is always `LTR`.
+ * Returns this URLs directionality, which is always {@code LTR}.
  * @override
  */
 goog.html.TrustedResourceUrl.prototype.getDirection = function() {
   return goog.i18n.bidi.Dir.LTR;
-};
-
-
-/**
- * Creates a new TrustedResourceUrl with params added to URL. Both search and
- * hash params can be specified.
- *
- * @param {string|?Object<string, *>|undefined} searchParams Search parameters
- *     to add to URL. See goog.html.TrustedResourceUrl.stringifyParams_ for
- *     exact format definition.
- * @param {(string|?Object<string, *>)=} opt_hashParams Hash parameters to add
- *     to URL. See goog.html.TrustedResourceUrl.stringifyParams_ for exact
- *     format definition.
- * @return {!goog.html.TrustedResourceUrl} New TrustedResourceUrl with params.
- */
-goog.html.TrustedResourceUrl.prototype.cloneWithParams = function(
-    searchParams, opt_hashParams) {
-  var url = goog.html.TrustedResourceUrl.unwrap(this);
-  var parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url);
-  var urlBase = parts[1];
-  var urlSearch = parts[2] || '';
-  var urlHash = parts[3] || '';
-
-  return goog.html.TrustedResourceUrl
-      .createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(
-          urlBase +
-          goog.html.TrustedResourceUrl.stringifyParams_(
-              '?', urlSearch, searchParams) +
-          goog.html.TrustedResourceUrl.stringifyParams_(
-              '#', urlHash, opt_hashParams));
 };
 
 
@@ -159,7 +128,7 @@ if (goog.DEBUG) {
    * Returns a debug string-representation of this value.
    *
    * To obtain the actual string value wrapped in a TrustedResourceUrl, use
-   * `goog.html.TrustedResourceUrl.unwrap`.
+   * {@code goog.html.TrustedResourceUrl.unwrap}.
    *
    * @see goog.html.TrustedResourceUrl#unwrap
    * @override
@@ -178,9 +147,9 @@ if (goog.DEBUG) {
  * @param {!goog.html.TrustedResourceUrl} trustedResourceUrl The object to
  *     extract from.
  * @return {string} The trustedResourceUrl object's contained string, unless
- *     the run-time type check fails. In that case, `unwrap` returns an
+ *     the run-time type check fails. In that case, {@code unwrap} returns an
  *     innocuous string, or, if assertions are enabled, throws
- *     `goog.asserts.AssertionError`.
+ *     {@code goog.asserts.AssertionError}.
  */
 goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
   // Perform additional Run-time type-checking to ensure that
@@ -210,156 +179,6 @@ goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
 
 
 /**
- * Creates a TrustedResourceUrl from a format string and arguments.
- *
- * The arguments for interpolation into the format string map labels to values.
- * Values of type `goog.string.Const` are interpolated without modifcation.
- * Values of other types are cast to string and encoded with
- * encodeURIComponent.
- *
- * `%{<label>}` markers are used in the format string to indicate locations
- * to be interpolated with the valued mapped to the given label. `<label>`
- * must contain only alphanumeric and `_` characters.
- *
- * The format string must start with one of the following:
- * - `https://<origin>/`
- * - `//<origin>/`
- * - `/<pathStart>`
- * - `about:blank#`
- *
- * `<origin>` must contain only alphanumeric or any of the following: `-.:[]`.
- * `<pathStart>` is any character except `/` and `\`.
- *
- * Example usage:
- *
- *    var url = goog.html.TrustedResourceUrl.format(goog.string.Const.from(
- *        'https://www.google.com/search?q=%{query}'), {'query': searchTerm});
- *
- *    var url = goog.html.TrustedResourceUrl.format(goog.string.Const.from(
- *        '//www.youtube.com/v/%{videoId}?hl=en&fs=1%{autoplay}'), {
- *        'videoId': videoId,
- *        'autoplay': opt_autoplay ?
- *            goog.string.Const.from('&autoplay=1') : goog.string.Const.EMPTY
- *    });
- *
- * While this function can be used to create a TrustedResourceUrl from only
- * constants, fromConstant() and fromConstants() are generally preferable for
- * that purpose.
- *
- * @param {!goog.string.Const} format The format string.
- * @param {!Object<string, (string|number|!goog.string.Const)>} args Mapping
- *     of labels to values to be interpolated into the format string.
- *     goog.string.Const values are interpolated without encoding.
- * @return {!goog.html.TrustedResourceUrl}
- * @throws {!Error} On an invalid format string or if a label used in the
- *     the format string is not present in args.
- */
-goog.html.TrustedResourceUrl.format = function(format, args) {
-  var formatStr = goog.string.Const.unwrap(format);
-  if (!goog.html.TrustedResourceUrl.BASE_URL_.test(formatStr)) {
-    throw new Error('Invalid TrustedResourceUrl format: ' + formatStr);
-  }
-  var result = formatStr.replace(
-      goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
-        if (!Object.prototype.hasOwnProperty.call(args, id)) {
-          throw new Error(
-              'Found marker, "' + id + '", in format string, "' + formatStr +
-              '", but no valid label mapping found ' +
-              'in args: ' + JSON.stringify(args));
-        }
-        var arg = args[id];
-        if (arg instanceof goog.string.Const) {
-          return goog.string.Const.unwrap(arg);
-        } else {
-          return encodeURIComponent(String(arg));
-        }
-      });
-  return goog.html.TrustedResourceUrl
-      .createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
-};
-
-
-/**
- * @private @const {!RegExp}
- */
-goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
-
-
-/**
- * The URL must be absolute, scheme-relative or path-absolute. So it must
- * start with:
- * - https:// followed by allowed origin characters.
- * - // followed by allowed origin characters.
- * - / not followed by / or \. There will only be an absolute path.
- *
- * Based on
- * https://url.spec.whatwg.org/commit-snapshots/56b74ce7cca8883eab62e9a12666e2fac665d03d/#url-parsing
- * an initial / which is not followed by another / or \ will end up in the "path
- * state" and from there it can only go to "fragment state" and "query state".
- *
- * We don't enforce a well-formed domain name. So '.' or '1.2' are valid.
- * That's ok because the origin comes from a compile-time constant.
- *
- * A regular expression is used instead of goog.uri for several reasons:
- * - Strictness. E.g. we don't want any userinfo component and we don't
- *   want '/./, nor \' in the first path component.
- * - Small trusted base. goog.uri is generic and might need to change,
- *   reasoning about all the ways it can parse a URL now and in the future
- *   is error-prone.
- * - Code size. We expect many calls to .format(), many of which might
- *   not be using goog.uri.
- * - Simplicity. Using goog.uri would likely not result in simpler nor shorter
- *   code.
- * @private @const {!RegExp}
- */
-goog.html.TrustedResourceUrl.BASE_URL_ =
-    /^(?:https:)?\/\/[0-9a-z.:[\]-]+\/|^\/[^\/\\]|^about:blank#/i;
-
-/**
- * RegExp for splitting a URL into the base, search field, and hash field.
- *
- * @private @const {!RegExp}
- */
-goog.html.TrustedResourceUrl.URL_PARAM_PARSER_ =
-    /^([^?#]*)(\?[^#]*)?(#[\s\S]*)?/;
-
-
-/**
- * Formats the URL same as TrustedResourceUrl.format and then adds extra URL
- * parameters.
- *
- * Example usage:
- *
- *     // Creates '//www.youtube.com/v/abc?autoplay=1' for videoId='abc' and
- *     // opt_autoplay=1. Creates '//www.youtube.com/v/abc' for videoId='abc'
- *     // and opt_autoplay=undefined.
- *     var url = goog.html.TrustedResourceUrl.formatWithParams(
- *         goog.string.Const.from('//www.youtube.com/v/%{videoId}'),
- *         {'videoId': videoId},
- *         {'autoplay': opt_autoplay});
- *
- * @param {!goog.string.Const} format The format string.
- * @param {!Object<string, (string|number|!goog.string.Const)>} args Mapping
- *     of labels to values to be interpolated into the format string.
- *     goog.string.Const values are interpolated without encoding.
- * @param {string|?Object<string, *>|undefined} searchParams Parameters to add
- *     to URL. See goog.html.TrustedResourceUrl.stringifyParams_ for exact
- *     format definition.
- * @param {(string|?Object<string, *>)=} opt_hashParams Hash parameters to add
- *     to URL. See goog.html.TrustedResourceUrl.stringifyParams_ for exact
- *     format definition.
- * @return {!goog.html.TrustedResourceUrl}
- * @throws {!Error} On an invalid format string or if a label used in the
- *     the format string is not present in args.
- */
-goog.html.TrustedResourceUrl.formatWithParams = function(
-    format, args, searchParams, opt_hashParams) {
-  var url = goog.html.TrustedResourceUrl.format(format, args);
-  return url.cloneWithParams(searchParams, opt_hashParams);
-};
-
-
-/**
  * Creates a TrustedResourceUrl object from a compile-time constant string.
  *
  * Compile-time constant strings are inherently program-controlled and hence
@@ -368,33 +187,12 @@ goog.html.TrustedResourceUrl.formatWithParams = function(
  * @param {!goog.string.Const} url A compile-time-constant string from which to
  *     create a TrustedResourceUrl.
  * @return {!goog.html.TrustedResourceUrl} A TrustedResourceUrl object
- *     initialized to `url`.
+ *     initialized to {@code url}.
  */
 goog.html.TrustedResourceUrl.fromConstant = function(url) {
   return goog.html.TrustedResourceUrl
       .createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(
           goog.string.Const.unwrap(url));
-};
-
-
-/**
- * Creates a TrustedResourceUrl object from a compile-time constant strings.
- *
- * Compile-time constant strings are inherently program-controlled and hence
- * trusted.
- *
- * @param {!Array<!goog.string.Const>} parts Compile-time-constant strings from
- *     which to create a TrustedResourceUrl.
- * @return {!goog.html.TrustedResourceUrl} A TrustedResourceUrl object
- *     initialized to concatenation of `parts`.
- */
-goog.html.TrustedResourceUrl.fromConstants = function(parts) {
-  var unwrapped = '';
-  for (var i = 0; i < parts.length; i++) {
-    unwrapped += goog.string.Const.unwrap(parts[i]);
-  }
-  return goog.html.TrustedResourceUrl
-      .createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(unwrapped);
 };
 
 
@@ -422,58 +220,4 @@ goog.html.TrustedResourceUrl
   trustedResourceUrl.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ =
       url;
   return trustedResourceUrl;
-};
-
-
-/**
- * Stringifies the passed params to be used as either a search or hash field of
- * a URL.
- *
- * @param {string} prefix The prefix character for the given field ('?' or '#').
- * @param {string} currentString The existing field value (including the prefix
- *     character, if the field is present).
- * @param {string|?Object<string, *>|undefined} params The params to set or
- *     append to the field.
- * - If `undefined` or `null`, the field remains unchanged.
- * - If a string, then the string will be escaped and the field will be
- *   overwritten with that value.
- * - If an Object, that object is treated as a set of key-value pairs to be
- *   appended to the current field. Note that JavaScript doesn't guarantee the
- *   order of values in an object which might result in non-deterministic order
- *   of the parameters. However, browsers currently preserve the order. The
- *   rules for each entry:
- *   - If an array, it will be processed as if each entry were an additional
- *     parameter with exactly the same key, following the same logic below.
- *   - If `undefined` or `null`, it will be skipped.
- *   - Otherwise, it will be turned into a string, escaped, and appended.
- * @return {string}
- * @private
- */
-goog.html.TrustedResourceUrl.stringifyParams_ = function(
-    prefix, currentString, params) {
-  if (params == null) {
-    // Do not modify the field.
-    return currentString;
-  }
-  if (goog.isString(params)) {
-    // Set field to the passed string.
-    return params ? prefix + encodeURIComponent(params) : '';
-  }
-  // Add on parameters to field from key-value object.
-  for (var key in params) {
-    var value = params[key];
-    var outputValues = goog.isArray(value) ? value : [value];
-    for (var i = 0; i < outputValues.length; i++) {
-      var outputValue = outputValues[i];
-      if (outputValue != null) {
-        if (!currentString) {
-          currentString = prefix;
-        }
-        currentString += (currentString.length > prefix.length ? '&' : '') +
-            encodeURIComponent(key) + '=' +
-            encodeURIComponent(String(outputValue));
-      }
-    }
-  }
-  return currentString;
 };

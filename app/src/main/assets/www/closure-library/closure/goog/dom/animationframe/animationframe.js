@@ -31,17 +31,16 @@
  *
  * Programmatic:
  * <pre>
- * let animationTask = goog.dom.animationFrame.createTask(
- *     {
- *       measure: function(state) {
- *         state.width = goog.style.getSize(elem).width;
- *         this.animationTask();
- *       },
- *       mutate: function(state) {
- *         goog.style.setWidth(elem, Math.floor(state.width / 2));
- *       },
+ * var animationTask = goog.dom.animationFrame.createTask({
+ *     measure: function(state) {
+ *       state.width = goog.style.getSize(elem).width;
+ *       this.animationTask();
  *     },
- *     this);
+ *     mutate: function(state) {
+ *       goog.style.setWidth(elem, Math.floor(state.width / 2));
+ *     }
+ *   }, this);
+ * });
  * </pre>
  *
  * See also
@@ -171,6 +170,13 @@ goog.dom.animationFrame.createTask = function(spec, opt_context) {
   };
 
   return function() {
+    // Default the context to the one that was used to call the tasks scheduler
+    // (this function).
+    if (!opt_context) {
+      measureTask.context = this;
+      mutateTask.context = this;
+    }
+
     // Save args and state.
     if (arguments.length > 0) {
       // The state argument goes last. That is kinda horrible but compatible

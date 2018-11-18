@@ -30,8 +30,6 @@ goog.require('goog.fs.FileWriter');
 goog.require('goog.functions');
 goog.require('goog.string');
 
-goog.forwardDeclare('goog.fs.FileSystem');
-
 
 
 /**
@@ -115,16 +113,13 @@ goog.fs.EntryImpl.prototype.getMetadata = function() {
 /** @override */
 goog.fs.EntryImpl.prototype.moveTo = function(parent, opt_newName) {
   var d = new goog.async.Deferred();
-  this.entry_.moveTo(
-      /** @type {!goog.fs.DirectoryEntryImpl} */ (parent).dir_, opt_newName,
-      goog.bind(function(entry) {
-        d.callback(this.wrapEntry(entry));
-      }, this), goog.bind(function(err) {
-        var msg = 'moving ' + this.getFullPath() + ' into ' +
-            parent.getFullPath() +
-            (opt_newName ? ', renaming to ' + opt_newName : '');
-        d.errback(new goog.fs.Error(err, msg));
-      }, this));
+  this.entry_.moveTo(parent.dir_, opt_newName, goog.bind(function(entry) {
+    d.callback(this.wrapEntry(entry));
+  }, this), goog.bind(function(err) {
+    var msg = 'moving ' + this.getFullPath() + ' into ' + parent.getFullPath() +
+        (opt_newName ? ', renaming to ' + opt_newName : '');
+    d.errback(new goog.fs.Error(err, msg));
+  }, this));
   return d;
 };
 
@@ -132,16 +127,14 @@ goog.fs.EntryImpl.prototype.moveTo = function(parent, opt_newName) {
 /** @override */
 goog.fs.EntryImpl.prototype.copyTo = function(parent, opt_newName) {
   var d = new goog.async.Deferred();
-  this.entry_.copyTo(
-      /** @type {!goog.fs.DirectoryEntryImpl} */ (parent).dir_, opt_newName,
-      goog.bind(function(entry) {
-        d.callback(this.wrapEntry(entry));
-      }, this), goog.bind(function(err) {
-        var msg = 'copying ' + this.getFullPath() + ' into ' +
-            parent.getFullPath() +
-            (opt_newName ? ', renaming to ' + opt_newName : '');
-        d.errback(new goog.fs.Error(err, msg));
-      }, this));
+  this.entry_.copyTo(parent.dir_, opt_newName, goog.bind(function(entry) {
+    d.callback(this.wrapEntry(entry));
+  }, this), goog.bind(function(err) {
+    var msg = 'copying ' + this.getFullPath() + ' into ' +
+        parent.getFullPath() +
+        (opt_newName ? ', renaming to ' + opt_newName : '');
+    d.errback(new goog.fs.Error(err, msg));
+  }, this));
   return d;
 };
 

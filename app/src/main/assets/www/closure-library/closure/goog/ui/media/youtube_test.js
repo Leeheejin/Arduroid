@@ -24,7 +24,7 @@ goog.require('goog.ui.media.YoutubeModel');
 var youtube;
 var control;
 var YOUTUBE_VIDEO_ID = 'dMH0bHeiRNg';
-var YOUTUBE_URL = 'https://www.youtube.com/watch?v=' + YOUTUBE_VIDEO_ID;
+var YOUTUBE_URL = 'http://www.youtube.com/watch?v=' + YOUTUBE_VIDEO_ID;
 var parent = goog.dom.createElement(goog.dom.TagName.DIV);
 
 function setUp() {
@@ -55,16 +55,6 @@ function testParsingUrl() {
   // a secure mobile link
   assertExtractsCorrectly(
       'uddeBVmKTqE', 'https://m.youtube.com/watch?v=uddeBVmKTqE');
-  // a simple youtube-nocookie link
-  assertExtractsCorrectly(
-      'uddeBVmKTqE', 'http://www.youtube-nocookie.com/watch?v=uddeBVmKTqE');
-  // a simple /embed/ link
-  assertExtractsCorrectly(
-      'uddeBVmKTqE', 'http://www.youtube.com/embed/uddeBVmKTqE?controls=0');
-  // a -nocookie /embed/ link
-  assertExtractsCorrectly(
-      'uddeBVmKTqE',
-      'http://www.youtube-nocookie.com/embed/uddeBVmKTqE?controls=0');
   // a simple short link
   assertExtractsCorrectly('uddeBVmKTqE', 'http://youtu.be/uddeBVmKTqE');
   // a secure short link

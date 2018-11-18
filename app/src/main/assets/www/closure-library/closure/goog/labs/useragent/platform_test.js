@@ -59,7 +59,7 @@ function testAndroid() {
 }
 
 function testKindleFire() {
-  var uaString = goog.labs.userAgent.testAgents.KINDLE_FIRE;
+  uaString = goog.labs.userAgent.testAgents.KINDLE_FIRE;
   goog.labs.userAgent.util.setUserAgent(uaString);
   assertTrue(goog.labs.userAgent.platform.isAndroid());
   assertVersion('4.0.3');
@@ -235,22 +235,6 @@ function testChromeOS() {
   assertTrue(goog.labs.userAgent.platform.isChromeOS());
   assertVersion('3701.62.0');
   assertVersionBetween('3701', '3702');
-}
-
-function testChromecast() {
-  var uaString = goog.labs.userAgent.testAgents.CHROMECAST;
-
-  goog.labs.userAgent.util.setUserAgent(uaString);
-  assertTrue(goog.labs.userAgent.platform.isChromecast());
-  assertVersion('');
-}
-
-function testKaiOS() {
-  var uaString = goog.labs.userAgent.testAgents.KAIOS;
-
-  goog.labs.userAgent.util.setUserAgent(uaString);
-  assertTrue(goog.labs.userAgent.platform.isKaiOS());
-  assertVersion('');
 }
 
 function assertVersion(version) {

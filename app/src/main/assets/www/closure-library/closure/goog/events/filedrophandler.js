@@ -34,13 +34,13 @@ goog.require('goog.log.Level');
 
 
 /**
- * A files drag and drop event detector. Gets an `element` as parameter
- * and fires `goog.events.FileDropHandler.EventType.DROP` event when files
- * are dropped in the `element`.
+ * A files drag and drop event detector. Gets an {@code element} as parameter
+ * and fires {@code goog.events.FileDropHandler.EventType.DROP} event when files
+ * are dropped in the {@code element}.
  *
  * @param {Element|Document} element The element or document to listen on.
  * @param {boolean=} opt_preventDropOutside Whether to prevent a drop on the
- *     area outside the `element`. Default false.
+ *     area outside the {@code element}. Default false.
  * @constructor
  * @extends {goog.events.EventTarget}
  * @final
@@ -138,7 +138,6 @@ goog.events.FileDropHandler.prototype.dispatch_ = function(e) {
  * Handles dragenter on the document.
  * @param {goog.events.BrowserEvent} e The dragenter event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.events.FileDropHandler.prototype.onDocDragEnter_ = function(e) {
   goog.log.log(
@@ -165,7 +164,6 @@ goog.events.FileDropHandler.prototype.onDocDragEnter_ = function(e) {
  * Handles dragging something over the document.
  * @param {goog.events.BrowserEvent} e The dragover event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.events.FileDropHandler.prototype.onDocDragOver_ = function(e) {
   goog.log.log(
@@ -185,7 +183,6 @@ goog.events.FileDropHandler.prototype.onDocDragOver_ = function(e) {
  * Handles dragging something over the element (drop zone).
  * @param {goog.events.BrowserEvent} e The dragover event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.events.FileDropHandler.prototype.onElemDragOver_ = function(e) {
   goog.log.log(
@@ -215,7 +212,6 @@ goog.events.FileDropHandler.prototype.onElemDragOver_ = function(e) {
  * Handles dropping something onto the element (drop zone).
  * @param {goog.events.BrowserEvent} e The drop event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.events.FileDropHandler.prototype.onElemDrop_ = function(e) {
   goog.log.log(

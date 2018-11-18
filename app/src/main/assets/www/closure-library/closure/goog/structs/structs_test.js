@@ -16,7 +16,6 @@ goog.provide('goog.structsTest');
 goog.setTestOnly('goog.structsTest');
 
 goog.require('goog.array');
-goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.structs');
 goog.require('goog.structs.Map');
@@ -55,7 +54,7 @@ var node;
 
 
 function addNode() {
-  node = goog.dom.createElement(goog.dom.TagName.SPAN);
+  node = document.createElement(goog.dom.TagName.SPAN);
   getTestElement().appendChild(node);
 }
 
@@ -298,7 +297,7 @@ function testMapArrayLike2() {
 function testMapString() {
   var col = '012';
   function f(v, i, col2) {
-    // The SpiderMonkey Array.map for strings turns the string into a String
+    // Teh SpiderMonkey Array.map for strings turns the string into a String
     // so we cannot use assertEquals because it uses ===.
     assertTrue(col == col2);
     assertEquals('number', typeof i);

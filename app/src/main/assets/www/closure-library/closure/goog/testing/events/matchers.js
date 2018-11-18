@@ -16,7 +16,6 @@
  * @fileoverview Mock matchers for event related arguments.
  */
 
-goog.setTestOnly('goog.testing.events.EventMatcher');
 goog.provide('goog.testing.events.EventMatcher');
 
 goog.require('goog.events.Event');
@@ -25,7 +24,7 @@ goog.require('goog.testing.mockmatchers.ArgumentMatcher');
 
 
 /**
- * A matcher that verifies that an argument is a `goog.events.Event` of a
+ * A matcher that verifies that an argument is a {@code goog.events.Event} of a
  * particular type.
  * @param {string} type The single type the event argument must be of.
  * @constructor

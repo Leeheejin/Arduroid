@@ -347,7 +347,7 @@ goog.ui.SplitPane.prototype.canDecorate = function(element) {
  * root element.
  * @param {Element} rootElement The root element from which to retrieve the
  *     element to be decorated.
- * @param {string} className The target class name.
+ * @param {!string} className The target class name.
  * @return {Element} The element to decorate.
  * @private
  */
@@ -363,7 +363,7 @@ goog.ui.SplitPane.prototype.getElementToDecorate_ = function(
     }
   }
 
-  // Default to the first descendant element with the correct class.
+  // Default to the first descendent element with the correct class.
   return goog.dom.getElementsByTagNameAndClass(null, className, rootElement)[0];
 };
 

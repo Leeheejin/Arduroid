@@ -1,11 +1,11 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#00878F">
-  <link rel="icon" href="img/favicon.ico">
-  <title class="translatable_title">Ardublockly</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#00878F">
+    <link rel="icon" href="img/favicon.ico">
+    <title class="translatable_title">Arduroid</title>
 
   <!-- Materialize, Prettify, and Ardublockly CSS -->
   <link rel="stylesheet" href="materialize/materialize.css" media="screen,projection">
@@ -60,12 +60,12 @@
 </head>
 
 <body>
-<!-- Horizontal Navigation bar 인비지블 -->
-<nav class="nav-fixed arduino_teal" style="display:none">
+<!-- Horizontal Navigation bar -->
+<nav class="nav-fixed arduino_teal">
   <div class="nav-wrapper container">
     <a class="show-on-large button-collapse" href="#" data-activates="slide-out" id="button-collapse"><i class="mdi-navigation-menu"></i></a>
     <a id="logo-container" class="brand-logo">
-      <span class="app_title translatable_title">Ardublockly:</span>
+      <span class="app_title translatable_title">Arduroid:</span>
       <!-- Sketch name editable text field -->
       <span class="sketch_name_wrapper">
           <i class="mdi-image-edit sketch_name_icon"></i>
@@ -83,15 +83,13 @@
 
 <!-- Sidebar navigation -->
 <ul id="slide-out" class="side-nav">
-  <li class="logo"><img src="img/sidenav_header.png" alt="Ardublockly block image"></li>
   <li class="no-padding">
     <ul>
       <li id="menu_load"><a href="#"><span class="translatable_open">Open</span><i class="mdi-file-file-upload left"></i></a></li>
       <li id="menu_save"><a href="#"><span class="translatable_save">Save</span><i class="mdi-file-file-download left"></i></a></li>
       <li id="menu_delete"><a href="#"><span class="translatable_deleteAll">Delete All</span><i class="mdi-action-delete left"></i></a></li>
       <li id="menu_settings"><a href="#"><span class="translatable_settings">Settings</span><i class="mdi-action-settings left"></i></a></li>
-      <li id="menu_bug"><a href="https://github.com/carlosperate/ardublockly/wiki" target="_blank"><span class="translatable_documentation">Documentation</span><i class="mdi-action-help left"></i></a></li>
-      <li id="menu_bug"><a href="http://github.com/carlosperate/ardublockly/issues" target="_blank"><span class="translatable_reportBug">Report Bug</span><i class="mdi-action-bug-report left"></i></a></li>
+      <li id="menu_bug"><a href="https://github.com/Leeheejin/Arduroid/issues" target="_blank"><span class="translatable_reportBug">Report Bug</span><i class="mdi-action-bug-report left"></i></a></li>
     </ul>
   <li class="no-padding">
     <ul class="collapsible collapsible-accordion">
@@ -113,89 +111,90 @@
 </ul>
 
 <!-- Content -->
-<div class="row" style="padding: 0">
-  <div class="col s12 m12 l8" style="position:relative;">
-    <!-- Toolbox visibility button -->
-    <a id="button_toggle_toolbox" class="waves-effect waves-light btn-flat button_toggle_toolbox_off" style="display: none"><i id="button_toggle_toolbox_icon" class="mdi-action-visibility-off"></i></a>
-    <!-- Arduino IDE action buttons -->
-    <div id="ide_buttons_wrapper">
-      <a id="button_ide_left" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_yellow"><i id="button_ide_left_icon" class="mdi-action-open-in-browser"></i></a>
-      <a id="button_ide_middle" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_teal"><i id="button_ide_middle_icon" class="mdi-navigation-check"></i></a>
-      <a id="button_ide_large" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_orange"><i id="button_ide_large_icon" class="mdi-av-play-arrow"></i></a>
-      <div id="button_ide_large_spinner" class="preloader-wrapper active ide_loader" style="display:none">
-        <div class="spinner-layer spinner-orange">
-          <div class="circle-clipper left">
+<div class="container">
+  <div class="row">
+    <div class="col s12 m12 l8" style="position:relative">
+      <!-- Toolbox visibility button -->
+      <a id="button_toggle_toolbox" class="waves-effect waves-light btn-flat button_toggle_toolbox_off" style="display: none"><i id="button_toggle_toolbox_icon" class="mdi-action-visibility-off"></i></a>
+      <!-- Arduino IDE action buttons -->
+      <div id="ide_buttons_wrapper">
+        <a id="button_ide_left" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_yellow"><i id="button_ide_left_icon" class="mdi-action-open-in-browser"></i></a>
+        <a id="button_ide_middle" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_teal"><i id="button_ide_middle_icon" class="mdi-navigation-check"></i></a>
+        <a id="button_ide_large" class="waves-effect waves-light waves-circle btn-floating z-depth-1-half arduino_orange"><i id="button_ide_large_icon" class="mdi-av-play-arrow"></i></a>
+        <div id="button_ide_large_spinner" class="preloader-wrapper active ide_loader" style="display:none">
+          <div class="spinner-layer spinner-orange">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
             <div class="circle"></div>
-          </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-        </div>
-        <div class="spinner-layer spinner-dark-teal">
-          <div class="circle-clipper left">
+          </div><div class="circle-clipper right">
             <div class="circle"></div>
-          </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-        </div>
-        <div class="spinner-layer spinner-yellow">
-          <div class="circle-clipper left">
+          </div>
+          </div>
+          <div class="spinner-layer spinner-dark-teal">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
             <div class="circle"></div>
-          </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
-        </div>
-        </div>
-        <div class="spinner-layer spinner-light-teal">
-          <div class="circle-clipper left">
+          </div><div class="circle-clipper right">
             <div class="circle"></div>
-          </div><div class="gap-patch">
-          <div class="circle"></div>
-        </div><div class="circle-clipper right">
-          <div class="circle"></div>
+          </div>
+          </div>
+          <div class="spinner-layer spinner-yellow">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+          </div>
+          <div class="spinner-layer spinner-light-teal">
+            <div class="circle-clipper left">
+              <div class="circle"></div>
+            </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+          </div>
         </div>
+      </div>
+      <!-- Blockly Panel -->
+      <div class="card-panel white" style="padding: 0">
+        <div id="blocks_panel" class="content blocks_panel_large">
+          <div id="content_blocks" class="content z-depth-1"></div>
         </div>
       </div>
     </div>
-    <!-- Blockly Panel -->
-    <div class="card-panel white" style="padding: 0">
-      <div id="blocks_panel" class="content blocks_panel_large">
-        <div id="content_blocks" class="content z-depth-1"></div>
-      </div>
+    <div class="col s12 m12 l4">
+      <ul class="collapsible z-depth-1" data-collapsible="accordion" style="display:none">
+        <li>
+          <div class="collapsible-header active">
+            <span class="collapsible_logo">{ }</span>
+            <span class="translatable_arduinoSourceCode">Arduino Source Code</span>
+          </div>
+          <div class="collapsible-body">
+            <pre id="content_arduino" class="content content_height_transition content_arduino_large"></pre>
+          </div>
+        </li>
+        <li>
+          <div class="collapsible-header" id="xml_collapsible_header" style="display:none">
+            <span class="collapsible_logo">&#60; &#62;</span>
+            <span class="translatable_blocksXml">Blocks XML</span>
+          </div>
+          <div class="collapsible-body" style="position:relative" id="xml_collapsible_body">
+            <a class="btn-floating btn-large waves-effect waves-light arduino_teal z-depth-1-half" id="button_load_xml"><i class="mdi-action-extension"></i></a>
+            <textarea id="content_xml" class="content content_height_transition content_xml_large" wrap="soft"></textarea>
+          </div>
+        </li>
+      </ul>
     </div>
   </div>
-  <div class="col s12 m12 l4" style="display:none"> <!-- 인비지블 -->
-    <ul class="collapsible z-depth-1" data-collapsible="accordion">
-      <li>
-        <div class="collapsible-header active">
-          <span class="collapsible_logo">{ }</span>
-          <span class="translatable_arduinoSourceCode">Arduino Source Code</span>
-        </div>
-        <div class="collapsible-body">
-          <pre id="content_arduino" class="content content_height_transition content_arduino_large"></pre>
-        </div>
-      </li>
-      <li>
-        <div class="collapsible-header" id="xml_collapsible_header">
-          <span class="collapsible_logo">&#60; &#62;</span>
-          <span class="translatable_blocksXml">Blocks XML</span>
-        </div>
-        <div class="collapsible-body" style="position:relative" id="xml_collapsible_body">
-          <a class="btn-floating btn-large waves-effect waves-light arduino_teal z-depth-1-half" id="button_load_xml"><i class="mdi-action-extension"></i></a>
-          <textarea id="content_xml" class="content content_height_transition content_xml_large" wrap="soft"></textarea>
-        </div>
-      </li>
-    </ul>
-  </div>
-</div>
 </div>
 
 <!-- IDE Output content -->
-<div class="ide_output_wrapper" style="display:none"> <!-- 인비지블 -->
+<div class="ide_output_wrapper">
   <ul class="collapsible ide_output_collapsible" data-collapsible="expandable">
     <li>
       <div id="ide_output_collapsible_header" class="collapsible-header ide_output_header_normal">
@@ -210,18 +209,10 @@
 </div>
 <div id="ide_output_spacer"></div>
 
-<!-- Settings: Displayed as a Materialize Modal -->
-<div id="settings_dialog" class="modal modal-fixed-footer">
+<!-- Settings: Displayed as a Materialize Modal -->  <!-- 세팅 인비지블-->
+<div id="settings_dialog" class="modal modal-fixed-footer" style="display: none">
   <div class="modal-content">
     <h4><span class="translatable_settings">Settings</span></h4>
-    <div class="modal_section">
-      <label><span class="translatable_compilerLocation">Compiler Location</span>:</label>
-      <input type="text" id="settings_compiler_location" readonly>
-    </div>
-    <div class="modal_section">
-      <label><span class="translatable_sketchFolder">Sketch Folder</span>:</label>
-      <input type="text" id="settings_sketch_location" readonly>
-    </div>
     <div class="modal_section">
       <label><span class="translatable_arduinoBoard">Arduino Board</span>:</label>
       <select name="settings_board" id="board">
@@ -287,17 +278,17 @@
   </div>
 </div>
 
-<!-- Local Modal to be shown if Ardublockly Server is not running. 인비지블 -->
-<div id="not_running_dialog" class="modal" style="display:none">
+<!-- Local Modal to be shown if Ardublockly Server is not running. -->
+<div id="not_running_dialog" class="modal">
   <div class="modal-content">
     <div>
-      <h4 id="gen_alert_title"><span class="translatable_noServerTitle">Ardublockly app not running</span></h4>
+      <h4 id="gen_alert_title"><span class="translatable_noServerTitle">Arduroid app not running</span></h4>
     </div>
     <div class="translatable_noServerBody">
-      <p>For all the Ardublockly features to be enabled, the Ardublockly desktop application must be running locally on your computer.</p>
+      <p>For all the Arduroid features to be enabled, the Arduroid desktop application must be running locally on your computer.</p>
       <p>If you are using an online version you will not be able to configure the settings nor load the blocks code into an Arduino.</p>
-      <p>Installation instruction can be found in the <a href="https://github.com/carlosperate/ardublockly">Ardublockly repository</a>.</p>
-      <p>If you have Ardublockly already installed, make sure the application is running correctly.</p>
+      <p>Installation instruction can be found in the <a href="https://github.com/carlosperate/ardublockly">Arduroid repository</a>.</p>
+      <p>If you have Arduroid already installed, make sure the application is running correctly.</p>
     </div>
   </div>
   <div class="modal-footer">

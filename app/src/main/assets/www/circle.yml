@@ -29,6 +29,7 @@ dependencies:
     # Install and check Python 2 and 3
     - sudo apt-get update
     - sudo apt-get install -y python-support
+    - sudo apt-get install -y python-tk
     - sudo apt-get install -y python3-setuptools
     - sudo apt-get install -y python3-dev
     - sudo apt-get install -y python3-tk
@@ -43,9 +44,14 @@ dependencies:
     # The GLIBC version might have been updated with apt-get installs
     - ldd --version
 
-    # Python packages (built on Python 2, tests run both 2 and 3)
-    - sudo pip2 install mock
+    # Python packages (built on Python 3, tests run both 2 and 3)
     - sudo pip2 install awscli
+    - sudo pip2 install mock
+    #- sudo pip2 install pydocstyle
+    - sudo pip2 install requests --upgrade
+    - sudo pip2 install coverage
+    - sudo pip3 install requests --upgrade
+    - sudo pip3 install coverage
     - sudo pip3 install mkdocs
     - sudo pip3 install pyinstaller
     - pyinstaller --version
@@ -72,10 +78,11 @@ dependencies:
 # Customize test commands
 test:
   override:
-    - python  ardublocklyserver/tests/sketchcreator_test.py
-    - python3 ardublocklyserver/tests/sketchcreator_test.py
-    - python  ardublocklyserver/tests/compilersettings_test.py
-    - python3 ardublocklyserver/tests/compilersettings_test.py
+    - python -m coverage run ardublocklyserver/tests/run_all.py
+    - python -m coverage report
+    - python3 -m coverage run ardublocklyserver/tests/run_all.py
+    - python3 -m coverage report
+    #- pydocstyle ardublocklyserver --match-dir='ardublocklyserver'
 
 general:
   artifacts:

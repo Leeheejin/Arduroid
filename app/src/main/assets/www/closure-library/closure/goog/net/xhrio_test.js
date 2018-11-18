@@ -36,19 +36,10 @@ goog.require('goog.userAgent.product');
 
 function MockXmlHttp() {
   /**
-   * The request headers for this XmlHttpRequest.
+   * The headers for this XmlHttpRequest.
    * @type {!Object<string>}
    */
-  this.requestHeaders = {};
-
-  /**
-   * The response headers for this XmlHttpRequest.
-   * @type {!Object<string>}
-   */
-  this.responseHeaders = {};
-
-  /** @type {string} */
-  this.responseHeadersString = null;
+  this.headers = {};
 
   /**
    * The upload object associated with this XmlHttpRequest.
@@ -91,20 +82,7 @@ MockXmlHttp.prototype.open = function(verb, uri, async) {};
 MockXmlHttp.prototype.abort = function() {};
 
 MockXmlHttp.prototype.setRequestHeader = function(key, value) {
-  this.requestHeaders[key] = value;
-};
-
-/**
- * @param {string} key
- * @return {?string}
- */
-MockXmlHttp.prototype.getResponseHeader = function(key) {
-  return key in this.responseHeaders ? this.responseHeaders[key] : null;
-};
-
-/** @return {?string} */
-MockXmlHttp.prototype.getAllResponseHeaders = function() {
-  return this.responseHeadersString;
+  this.headers[key] = value;
 };
 
 var lastMockXmlHttp;
@@ -127,7 +105,6 @@ function setUp() {
 }
 
 function tearDown() {
-  MockXmlHttp.syncSend = false;
   propertyReplacer.reset();
   clock.dispose();
   goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_ = originalEntryPoint;
@@ -147,7 +124,7 @@ function testSyncSend() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertTrue('Should be successful', e.target.isSuccess());
+    assertTrue('Should be succesful', e.target.isSuccess());
     count++;
 
   });
@@ -174,7 +151,7 @@ function testSyncSendFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -262,7 +239,7 @@ function testSendHttpZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -284,7 +261,7 @@ function testSendHttpUpperZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -306,7 +283,7 @@ function testSendHttpUpperUriZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -328,7 +305,7 @@ function testSendHttpUriZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -350,7 +327,7 @@ function testSendHttpUriZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -378,7 +355,7 @@ function testSendHttpsZeroStatusFailure() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertFalse('Should not be successful', e.target.isSuccess());
+    assertFalse('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -400,7 +377,7 @@ function testSendFileUpperZeroStatusSuccess() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertTrue('Should not be successful', e.target.isSuccess());
+    assertTrue('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -422,7 +399,7 @@ function testSendFileUriZeroStatusSuccess() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertTrue('Should not be successful', e.target.isSuccess());
+    assertTrue('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -444,7 +421,7 @@ function testSendDummyUriZeroStatusSuccess() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertTrue('Should not be successful', e.target.isSuccess());
+    assertTrue('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -466,7 +443,7 @@ function testSendFileUpperUriZeroStatusSuccess() {
   var x = new goog.net.XhrIo;
   goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
     assertFalse('Should not fire complete from inside send', inSend);
-    assertTrue('Should not be successful', e.target.isSuccess());
+    assertTrue('Should not be succesful', e.target.isSuccess());
     count++;
   });
 
@@ -551,9 +528,8 @@ function testProtectEntryPointCalledOnAsyncSend() {
   goog.net.XhrIo.protectEntryPoints(errorHandler);
 
   var x = new goog.net.XhrIo;
-  goog.events.listen(x, goog.net.EventType.READY_STATE_CHANGE, function(e) {
-    throw new Error();
-  });
+  goog.events.listen(
+      x, goog.net.EventType.READY_STATE_CHANGE, function(e) { throw Error(); });
 
   x.send('url');
   assertThrows(function() { lastMockXmlHttp.complete(); });
@@ -568,9 +544,8 @@ function testXHRIsDiposedEvenIfAListenerThrowsAnExceptionOnComplete() {
 
   var x = new goog.net.XhrIo;
 
-  goog.events.listen(x, goog.net.EventType.COMPLETE, function(e) {
-    throw new Error();
-  }, false, x);
+  goog.events.listen(
+      x, goog.net.EventType.COMPLETE, function(e) { throw Error(); }, false, x);
 
   x.send('url');
   assertThrows(function() { lastMockXmlHttp.complete(); });
@@ -614,7 +589,7 @@ function testPostSetsContentTypeHeader() {
   var x = new goog.net.XhrIo;
 
   x.send('url', 'POST', 'content');
-  var headers = lastMockXmlHttp.requestHeaders;
+  var headers = lastMockXmlHttp.headers;
   assertEquals(1, goog.object.getCount(headers));
   assertEquals(
       headers[goog.net.XhrIo.CONTENT_TYPE_HEADER],
@@ -625,7 +600,7 @@ function testNonPostSetsContentTypeHeader() {
   var x = new goog.net.XhrIo;
 
   x.send('url', 'PUT', 'content');
-  headers = lastMockXmlHttp.requestHeaders;
+  headers = lastMockXmlHttp.headers;
   assertEquals(1, goog.object.getCount(headers));
   assertEquals(
       headers[goog.net.XhrIo.CONTENT_TYPE_HEADER],
@@ -640,7 +615,7 @@ function testContentTypeIsTreatedCaseInsensitively() {
   assertObjectEquals(
       'Headers should not be modified since they already contain a ' +
           'content type definition',
-      {'content-type': 'testing'}, lastMockXmlHttp.requestHeaders);
+      {'content-type': 'testing'}, lastMockXmlHttp.headers);
 }
 
 function testIsContentTypeHeader_() {
@@ -658,7 +633,7 @@ function testPostFormDataDoesNotSetContentTypeHeader() {
 
   var x = new goog.net.XhrIo;
   x.send('url', 'POST', new FakeFormData());
-  var headers = lastMockXmlHttp.requestHeaders;
+  var headers = lastMockXmlHttp.headers;
   assertTrue(goog.object.isEmpty(headers));
 }
 
@@ -669,7 +644,7 @@ function testNonPostFormDataDoesNotSetContentTypeHeader() {
 
   var x = new goog.net.XhrIo;
   x.send('url', 'PUT', new FakeFormData());
-  headers = lastMockXmlHttp.requestHeaders;
+  headers = lastMockXmlHttp.headers;
   assertTrue(goog.object.isEmpty(headers));
 }
 
@@ -839,37 +814,17 @@ function testGetResponse() {
   assertEquals('resp', x.getResponse());
 }
 
-function testGetResponseHeader() {
-  var x = new goog.net.XhrIo();
-  x.send('http://foo');
-
-  x.xhr_.responseHeaders['foo'] = null;
-  x.xhr_.responseHeaders['bar'] = 'xyz';
-  x.xhr_.responseHeaders['baz'] = '';
-
-  // All headers should be undefined prior to the request completing.
-  assertUndefined(x.getResponseHeader('foo'));
-  assertUndefined(x.getResponseHeader('bar'));
-  assertUndefined(x.getResponseHeader('baz'));
-
-  x.xhr_.readyState = goog.net.XmlHttp.ReadyState.COMPLETE;
-
-  assertUndefined(x.getResponseHeader('foo'));
-  assertEquals('xyz', x.getResponseHeader('bar'));
-  assertEquals('', x.getResponseHeader('baz'));
-}
-
 function testGetResponseHeaders() {
-  MockXmlHttp.syncSend = true;
   var x = new goog.net.XhrIo();
 
   // No XHR yet
   assertEquals(0, goog.object.getCount(x.getResponseHeaders()));
 
-  x.send();
-
   // Simulate an XHR with 2 headers.
-  lastMockXmlHttp.responseHeadersString = 'test1: foo\r\ntest2: bar';
+  var headersRaw = 'test1: foo\r\ntest2: bar';
+
+  propertyReplacer.set(
+      x, 'getAllResponseHeaders', goog.functions.constant(headersRaw));
 
   var headers = x.getResponseHeaders();
   assertEquals(2, goog.object.getCount(headers));
@@ -878,13 +833,13 @@ function testGetResponseHeaders() {
 }
 
 function testGetResponseHeadersWithColonInValue() {
-  MockXmlHttp.syncSend = true;
   var x = new goog.net.XhrIo();
 
-  x.send();
-
   // Simulate an XHR with a colon in the http header value.
-  lastMockXmlHttp.responseHeadersString = 'test1: f:o:o';
+  var headersRaw = 'test1: f:o:o';
+
+  propertyReplacer.set(
+      x, 'getAllResponseHeaders', goog.functions.constant(headersRaw));
 
   var headers = x.getResponseHeaders();
   assertEquals(1, goog.object.getCount(headers));
@@ -892,16 +847,16 @@ function testGetResponseHeadersWithColonInValue() {
 }
 
 function testGetResponseHeadersMultipleValuesForOneKey() {
-  MockXmlHttp.syncSend = true;
   var x = new goog.net.XhrIo();
 
   // No XHR yet
   assertEquals(0, goog.object.getCount(x.getResponseHeaders()));
 
-  x.send();
-
   // Simulate an XHR with 2 headers.
-  lastMockXmlHttp.responseHeadersString = 'test1: foo\r\ntest1: bar';
+  var headersRaw = 'test1: foo\r\ntest1: bar';
+
+  propertyReplacer.set(
+      x, 'getAllResponseHeaders', goog.functions.constant(headersRaw));
 
   var headers = x.getResponseHeaders();
   assertEquals(1, goog.object.getCount(headers));
@@ -909,33 +864,18 @@ function testGetResponseHeadersMultipleValuesForOneKey() {
 }
 
 function testGetResponseHeadersEmptyHeader() {
-  MockXmlHttp.syncSend = true;
   var x = new goog.net.XhrIo();
 
   // No XHR yet
   assertEquals(0, goog.object.getCount(x.getResponseHeaders()));
 
-  x.send();
-
   // Simulate an XHR with 2 headers, the last of which is empty.
-  lastMockXmlHttp.responseHeadersString = 'test2: bar\r\n';
+  var headersRaw = 'test2: bar\r\n';
+
+  propertyReplacer.set(
+      x, 'getAllResponseHeaders', goog.functions.constant(headersRaw));
 
   var headers = x.getResponseHeaders();
   assertEquals(1, goog.object.getCount(headers));
   assertEquals('bar', headers['test2']);
-}
-
-
-function testGetResponseHeadersNullHeader() {
-  MockXmlHttp.syncSend = true;
-
-  var x = new goog.net.XhrIo();
-
-  // No XHR yet
-  assertEquals(0, goog.object.getCount(x.getResponseHeaders()));
-
-  x.send();
-
-  var headers = x.getResponseHeaders();
-  assertEquals(0, goog.object.getCount(headers));
 }

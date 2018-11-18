@@ -143,15 +143,19 @@ Ardublockly.showExtraIdeButtons = function(show) {
     IdeButtonMiddle.style.visibility = 'visible';
     IdeButtonMiddle.style.opacity = '1';
     Ardublockly.showtimeoutHandle = setTimeout(function() {
-      IdeButtonLeft.style.visibility = 'visible';
-      IdeButtonLeft.style.opacity = '1';
+      IdeButtonLeft.style.visibility = 'none';
+      IdeButtonLeft.style.opacity = '0';
     }, 50);
   } else {
     // As the mouse out can be accidental, only hide them after a delay
     Ardublockly.outHoldtimeoutHandle = setTimeout(function() {
       // Prevent show time-out to affect the hiding of the buttons
       clearTimeout(Ardublockly.showtimeoutHandle);
+      IdeButtonLeft.style.visibility = 'none';
+      IdeButtonLeft.style.opacity = '0';
       Ardublockly.hidetimeoutHandle = setTimeout(function() {
+        IdeButtonMiddle.style.visibility = 'visible';
+        IdeButtonMiddle.style.opacity = '1';
       }, 50);
     }, 200);
   }
@@ -295,7 +299,6 @@ Ardublockly.materialAlert = function(title, body, confirm, callback) {
 };
 
 /** Opens the modal that displays the "not connected to server" message. */
-/* 경고 메세지 비활성화
 Ardublockly.openNotConnectedModal = function() {
   $('#not_running_dialog').openModal({
     dismissible: true,
@@ -304,7 +307,6 @@ Ardublockly.openNotConnectedModal = function() {
     out_duration: 250
   });
 };
-*/
 
 /** Opens the modal that displays the Settings. */
 Ardublockly.openSettingsModal = function() {

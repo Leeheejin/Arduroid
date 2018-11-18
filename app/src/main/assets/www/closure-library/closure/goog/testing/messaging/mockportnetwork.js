@@ -18,13 +18,10 @@
  *
  */
 
-goog.setTestOnly('goog.testing.messaging.MockPortNetwork');
 goog.provide('goog.testing.messaging.MockPortNetwork');
 
 goog.require('goog.messaging.PortNetwork');  // interface
 goog.require('goog.testing.messaging.MockMessageChannel');
-
-goog.forwardDeclare('goog.testing.MockControl');
 
 
 

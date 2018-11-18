@@ -140,7 +140,7 @@ function testExcludeMarkers() {
   assertArrayEquals(
       ['goog-quote', 'goog-comment', 'goog-note'], spellChecker.excludeMarker);
   assertArrayEquals(
-      [String(goog.dom.TagName.DIV), undefined, String(goog.dom.TagName.SPAN)],
+      [goog.dom.TagName.DIV, undefined, goog.dom.TagName.SPAN],
       spellChecker.excludeTags);
   el.innerHTML = '<div class="goog-quote">misspelling</div>' +
       '<div class="goog-yes">misspelling</div>' +
@@ -203,7 +203,7 @@ function testKeyboardNavigateNext() {
   goog.testing.events.fireKeySequence(
       el, goog.events.KeyCodes.RIGHT, keyEventProperties);
 
-  // Test moving from first to second misspelled word.
+  // Test moving from first to second mispelled word.
   var defaultExecuted = goog.testing.events.fireKeySequence(
       el, goog.events.KeyCodes.RIGHT, keyEventProperties);
 

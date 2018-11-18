@@ -130,7 +130,7 @@ function testRender() {
 
   var elem = samplePalette.getElement();
   assertNotNull(elem);
-  assertEquals(String(goog.dom.TagName.DIV), elem.tagName);
+  assertEquals(goog.dom.TagName.DIV, elem.tagName);
   assertEquals('goog-palette', elem.className);
 
   var table = elem.firstChild;

@@ -20,11 +20,11 @@ goog.require('goog.object');
 goog.require('goog.testing.jsunit');
 
 function testCorrectNumberOfTagNames() {
-  assertEquals(130, goog.object.getCount(goog.dom.TagName));
+  assertEquals(126, goog.object.getCount(goog.dom.TagName));
 }
 
 function testPropertyNamesEqualValues() {
   for (var propertyName in goog.dom.TagName) {
-    assertEquals(propertyName, String(goog.dom.TagName[propertyName]));
+    assertEquals(propertyName, goog.dom.TagName[propertyName]);
   }
 }

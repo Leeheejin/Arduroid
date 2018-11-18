@@ -18,7 +18,6 @@ goog.setTestOnly('goog.messaging.PortChannelTest');
 goog.require('goog.Promise');
 goog.require('goog.Timer');
 goog.require('goog.dom');
-goog.require('goog.dom.TagName');
 goog.require('goog.events');
 goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
@@ -44,9 +43,8 @@ function setUpPage() {
   frameDiv = goog.dom.getElement('frame');
 
   // Use a relatively long timeout because the iframe created by createIframe
-  // can take a couple seconds to load its JS. It seems to take a particularly
-  // long time in Edge.
-  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 10 * 1000;
+  // can take a couple seconds to load its JS.
+  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 3 * 1000;
 
   if (!('Worker' in goog.global)) {
     return;
@@ -309,9 +307,8 @@ function testWindow() {
   }
 
   return createIframe().then(function(iframe) {
-    var peerOrigin = window.location.protocol + '//' + window.location.host;
     var iframeChannel =
-        goog.messaging.PortChannel.forEmbeddedWindow(iframe, peerOrigin, timer);
+        goog.messaging.PortChannel.forEmbeddedWindow(iframe, '*', timer);
 
     var promise = registerService(iframeChannel, 'pong');
     iframeChannel.send('ping', 'fizzbang');
@@ -331,9 +328,8 @@ function testWindowCanceled() {
   }
 
   return createIframe().then(function(iframe) {
-    var peerOrigin = window.location.protocol + '//' + window.location.host;
     var iframeChannel =
-        goog.messaging.PortChannel.forEmbeddedWindow(iframe, peerOrigin, timer);
+        goog.messaging.PortChannel.forEmbeddedWindow(iframe, '*', timer);
     iframeChannel.cancel();
 
     var promise = registerService(iframeChannel, 'pong').then(function(msg) {
@@ -376,9 +372,8 @@ function testWindowWontReceiveFromWrongOrigin() {
 
   return createIframe('testdata/portchannel_wrong_origin_inner.html')
       .then(function(iframe) {
-        var peerOrigin = window.location.protocol + '//' + window.location.host;
-        var iframeChannel = goog.messaging.PortChannel.forEmbeddedWindow(
-            iframe, peerOrigin, timer);
+        var iframeChannel =
+            goog.messaging.PortChannel.forEmbeddedWindow(iframe, '*', timer);
 
         var promise =
             registerService(iframeChannel, 'pong').then(function(msg) {
@@ -426,11 +421,11 @@ function assertPortsEntangled(port1, port2) {
 /**
  * @param {string=} opt_url A URL to use for the iframe src (defaults to
  *     "testdata/portchannel_inner.html").
- * @return {!goog.Promise<HTMLIFrameElement>} A promise that resolves with the
+ * @return {!goog.Promise<HTMLIframeElement>} A promise that resolves with the
  *     loaded iframe.
  */
 function createIframe(opt_url) {
-  var iframe = goog.dom.createDom(goog.dom.TagName.IFRAME, {
+  var iframe = goog.dom.createDom('iframe', {
     style: 'display: none',
     src: opt_url || 'testdata/portchannel_inner.html'
   });

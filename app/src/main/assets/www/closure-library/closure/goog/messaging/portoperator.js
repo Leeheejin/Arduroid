@@ -171,7 +171,7 @@ goog.messaging.PortOperator.prototype.connectSelfToPort_ = function(
 
   var contextChannel = this.switchboard_[contextName];
   if (!contextChannel) {
-    throw new Error('Port "' + contextName + '" doesn\'t exist');
+    throw Error('Port "' + contextName + '" doesn\'t exist');
   }
 
   var messageChannel = new MessageChannel();

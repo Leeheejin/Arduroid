@@ -18,10 +18,8 @@ goog.setTestOnly('goog.net.jsloaderTest');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.net.jsloader');
 goog.require('goog.net.jsloader.ErrorCode');
-goog.require('goog.string.Const');
 goog.require('goog.testing.jsunit');
 
 
@@ -33,7 +31,7 @@ function setUp() {
 function tearDown() {
   // Remove all the fake scripts.
   var scripts =
-      goog.array.clone(goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT));
+      goog.array.clone(document.getElementsByTagName(goog.dom.TagName.SCRIPT));
   for (var i = 0; i < scripts.length; i++) {
     if (scripts[i].src.indexOf('testdata') != -1) {
       goog.dom.removeNode(scripts[i]);
@@ -43,12 +41,10 @@ function tearDown() {
 
 
 // Sunny day scenario for load function.
-function testSafeLoad() {
+function testLoad() {
   window.test1 = null;
-  var testUrl = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('testdata/jsloader_test1.js'));
-  var testUrlValue = goog.html.TrustedResourceUrl.unwrap(testUrl);
-  var result = goog.net.jsloader.safeLoad(testUrl);
+  var testUrl = 'testdata/jsloader_test1.js';
+  var result = goog.net.jsloader.load(testUrl);
 
   return result.then(function() {
     var script = result.defaultScope_.script_;
@@ -57,7 +53,7 @@ function testSafeLoad() {
     assertEquals('encoding is utf-8', 'UTF-8', script.charset);
 
     // Check that the URI matches ours.
-    assertTrue('server URI', script.src.indexOf(testUrlValue) >= 0);
+    assertTrue('server URI', script.src.indexOf(testUrl) >= 0);
 
     // Check that the script was really loaded.
     assertEquals('verification object', 'Test #1 loaded', window.test1);
@@ -65,11 +61,10 @@ function testSafeLoad() {
 }
 
 
-// Sunny day scenario for safeLoadAndVerify function.
-function testSafeLoadAndVerify() {
-  var testUrl = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('testdata/jsloader_test2.js'));
-  var result = goog.net.jsloader.safeLoadAndVerify(testUrl, 'test2');
+// Sunny day scenario for loadAndVerify function.
+function testLoadAndVerify() {
+  var testUrl = 'testdata/jsloader_test2.js';
+  var result = goog.net.jsloader.loadAndVerify(testUrl, 'test2');
 
   return result.then(function(verifyObj) {
     // Check that the verification object has passed ok.
@@ -79,10 +74,9 @@ function testSafeLoadAndVerify() {
 
 
 // What happens when the verification object is not set by the loaded script?
-function testSafeLoadAndVerifyError() {
-  var testUrl = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('testdata/jsloader_test2.js'));
-  var result = goog.net.jsloader.safeLoadAndVerify(testUrl, 'fake');
+function testLoadAndVerifyError() {
+  var testUrl = 'testdata/jsloader_test2.js';
+  var result = goog.net.jsloader.loadAndVerify(testUrl, 'fake');
 
   return result.then(fail, function(error) {
     // Check that the error code is right.
@@ -94,36 +88,29 @@ function testSafeLoadAndVerifyError() {
 
 
 // Tests that callers can cancel the deferred without error.
-function testSafeLoadAndVerifyCanceled() {
-  var testUrl = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('testdata/jsloader_test2.js'));
-  var result = goog.net.jsloader.safeLoadAndVerify(testUrl, 'test2');
+function testLoadAndVerifyCanceled() {
+  var testUrl = 'testdata/jsloader_test2.js';
+  var result = goog.net.jsloader.loadAndVerify(testUrl, 'test2');
   result.cancel();
 }
 
 
-// Test the safeLoadMany function.
-function testSafeLoadMany() {
+// Test the loadMany function.
+function testLoadMany() {
   window.test1 = null;
   window.test4 = null;
 
   // Load test #3 and then #1.
-  var testUrls1 = [
-    goog.html.TrustedResourceUrl.fromConstant(
-        goog.string.Const.from('testdata/jsloader_test3.js')),
-    goog.html.TrustedResourceUrl.fromConstant(
-        goog.string.Const.from('testdata/jsloader_test1.js'))
-  ];
-  var result = goog.net.jsloader.safeLoadMany(testUrls1);
+  var testUrls1 = ['testdata/jsloader_test3.js', 'testdata/jsloader_test1.js'];
+  var result = goog.net.jsloader.loadMany(testUrls1);
 
   window.test3Callback = function(msg) {
     // Check that the 1st test was not loaded yet.
     assertEquals('verification object', null, window.test1);
 
     // Load test #4, which is supposed to wait for #1 to load.
-    var testUrls2 = [goog.html.TrustedResourceUrl.fromConstant(
-        goog.string.Const.from('testdata/jsloader_test4.js'))];
-    goog.net.jsloader.safeLoadMany(testUrls2);
+    var testUrls2 = ['testdata/jsloader_test4.js'];
+    goog.net.jsloader.loadMany(testUrls2);
   };
 
   window.test4Callback = function(msg) {
@@ -143,22 +130,23 @@ function testSafeLoadMany() {
 
 // Test the load function with additional options.
 function testLoadWithOptions() {
-  var testUrl = goog.html.TrustedResourceUrl.fromConstant(
-      goog.string.Const.from('testdata/jsloader_test1.js'));
-  var testUrlValue = goog.html.TrustedResourceUrl.unwrap(testUrl);
+  var testUrl = 'testdata/jsloader_test1.js';
   var options = {
-    attributes: {'data-attr1': 'enabled', 'data-attr2': 'disabled'},
+    attributes: {
+      'data-attr1': 'enabled',
+      'data-attr2': 'disabled',
+    },
     timeout: undefined,          // Use default
     cleanupWhenDone: undefined,  // Use default
     document: undefined          // Use default
   };
-  var result = goog.net.jsloader.safeLoad(testUrl, options);
+  var result = goog.net.jsloader.load(testUrl, options);
 
   return result.then(function() {
     var script = result.defaultScope_.script_;
 
     // Check that the URI matches ours.
-    assertTrue('server URI', script.src.indexOf(testUrlValue) >= 0);
+    assertTrue('server URI', script.src.indexOf(testUrl) >= 0);
 
     // Check that the attributes specified are set on the script tag.
     assertEquals(

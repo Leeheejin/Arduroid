@@ -15,22 +15,25 @@
 goog.provide('goog.string.linkifyTest');
 goog.setTestOnly('goog.string.linkifyTest');
 
-goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
 goog.require('goog.html.SafeHtml');
 goog.require('goog.string');
 goog.require('goog.string.linkify');
 goog.require('goog.testing.dom');
 goog.require('goog.testing.jsunit');
 
-var div = goog.dom.createElement(goog.dom.TagName.DIV);
+var div = document.createElement(goog.dom.TagName.DIV);
 
 function assertLinkify(comment, input, expected, opt_preserveNewlines) {
   assertEquals(
       comment, expected,
-      goog.html.SafeHtml.unwrap(goog.string.linkify.linkifyPlainTextAsHtml(
-          input, {rel: '', target: ''}, opt_preserveNewlines)));
+      goog.string.linkify.linkifyPlainText(
+          input, {rel: '', target: ''}, opt_preserveNewlines));
+  assertEquals(
+      comment, expected,
+      goog.html.SafeHtml.unwrap(
+          goog.string.linkify.linkifyPlainTextAsHtml(
+              input, {rel: '', target: ''}, opt_preserveNewlines)));
 }
 
 function testContainsNoLink() {
@@ -81,26 +84,6 @@ function testEndsWithAnEmail() {
       'This test was written by bolinfest@google.com.',
       'This test was written by ' +
           '<a href="mailto:bolinfest@google.com">bolinfest@google.com<\/a>.');
-}
-
-function testSingleQuotedUrl() {
-  assertLinkify(
-      'URLs surrounded by \'...\' exclude quotes from link',
-      'Foo \'http://google.com\' bar',
-      'Foo &#39;<a href="http://google.com">http://google.com</a>&#39; bar');
-}
-
-function testSingleQuoteInUrl() {
-  assertLinkify(
-      'URLs containing \' include quote in link', 'http://google.com/yo\'yo',
-      '<a href="http://google.com/yo&#39;yo">http://google.com/yo&#39;yo</a>');
-}
-
-function testDoubleQuotedUrl() {
-  assertLinkify(
-      'URLs surrounded by "..." exclude quotes from link',
-      'Foo "http://google.com" bar',
-      'Foo &quot;<a href="http://google.com">http://google.com</a>&quot; bar');
 }
 
 function testUrlWithPortNumber() {
@@ -189,8 +172,7 @@ function testUrlWithCapitalsWithoutHttp() {
 
 function testUrlHashBang() {
   assertLinkify(
-      'URL with #!',
-      'Another test URL: ' +
+      'URL with #!', 'Another test URL: ' +
           'https://www.google.com/testurls/#!/page',
       'Another test URL: ' +
           '<a href="https://www.google.com/testurls/#!/page">' +
@@ -226,8 +208,7 @@ function testEmailUsernameWithSpecialChars() {
           'bolin-fest+for.um@google.com<\/a>');
   assertLinkify(
       'Email with all special characters in the user name',
-      'Send mail to muad\'dib!#$%&\*/=?^_`{|}~@google.com',
-      'Send mail to ' +
+      'Send mail to muad\'dib!#$%&\*/=?^_`{|}~@google.com', 'Send mail to ' +
           '<a href="mailto:muad&#39;dib!#$%&amp;\*/=?^_`{|}~@google.com">' +
           'muad&#39;dib!#$%&amp;\*/=?^_`{|}~@google.com<\/a>');
 }
@@ -258,7 +239,7 @@ function testJsInjection() {
 
 function testJsInjectionDotIsBlind() {
   assertLinkify(
-      'JavaScript injection using regex . blindness to newline chars',
+      'Javascript injection using regex . blindness to newline chars',
       '<script>malicious_code()<\/script>\nVery nice url: www.google.com',
       '&lt;script&gt;malicious_code()&lt;/script&gt;\nVery nice url: ' +
           '<a href="http://www.google.com">www.google.com<\/a>');
@@ -266,7 +247,7 @@ function testJsInjectionDotIsBlind() {
 
 function testJsInjectionWithUnicodeLineReturn() {
   assertLinkify(
-      'JavaScript injection using regex . blindness to newline chars with a ' +
+      'Javascript injection using regex . blindness to newline chars with a ' +
           'unicode newline character.',
       '<script>malicious_code()<\/script>\u2029Vanilla text',
       '&lt;script&gt;malicious_code()&lt;/script&gt;\u2029Vanilla text');
@@ -319,8 +300,7 @@ function testProtocolWhitelistingEffective() {
 }
 
 function testLinkifyNoOptions() {
-  goog.dom.safe.setInnerHtml(
-      div, goog.string.linkify.linkifyPlainTextAsHtml('http://www.google.com'));
+  div.innerHTML = goog.string.linkify.linkifyPlainText('http://www.google.com');
   goog.testing.dom.assertHtmlContentsMatch(
       '<a href="http://www.google.com" target="_blank" rel="nofollow">' +
           'http://www.google.com<\/a>',
@@ -328,12 +308,10 @@ function testLinkifyNoOptions() {
 }
 
 function testLinkifyOptionsNoAttributes() {
-  goog.dom.safe.setInnerHtml(
-      div,
-      goog.string.linkify.linkifyPlainTextAsHtml(
-          'The link for www.google.com is located somewhere in ' +
-              'https://www.google.fr/?hl=en, you should find it easily.',
-          {rel: '', target: ''}));
+  div.innerHTML = goog.string.linkify.linkifyPlainText(
+      'The link for www.google.com is located somewhere in ' +
+          'https://www.google.fr/?hl=en, you should find it easily.',
+      {rel: '', target: ''});
   goog.testing.dom.assertHtmlContentsMatch(
       'The link for <a href="http://www.google.com">www.google.com<\/a> is ' +
           'located somewhere in ' +
@@ -343,10 +321,8 @@ function testLinkifyOptionsNoAttributes() {
 }
 
 function testLinkifyOptionsClassName() {
-  goog.dom.safe.setInnerHtml(
-      div,
-      goog.string.linkify.linkifyPlainTextAsHtml(
-          'Attribute with <class> name www.w3c.org.', {'class': 'link-added'}));
+  div.innerHTML = goog.string.linkify.linkifyPlainText(
+      'Attribute with <class> name www.w3c.org.', {'class': 'link-added'});
   goog.testing.dom.assertHtmlContentsMatch(
       'Attribute with &lt;class&gt; name <a href="http://www.w3c.org" ' +
           'target="_blank" rel="nofollow" class="link-added">www.w3c.org<\/a>.',
@@ -394,16 +370,14 @@ function testFindFirstUrlSchemeMixedcase() {
 
 function testFindFirstUrlSchemeWithText() {
   assertEquals(
-      'http://www.google.com',
-      goog.string.linkify.findFirstUrl(
-          'prefix http://www.google.com something'));
+      'http://www.google.com', goog.string.linkify.findFirstUrl(
+                                   'prefix http://www.google.com something'));
 }
 
 function testFindFirstUrlNoUrl() {
   assertEquals(
-      '',
-      goog.string.linkify.findFirstUrl(
-          'ygvtfr676 5v68fk uygbt85F^&%^&I%FVvc .'));
+      '', goog.string.linkify.findFirstUrl(
+              'ygvtfr676 5v68fk uygbt85F^&%^&I%FVvc .'));
 }
 
 function testFindFirstEmailNoScheme() {
@@ -447,16 +421,14 @@ function testFindFirstEmailSchemeMixedcase() {
 
 function testFindFirstEmailSchemeWithText() {
   assertEquals(
-      'mailto:fake@google.com',
-      goog.string.linkify.findFirstEmail(
-          'prefix mailto:fake@google.com something'));
+      'mailto:fake@google.com', goog.string.linkify.findFirstEmail(
+                                    'prefix mailto:fake@google.com something'));
 }
 
 function testFindFirstEmailNoEmail() {
   assertEquals(
-      '',
-      goog.string.linkify.findFirstEmail(
-          'ygvtfr676 5v68fk uygbt85F^&%^&I%FVvc .'));
+      '', goog.string.linkify.findFirstEmail(
+              'ygvtfr676 5v68fk uygbt85F^&%^&I%FVvc .'));
 }
 
 function testContainsPunctuation_parens() {

@@ -15,12 +15,11 @@
 /**
  * @fileoverview Interface and shared data structures for implementing
  * different wire protocol versions.
+ * @visibility {//closure/goog/bin/sizetests:__pkg__}
  */
 
 
 goog.provide('goog.labs.net.webChannel.Wire');
-
-goog.forwardDeclare('goog.structs.Map');
 
 
 

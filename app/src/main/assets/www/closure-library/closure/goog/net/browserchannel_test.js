@@ -110,8 +110,6 @@ MockChannelRequest.prototype.postData_ = null;
 
 MockChannelRequest.prototype.requestStartTime_ = null;
 
-MockChannelRequest.prototype.requestUri_ = null;
-
 MockChannelRequest.prototype.setExtraHeaders = function(extraHeaders) {};
 
 MockChannelRequest.prototype.setTimeout = function(timeout) {};
@@ -131,13 +129,11 @@ MockChannelRequest.prototype.xmlHttpGet = function(
     uri, decodeChunks, opt_noClose) {
   this.channelDebug_.debug(
       '<--- GET: ' + uri + ', ' + decodeChunks + ', ' + opt_noClose);
-  this.requestUri_ = uri;
   this.requestStartTime_ = goog.now();
 };
 
 MockChannelRequest.prototype.tridentGet = function(uri, usingSecondaryDomain) {
   this.channelDebug_.debug('<---GET (T): ' + uri);
-  this.requestUri_ = uri;
   this.requestStartTime_ = goog.now();
 };
 
@@ -370,7 +366,7 @@ function completeBackChannel() {
 function responseVersion7() {
   browserChannel.onRequestData(
       browserChannel.forwardChannelRequest_,
-      goog.net.ChannelDebug.MAGIC_RESPONSE_COOKIE);
+      goog.net.BrowserChannel.MAGIC_RESPONSE_COOKIE);
   browserChannel.onRequestComplete(browserChannel.forwardChannelRequest_);
   mockClock.tick(0);
 }
@@ -1270,19 +1266,18 @@ function testCreateXhrIo() {
   assertTrue(xhr.getWithCredentials());
 }
 
-
 function testSetParser() {
-  var recordParse = goog.testing.recordFunction(JSON.parse);
+  var recordUnsafeParse = goog.testing.recordFunction(goog.json.unsafeParse);
   var parser = {};
-  parser.parse = recordParse;
+  parser.parse = recordUnsafeParse;
   browserChannel.setParser(parser);
 
   connect();
-  assertEquals(3, recordParse.getCallCount());
+  assertEquals(3, recordUnsafeParse.getCallCount());
 
-  var call3 = recordParse.popLastCall();
-  var call2 = recordParse.popLastCall();
-  var call1 = recordParse.popLastCall();
+  var call3 = recordUnsafeParse.popLastCall();
+  var call2 = recordUnsafeParse.popLastCall();
+  var call1 = recordUnsafeParse.popLastCall();
 
   assertEquals(1, call1.getArguments().length);
   assertEquals('["b"]', call1.getArgument(0));
@@ -1292,35 +1287,4 @@ function testSetParser() {
 
   assertEquals(1, call3.getArguments().length);
   assertEquals('[[1,["foo"]]]', call3.getArgument(0));
-}
-
-
-function testAsyncTest() {
-  browserChannel.asyncTest_ = true;
-  browserChannel.connect('/test', '/bind');
-  mockClock.tick(0);
-
-  // We first establish the channel, assuming it is buffered.
-  assertNotNull(browserChannel.forwardChannelRequest_);
-  assertNull(browserChannel.connectionTest_);
-  assertTrue(browserChannel.isBuffered());
-
-  // Since we're assuming the channel is buferred, the "Close Immediately" flag
-  // should be set.
-  completeForwardChannel();
-  assertEquals(
-      '1', browserChannel.backChannelRequest_.requestUri_.queryData_.get('CI'));
-
-  mockClock.tick(100);
-
-  // Now, we perform the test which reveals the channel is not buffered.
-  assertNotNull(browserChannel.connectionTest_);
-  completeForwardTestConnection();
-  completeBackTestConnection();
-  assertFalse(browserChannel.isBuffered());
-
-  // From now on, the "Close Immediately" flag should not be set.
-  completeBackChannel();
-  assertEquals(
-      '0', browserChannel.backChannelRequest_.requestUri_.queryData_.get('CI'));
 }

@@ -32,8 +32,6 @@
 
 goog.provide('goog.messaging.PortNetwork');
 
-goog.forwardDeclare('goog.messaging.MessageChannel');
-
 
 
 /**

@@ -17,8 +17,6 @@ goog.setTestOnly('goog.dom.InputTypeTest');
 
 goog.require('goog.dom.InputType');
 goog.require('goog.object');
-goog.require('goog.testing.jsunit');
-goog.require('goog.userAgent');
 
 function testCorrectNumberOfInputTypes() {
   assertEquals(27, goog.object.getCount(goog.dom.InputType));
@@ -27,24 +25,16 @@ function testCorrectNumberOfInputTypes() {
 function testPropertyNamesEqualValues() {
   for (var propertyName in goog.dom.InputType) {
     assertEquals(
-        propertyName.toLowerCase().replace('_', '-'),
+        propertyName.lower().replace('_', '-'),
         goog.dom.InputType[propertyName]);
   }
 }
 
 function testTypes() {
+  assertEquals('text', document.getElementById('textinput').type);
+  assertEquals('time', document.getElementById('timeinput').type);
+  assertEquals('textarea', document.getElementById('textarea').type);
+  assertEquals('select-one', document.getElementById('selectone').type);
   assertEquals(
-      goog.dom.InputType.TEXT, document.getElementById('textinput').type);
-  // Not all browsers support the time input type.
-  if (goog.userAgent.CHROME || goog.userAgent.EDGE) {
-    assertEquals(
-        goog.dom.InputType.TIME, document.getElementById('timeinput').type);
-  }
-  assertEquals(
-      goog.dom.InputType.TEXTAREA, document.getElementById('textarea').type);
-  assertEquals(
-      goog.dom.InputType.SELECT_ONE, document.getElementById('selectone').type);
-  assertEquals(
-      goog.dom.InputType.SELECT_MULTIPLE,
-      document.getElementById('selectmultiple').type);
+      'select-multiple', document.getElementById('selectmultiple').type);
 }

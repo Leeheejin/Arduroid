@@ -57,7 +57,6 @@ goog.inherits(goog.ui.MenuBase, goog.ui.Popup);
 
 /**
  * Events fired by the Menu
- * @const
  */
 goog.ui.MenuBase.Events = {};
 
@@ -104,7 +103,7 @@ goog.ui.MenuBase.prototype.onShow = function() {
 /**
  * Called after the menu is hidden. Derived classes can override to hook this
  * event but should make sure to call the parent class method.
- * @param {?Node=} opt_target Target of the event causing the hide.
+ * @param {Object=} opt_target Target of the event causing the hide.
  * @protected
  * @override
  */

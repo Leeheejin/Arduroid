@@ -47,8 +47,8 @@ var canAccessSameDomainIframe = true;
 var accessCheckPromise = null;
 
 function setUpPage() {
-  // This test is insanely slow on IE8 and Safari for some reason.
-  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 40 * 1000;
+  // This test is insanely slow on IE8 for some reason.
+  goog.testing.TestCase.getActiveTestCase().promiseTimeout = 20 * 1000;
 
   // Show debug log
   var debugDiv = goog.dom.getElement('debugDiv');
@@ -64,10 +64,10 @@ function setUpPage() {
     var accessCheckIframes = [];
 
     accessCheckIframes.push(
-        create1x1Iframe('nonexistent', 'testdata/i_am_non_existent.html'));
+        create1x1Iframe('nonexistant', 'testdata/i_am_non_existant.html'));
     window.setTimeout(function() {
       accessCheckIframes.push(
-          create1x1Iframe('existent', 'testdata/access_checker.html'));
+          create1x1Iframe('existant', 'testdata/access_checker.html'));
     }, 10);
 
     // Called from testdata/access_checker.html
@@ -433,19 +433,19 @@ function testSameDomainCheck_noMessageOrigin() {
   var channel = new goog.net.xpc.CrossPageChannel(
       goog.object.create(
           goog.net.xpc.CfgFields.PEER_HOSTNAME, 'http://foo.com'));
-  assertTrue(channel.isMessageOriginAcceptable(undefined));
+  assertTrue(channel.isMessageOriginAcceptable_(undefined));
 }
 
 
 function testSameDomainCheck_noPeerHostname() {
   var channel = new goog.net.xpc.CrossPageChannel({});
-  assertTrue(channel.isMessageOriginAcceptable('http://foo.com'));
+  assertTrue(channel.isMessageOriginAcceptable_('http://foo.com'));
 }
 
 
 function testSameDomainCheck_unconfigured() {
   var channel = new goog.net.xpc.CrossPageChannel({});
-  assertTrue(channel.isMessageOriginAcceptable(undefined));
+  assertTrue(channel.isMessageOriginAcceptable_(undefined));
 }
 
 
@@ -453,7 +453,7 @@ function testSameDomainCheck_originsMatch() {
   var channel = new goog.net.xpc.CrossPageChannel(
       goog.object.create(
           goog.net.xpc.CfgFields.PEER_HOSTNAME, 'http://foo.com'));
-  assertTrue(channel.isMessageOriginAcceptable('http://foo.com'));
+  assertTrue(channel.isMessageOriginAcceptable_('http://foo.com'));
 }
 
 
@@ -461,7 +461,7 @@ function testSameDomainCheck_originsMismatch() {
   var channel = new goog.net.xpc.CrossPageChannel(
       goog.object.create(
           goog.net.xpc.CfgFields.PEER_HOSTNAME, 'http://foo.com'));
-  assertFalse(channel.isMessageOriginAcceptable('http://nasty.com'));
+  assertFalse(channel.isMessageOriginAcceptable_('http://nasty.com'));
 }
 
 

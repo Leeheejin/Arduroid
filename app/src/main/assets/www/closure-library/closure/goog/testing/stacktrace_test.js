@@ -129,7 +129,7 @@ function testParseStackFrameInOpera() {
   expected = new goog.testing.stacktrace.Frame('', '', '', 'file:///foo:42');
   assertObjectEquals('path only', expected, frame);
 
-  // (function go() { throw new Error() })()
+  // (function go() { throw Error() })()
   // var c = go; c()
   frameString = 'go([arguments not available])@';
   frame = goog.testing.stacktrace.parseStackFrame_(frameString);
@@ -141,20 +141,20 @@ function testParseStackFrameInOpera() {
   expected = new goog.testing.stacktrace.Frame('', 'go', '', 'file:///foo:42');
   assertObjectEquals('name and path', expected, frame);
 
-  // (function() { throw new Error() })()
+  // (function() { throw Error() })()
   frameString =
       '<anonymous function>([arguments not available])@file:///foo:42';
   frame = goog.testing.stacktrace.parseStackFrame_(frameString);
   expected = new goog.testing.stacktrace.Frame('', '', '', 'file:///foo:42');
   assertObjectEquals('anonymous function', expected, frame);
 
-  // var b = {foo: function() { throw new Error() }}
+  // var b = {foo: function() { throw Error() }}
   frameString = '<anonymous function: foo>()@file:///foo:42';
   frame = goog.testing.stacktrace.parseStackFrame_(frameString);
   expected = new goog.testing.stacktrace.Frame('', 'foo', '', 'file:///foo:42');
   assertObjectEquals('object literal function', expected, frame);
 
-  // var c = {}; c.foo = function() { throw new Error() }
+  // var c = {}; c.foo = function() { throw Error() }
   frameString = '<anonymous function: c.foo>()@file:///foo:42';
   frame = goog.testing.stacktrace.parseStackFrame_(frameString);
   expected =
@@ -237,7 +237,7 @@ function testFollowCallChain() {
   };
 
   // Created a fake type with a toString method.
-  function LocalType() {}
+  function LocalType(){};
   LocalType.prototype.toString = function() { return 'sg'; };
 
   // Create a mock with no expectations.
@@ -317,14 +317,6 @@ function testParseStackFrameInIE10() {
   expected =
       new goog.testing.stacktrace.Frame('', 'eval code', '', 'eval code:150:3');
   assertObjectEquals('nested eval', expected, frame);
-}
-
-function testParseStackFrameInIE11() {
-  var frameString = '   at a.b.c (Unknown script code:150:3)';
-  var frame = goog.testing.stacktrace.parseStackFrame_(frameString);
-  var expected = new goog.testing.stacktrace.Frame(
-      '', 'a.b.c', '', 'Unknown script code:150:3');
-  assertObjectEquals('name and path', expected, frame);
 }
 
 function testParseStackFrameInEdge() {

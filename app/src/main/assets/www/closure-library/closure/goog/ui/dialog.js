@@ -45,6 +45,7 @@ goog.require('goog.events.EventType');
 goog.require('goog.events.KeyCodes');
 goog.require('goog.fx.Dragger');
 goog.require('goog.html.SafeHtml');
+goog.require('goog.html.legacyconversions');
 goog.require('goog.math.Rect');
 goog.require('goog.string');
 goog.require('goog.structs.Map');
@@ -265,6 +266,16 @@ goog.ui.Dialog.prototype.getTitle = function() {
 
 
 /**
+ * Allows arbitrary HTML to be set in the content element.
+ * @param {string} html Content HTML.
+ * @deprecated Use setSafeHtmlContent or setTextContent.
+ */
+goog.ui.Dialog.prototype.setContent = function(html) {
+  this.setSafeHtmlContent(goog.html.legacyconversions.safeHtmlFromString(html));
+};
+
+
+/**
  * Allows plain text to be set in the content element.
  * @param {string} text Content plain text. Newlines are preserved.
  */
@@ -290,9 +301,9 @@ goog.ui.Dialog.prototype.setSafeHtmlContent = function(html) {
  * Gets the content HTML of the content element as a plain string.
  *
  * Note that this method returns the HTML markup that was previously set via
- * setSafeHtmlContent() or setTextContent(). In particular, the HTML returned by
- * this method does not reflect any changes to the content element's DOM that
- * were made by other means.
+ * setContent(). In particular, the HTML returned by this method does not
+ * reflect any changes to the content element's DOM that were made my means
+ * other than setContent().
  *
  * @return {string} Content HTML.
  */
@@ -977,7 +988,6 @@ goog.ui.Dialog.prototype.getButtonSet = function() {
  * Handles a click on the button container.
  * @param {goog.events.BrowserEvent} e Browser's event object.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Dialog.prototype.onButtonClick_ = function(e) {
   var button = this.findParentButton_(/** @type {Element} */ (e.target));
@@ -997,7 +1007,6 @@ goog.ui.Dialog.prototype.onButtonClick_ = function(e) {
  * @param {Element} element The element that was clicked on.
  * @return {Element} Returns the parent button or null if not found.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Dialog.prototype.findParentButton_ = function(element) {
   var el = element;
@@ -1017,7 +1026,6 @@ goog.ui.Dialog.prototype.findParentButton_ = function(element) {
  * fired.  Also prevents tabbing out of the dialog.
  * @param {goog.events.BrowserEvent} e Browser's event object.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Dialog.prototype.onKey_ = function(e) {
   var close = false;
@@ -1111,11 +1119,8 @@ goog.ui.Dialog.prototype.onKey_ = function(e) {
  * @extends {goog.events.Event}
  */
 goog.ui.Dialog.Event = function(key, caption) {
-  /** @const {!goog.ui.Dialog.EventType} */
   this.type = goog.ui.Dialog.EventType.SELECT;
-  /** @const */
   this.key = key;
-  /** @const */
   this.caption = caption;
 };
 goog.inherits(goog.ui.Dialog.Event, goog.events.Event);
@@ -1164,8 +1169,6 @@ goog.ui.Dialog.EventType = {
  *    goog.ui.Component} for semantics.
  * @constructor
  * @extends {goog.structs.Map}
- * @suppress {deprecated} Underlying extended goog.structs.Map is deprecated but
- *    this class is not. Suppress warnings until refactored.
  */
 goog.ui.Dialog.ButtonSet = function(opt_domHelper) {
   // TODO(attila):  Refactor ButtonSet to extend goog.ui.Component?
@@ -1207,13 +1210,6 @@ goog.ui.Dialog.ButtonSet.prototype.element_ = null;
  * @private
  */
 goog.ui.Dialog.ButtonSet.prototype.cancelButton_ = null;
-
-
-/** @override */
-goog.ui.Dialog.ButtonSet.prototype.clear = function() {
-  goog.structs.Map.prototype.clear.call(this);
-  this.defaultButton_ = this.cancelButton_ = null;
-};
 
 
 /**
@@ -1294,7 +1290,7 @@ goog.ui.Dialog.ButtonSet.prototype.render = function() {
 
 
 /**
- * Decorates the given element by adding any `button` elements found
+ * Decorates the given element by adding any {@code button} elements found
  * among its descendants to the button set.  The first button found is assumed
  * to be the default and will receive focus when the button set is rendered.
  * If a button with a name of {@link goog.ui.Dialog.DefaultButtonKeys.CANCEL}
@@ -1308,8 +1304,7 @@ goog.ui.Dialog.ButtonSet.prototype.decorate = function(element) {
   }
 
   this.element_ = element;
-  var buttons =
-      goog.dom.getElementsByTagName(goog.dom.TagName.BUTTON, this.element_);
+  var buttons = this.element_.getElementsByTagName(goog.dom.TagName.BUTTON);
   for (var i = 0, button, key, caption; button = buttons[i]; i++) {
     // Buttons should have a "name" attribute and have their caption defined by
     // their innerHTML, but not everyone knows this, and we should play nice.
@@ -1401,11 +1396,10 @@ goog.ui.Dialog.ButtonSet.prototype.getButton = function(key) {
 
 /**
  * Returns all the HTML Button elements in the button set container.
- * @return {!IArrayLike<!Element>} A live NodeList of the buttons.
+ * @return {!NodeList} A live NodeList of the buttons.
  */
 goog.ui.Dialog.ButtonSet.prototype.getAllButtons = function() {
-  return goog.dom.getElementsByTagName(
-      goog.dom.TagName.BUTTON, goog.asserts.assert(this.element_));
+  return this.element_.getElementsByTagName(goog.dom.TagName.BUTTON);
 };
 
 
@@ -1414,7 +1408,6 @@ goog.ui.Dialog.ButtonSet.prototype.getAllButtons = function() {
  * does nothing.
  * @param {string} key The button to enable or disable.
  * @param {boolean} enabled True to enable; false to disable.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Dialog.ButtonSet.prototype.setButtonEnabled = function(key, enabled) {
   var button = this.getButton(key);
@@ -1427,7 +1420,6 @@ goog.ui.Dialog.ButtonSet.prototype.setButtonEnabled = function(key, enabled) {
 /**
  * Enables or disables all of the buttons in this set.
  * @param {boolean} enabled True to enable; false to disable.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Dialog.ButtonSet.prototype.setAllButtonsEnabled = function(enabled) {
   var allButtons = this.getAllButtons();

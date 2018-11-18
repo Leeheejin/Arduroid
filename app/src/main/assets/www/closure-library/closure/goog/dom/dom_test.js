@@ -19,7 +19,6 @@
 /** @suppress {extraProvide} */
 goog.provide('goog.dom.dom_test');
 
-goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.BrowserFeature');
 goog.require('goog.dom.DomHelper');
@@ -27,14 +26,11 @@ goog.require('goog.dom.InputType');
 goog.require('goog.dom.NodeType');
 goog.require('goog.dom.TagName');
 goog.require('goog.functions');
-goog.require('goog.html.SafeUrl');
 goog.require('goog.html.testing');
 goog.require('goog.object');
-goog.require('goog.string.Const');
 goog.require('goog.string.Unicode');
 goog.require('goog.testing.PropertyReplacer');
 goog.require('goog.testing.asserts');
-goog.require('goog.testing.jsunit');
 goog.require('goog.userAgent');
 goog.require('goog.userAgent.product');
 goog.require('goog.userAgent.product.isVersion');
@@ -50,7 +46,7 @@ var stubs;
 
 function setUpPage() {
   stubs = new goog.testing.PropertyReplacer();
-  divForTestingScrolling = goog.dom.createElement(goog.dom.TagName.DIV);
+  divForTestingScrolling = document.createElement(goog.dom.TagName.DIV);
   divForTestingScrolling.style.width = '5000px';
   divForTestingScrolling.style.height = '5000px';
   document.body.appendChild(divForTestingScrolling);
@@ -131,23 +127,6 @@ function testGetRequiredElementByClassDomHelper() {
   });
 }
 
-function testGetElementsByTagName() {
-  var divs = goog.dom.getElementsByTagName(goog.dom.TagName.DIV);
-  assertTrue(divs.length > 0);
-  var el = goog.dom.getRequiredElement('testEl');
-  var spans = goog.dom.getElementsByTagName(goog.dom.TagName.SPAN, el);
-  assertTrue(spans.length > 0);
-}
-
-function testGetElementsByTagNameDomHelper() {
-  var domHelper = new goog.dom.DomHelper();
-  var divs = domHelper.getElementsByTagName(goog.dom.TagName.DIV);
-  assertTrue(divs.length > 0);
-  var el = domHelper.getRequiredElement('testEl');
-  var spans = domHelper.getElementsByTagName(goog.dom.TagName.SPAN, el);
-  assertTrue(spans.length > 0);
-}
-
 function testGetElementsByTagNameAndClass() {
   assertEquals(
       'Should get 6 spans',
@@ -224,46 +203,14 @@ function testGetElementByClass() {
   assertNotNull(goog.dom.getElementByClass('test1', container));
 }
 
-function testGetElementByTagNameAndClass() {
-  assertNotNull(goog.dom.getElementByTagNameAndClass('', 'test1'));
-  assertNotNull(goog.dom.getElementByTagNameAndClass('*', 'test1'));
-  assertNotNull(goog.dom.getElementByTagNameAndClass('span', 'test1'));
-  assertNull(goog.dom.getElementByTagNameAndClass('div', 'test1'));
-  assertNull(goog.dom.getElementByTagNameAndClass('*', 'nonexistant'));
-
-  var container = goog.dom.getElement('span-container');
-  assertNotNull(goog.dom.getElementByTagNameAndClass('*', 'test1', container));
-}
-
 function testSetProperties() {
-  var attrs = {
-    'name': 'test3',
-    'title': 'A title',
-    'random': 'woop',
-    'other-random': null,
-    'href': goog.html.SafeUrl.sanitize('https://google.com'),
-    'stringWithTypedStringProp': 'http://example.com/',
-    'numberWithTypedStringProp': 123,
-    'booleanWithTypedStringProp': true
-  };
-  // Primitives with properties that wrongly indicate that the text is of a type
-  // that implements `goog.string.TypedString`. This simulates a property
-  // renaming collision with a String, Number or Boolean property set
-  // externally. renaming collision with a String property set externally
-  // (b/80124112).
-  attrs['stringWithTypedStringProp'].implementsGoogStringTypedString = true;
-  attrs['numberWithTypedStringProp'].implementsGoogStringTypedString = true;
-  attrs['booleanWithTypedStringProp'].implementsGoogStringTypedString = true;
-
+  var attrs = {'name': 'test3', 'title': 'A title', 'random': 'woop'};
   var el = $('testEl');
-  goog.dom.setProperties(el, attrs);
-  assertEquals('test3', el.name);
-  assertEquals('A title', el.title);
-  assertEquals('woop', el.random);
-  assertEquals('https://google.com', el.href);
-  assertEquals('http://example.com/', el.stringWithTypedStringProp);
-  assertEquals(123, el.numberWithTypedStringProp);
-  assertEquals(true, el.booleanWithTypedStringProp);
+
+  var res = goog.dom.setProperties(el, attrs);
+  assertEquals('Should be equal', el.name, 'test3');
+  assertEquals('Should be equal', el.title, 'A title');
+  assertEquals('Should be equal', el.random, 'woop');
 }
 
 function testSetPropertiesDirectAttributeMap() {
@@ -337,6 +284,8 @@ function testGetViewportSize() {
 function testGetViewportSizeInIframe() {
   var iframe = /** @type {HTMLIFrameElement} */ (goog.dom.getElement('iframe'));
   var contentDoc = goog.dom.getFrameContentDocument(iframe);
+  contentDoc.write('<body></body>');
+
   var outerSize = goog.dom.getViewportSize();
   var innerSize = (new goog.dom.DomHelper(contentDoc)).getViewportSize();
   assert('Viewport sizes must not match', innerSize.width != outerSize.width);
@@ -358,7 +307,7 @@ function testCreateDom() {
   var el = goog.dom.createDom(
       goog.dom.TagName.DIV, {
         style: 'border: 1px solid black; width: 50%; background-color: #EEE;',
-        onclick: 'alert(\'woo\')'
+        onclick: "alert('woo')"
       },
       goog.dom.createDom(
           goog.dom.TagName.P, {style: 'font: normal 12px arial; color: red; '},
@@ -370,23 +319,17 @@ function testCreateDom() {
           goog.dom.TagName.P,
           {style: 'font: normal 24px monospace; color: green'}, 'Para 3 ',
           goog.dom.createDom(
-              goog.dom.TagName.A, {
-                name: 'link',
-                href: goog.html.SafeUrl.sanitize('http://bbc.co.uk/')
-              },
+              goog.dom.TagName.A, {name: 'link', href: 'http://bbc.co.uk'},
               'has a link'),
           ', how cool is this?'));
 
-  assertEquals(
-      'Tagname should be a DIV', String(goog.dom.TagName.DIV), el.tagName);
+  assertEquals('Tagname should be a DIV', goog.dom.TagName.DIV, el.tagName);
   assertEquals('Style width should be 50%', '50%', el.style.width);
   assertEquals(
-      'first child is a P tag', String(goog.dom.TagName.P),
-      el.childNodes[0].tagName);
+      'first child is a P tag', goog.dom.TagName.P, el.childNodes[0].tagName);
   assertEquals('second child .innerHTML', 'Para 2', el.childNodes[1].innerHTML);
-  assertEquals(
-      'Link href as SafeUrl', 'http://bbc.co.uk/',
-      el.childNodes[2].childNodes[1].href);
+
+  assertEquals(goog.dom.createDom, goog.dom.createDom);
 }
 
 function testCreateDomNoChildren() {
@@ -413,7 +356,7 @@ function testCreateDomAcceptsArray() {
   var ul = goog.dom.createDom(goog.dom.TagName.UL, {}, items);
   assertEquals('List should have two children', 2, ul.childNodes.length);
   assertEquals(
-      'First child should be an LI tag', String(goog.dom.TagName.LI),
+      'First child should be an LI tag', goog.dom.TagName.LI,
       ul.firstChild.tagName);
   assertEquals('Item 1', ul.childNodes[0].innerHTML);
   assertEquals('Item 2', ul.childNodes[1].innerHTML);
@@ -473,7 +416,7 @@ function testCreateDomNodeListArg() {
       el.childNodes[0].nodeValue);
   assertEquals(
       'childNodes[1] should be an element node with tagName "B"',
-      String(goog.dom.TagName.B), el.childNodes[1].tagName);
+      goog.dom.TagName.B, el.childNodes[1].tagName);
   assertEquals(
       'childNodes[2] should be a text node with value "!"', '!',
       el.childNodes[2].nodeValue);
@@ -517,8 +460,7 @@ function testContains() {
 function testCreateDomWithClassName() {
   var el = goog.dom.createDom(goog.dom.TagName.DIV, 'cls');
   assertNull('firstChild should be null', el.firstChild);
-  assertEquals(
-      'Tagname should be a DIV', String(goog.dom.TagName.DIV), el.tagName);
+  assertEquals('Tagname should be a DIV', goog.dom.TagName.DIV, el.tagName);
   assertEquals('ClassName should be cls', 'cls', el.className);
 
   el = goog.dom.createDom(goog.dom.TagName.DIV, '');
@@ -658,14 +600,14 @@ function testFindCommonAncestor() {
       'findCommonAncestor(testEl2, b1, b2, p1, p2) = body', document.body,
       goog.dom.findCommonAncestor(testEl2, b1, b2, p1, p2));
 
-  var outOfDoc = goog.dom.createElement(goog.dom.TagName.DIV);
+  var outOfDoc = document.createElement(goog.dom.TagName.DIV);
   assertNull(
       'findCommonAncestor(outOfDoc, b1) = null',
       goog.dom.findCommonAncestor(outOfDoc, b1));
 }
 
 function testRemoveNode() {
-  var b = goog.dom.createElement(goog.dom.TagName.B);
+  var b = document.createElement(goog.dom.TagName.B);
   var el = $('p1');
   el.appendChild(b);
   goog.dom.removeNode(b);
@@ -693,19 +635,19 @@ function testAppendChildAt() {
   var parent = $('p2');
   var origNumChildren = parent.childNodes.length;
 
-  var child1 = goog.dom.createElement(goog.dom.TagName.DIV);
+  var child1 = document.createElement(goog.dom.TagName.DIV);
   goog.dom.insertChildAt(parent, child1, origNumChildren);
   assertEquals(origNumChildren + 1, parent.childNodes.length);
 
-  var child2 = goog.dom.createElement(goog.dom.TagName.DIV);
+  var child2 = document.createElement(goog.dom.TagName.DIV);
   goog.dom.insertChildAt(parent, child2, origNumChildren + 42);
   assertEquals(origNumChildren + 2, parent.childNodes.length);
 
-  var child3 = goog.dom.createElement(goog.dom.TagName.DIV);
+  var child3 = document.createElement(goog.dom.TagName.DIV);
   goog.dom.insertChildAt(parent, child3, 0);
   assertEquals(origNumChildren + 3, parent.childNodes.length);
 
-  var child4 = goog.dom.createElement(goog.dom.TagName.DIV);
+  var child4 = document.createElement(goog.dom.TagName.DIV);
   goog.dom.insertChildAt(parent, child3, 2);
   assertEquals(origNumChildren + 3, parent.childNodes.length);
 
@@ -713,14 +655,14 @@ function testAppendChildAt() {
   parent.removeChild(child2);
   parent.removeChild(child3);
 
-  var emptyParentNotInDocument = goog.dom.createElement(goog.dom.TagName.DIV);
+  var emptyParentNotInDocument = document.createElement(goog.dom.TagName.DIV);
   goog.dom.insertChildAt(emptyParentNotInDocument, child1, 0);
   assertEquals(1, emptyParentNotInDocument.childNodes.length);
 }
 
 function testFlattenElement() {
   var text = document.createTextNode('Text');
-  var br = goog.dom.createElement(goog.dom.TagName.BR);
+  var br = document.createElement(goog.dom.TagName.BR);
   var span = goog.dom.createDom(goog.dom.TagName.SPAN, null, text, br);
   assertEquals('span should have 2 children', 2, span.childNodes.length);
 
@@ -768,7 +710,7 @@ function testIsElement() {
       goog.dom.isElement(document.createTextNode('')));
   assertTrue(
       'an element created with createElement() is an element',
-      goog.dom.isElement(goog.dom.createElement(goog.dom.TagName.A)));
+      goog.dom.isElement(document.createElement(goog.dom.TagName.A)));
 
   assertFalse('null is not an element', goog.dom.isElement(null));
   assertFalse('a string is not an element', goog.dom.isElement('abcd'));
@@ -936,28 +878,28 @@ function testGetChildren() {
 }
 
 function testGetNextNode() {
-  var tree = goog.dom.safeHtmlToNode(goog.html.testing.newSafeHtmlForTest(
+  var tree = goog.dom.htmlToDocumentFragment(
       '<div>' +
       '<p>Some text</p>' +
       '<blockquote>Some <i>special</i> <b>text</b></blockquote>' +
       '<address><!-- comment -->Foo</address>' +
-      '</div>'));
+      '</div>');
 
   assertNull(goog.dom.getNextNode(null));
 
   var node = tree;
   var next = function() { return node = goog.dom.getNextNode(node); };
 
-  assertEquals(String(goog.dom.TagName.P), next().tagName);
+  assertEquals(goog.dom.TagName.P, next().tagName);
   assertEquals('Some text', next().nodeValue);
-  assertEquals(String(goog.dom.TagName.BLOCKQUOTE), next().tagName);
+  assertEquals(goog.dom.TagName.BLOCKQUOTE, next().tagName);
   assertEquals('Some ', next().nodeValue);
-  assertEquals(String(goog.dom.TagName.I), next().tagName);
+  assertEquals(goog.dom.TagName.I, next().tagName);
   assertEquals('special', next().nodeValue);
   assertEquals(' ', next().nodeValue);
-  assertEquals(String(goog.dom.TagName.B), next().tagName);
+  assertEquals(goog.dom.TagName.B, next().tagName);
   assertEquals('text', next().nodeValue);
-  assertEquals(String(goog.dom.TagName.ADDRESS), next().tagName);
+  assertEquals(goog.dom.TagName.ADDRESS, next().tagName);
   assertEquals(goog.dom.NodeType.COMMENT, next().nodeType);
   assertEquals('Foo', next().nodeValue);
 
@@ -965,12 +907,12 @@ function testGetNextNode() {
 }
 
 function testGetPreviousNode() {
-  var tree = goog.dom.safeHtmlToNode(goog.html.testing.newSafeHtmlForTest(
+  var tree = goog.dom.htmlToDocumentFragment(
       '<div>' +
       '<p>Some text</p>' +
       '<blockquote>Some <i>special</i> <b>text</b></blockquote>' +
       '<address><!-- comment -->Foo</address>' +
-      '</div>'));
+      '</div>');
 
   assertNull(goog.dom.getPreviousNode(null));
 
@@ -978,17 +920,17 @@ function testGetPreviousNode() {
   var previous = function() { return node = goog.dom.getPreviousNode(node); };
 
   assertEquals(goog.dom.NodeType.COMMENT, previous().nodeType);
-  assertEquals(String(goog.dom.TagName.ADDRESS), previous().tagName);
+  assertEquals(goog.dom.TagName.ADDRESS, previous().tagName);
   assertEquals('text', previous().nodeValue);
-  assertEquals(String(goog.dom.TagName.B), previous().tagName);
+  assertEquals(goog.dom.TagName.B, previous().tagName);
   assertEquals(' ', previous().nodeValue);
   assertEquals('special', previous().nodeValue);
-  assertEquals(String(goog.dom.TagName.I), previous().tagName);
+  assertEquals(goog.dom.TagName.I, previous().tagName);
   assertEquals('Some ', previous().nodeValue);
-  assertEquals(String(goog.dom.TagName.BLOCKQUOTE), previous().tagName);
+  assertEquals(goog.dom.TagName.BLOCKQUOTE, previous().tagName);
   assertEquals('Some text', previous().nodeValue);
-  assertEquals(String(goog.dom.TagName.P), previous().tagName);
-  assertEquals(String(goog.dom.TagName.DIV), previous().tagName);
+  assertEquals(goog.dom.TagName.P, previous().tagName);
+  assertEquals(goog.dom.TagName.DIV, previous().tagName);
 
   if (!goog.userAgent.IE) {
     // Internet Explorer maintains a parentNode for Elements after they are
@@ -1064,7 +1006,7 @@ function testFindNode() {
   });
   assertEquals(expected, result);
 
-  expected = goog.dom.getElementsByTagName(goog.dom.TagName.P)[0];
+  expected = document.getElementsByTagName(goog.dom.TagName.P)[0];
   result = goog.dom.findNode(document, function(n) {
     return n.nodeType == goog.dom.NodeType.ELEMENT &&
         n.tagName == goog.dom.TagName.P;
@@ -1076,7 +1018,7 @@ function testFindNode() {
 }
 
 function testFindNodes() {
-  var expected = goog.dom.getElementsByTagName(goog.dom.TagName.P);
+  var expected = document.getElementsByTagName(goog.dom.TagName.P);
   var result = goog.dom.findNodes(document, function(n) {
     return n.nodeType == goog.dom.NodeType.ELEMENT &&
         n.tagName == goog.dom.TagName.P;
@@ -1237,7 +1179,7 @@ function testIsFocusable() {
 
   // Make sure IE doesn't throw for detached elements. IE can't measure detached
   // elements, and calling getBoundingClientRect() will throw Unspecified Error.
-  goog.dom.isFocusable(goog.dom.createDom(goog.dom.TagName.BUTTON));
+  goog.dom.isFocusable(goog.dom.createDom('button'));
 }
 
 function testGetTextContent() {
@@ -1315,7 +1257,7 @@ function testGetNodeAtOffset() {
   var html = '<div id=a>123<b id=b>45</b><span id=c>67<b id=d>89<i id=e>01' +
       '</i>23<i id=f>45</i>67</b>890<i id=g>123</i><b id=h>456</b>' +
       '</span></div><div id=i>7890<i id=j>123</i></div>';
-  var node = goog.dom.createElement(goog.dom.TagName.DIV);
+  var node = document.createElement(goog.dom.TagName.DIV);
   node.innerHTML = html;
   var rv = {};
 
@@ -1359,13 +1301,13 @@ function assertEqualsCaseAndLeadingWhitespaceInsensitive(value1, value2) {
 
 function testGetOuterHtml() {
   var contents = '<b>foo</b>';
-  var node = goog.dom.createElement(goog.dom.TagName.DIV);
+  var node = document.createElement(goog.dom.TagName.DIV);
   node.setAttribute('foo', 'bar');
   node.innerHTML = contents;
   assertEqualsCaseAndLeadingWhitespaceInsensitive(
       goog.dom.getOuterHtml(node), '<div foo="bar">' + contents + '</div>');
 
-  var imgNode = goog.dom.createElement(goog.dom.TagName.IMG);
+  var imgNode = document.createElement(goog.dom.TagName.IMG);
   imgNode.setAttribute('foo', 'bar');
   assertEqualsCaseAndLeadingWhitespaceInsensitive(
       goog.dom.getOuterHtml(imgNode), '<img foo="bar">');
@@ -1405,14 +1347,14 @@ function testIsNodeList() {
 }
 
 function testGetFrameContentDocument() {
-  var iframe = goog.dom.getElementsByTagName(goog.dom.TagName.IFRAME)[0];
+  var iframe = document.getElementsByTagName(goog.dom.TagName.IFRAME)[0];
   var name = iframe.name;
   var iframeDoc = goog.dom.getFrameContentDocument(iframe);
   assertEquals(window.frames[name].document, iframeDoc);
 }
 
 function testGetFrameContentWindow() {
-  var iframe = goog.dom.getElementsByTagName(goog.dom.TagName.IFRAME)[0];
+  var iframe = document.getElementsByTagName(goog.dom.TagName.IFRAME)[0];
   var name = iframe.name;
   var iframeWin = goog.dom.getFrameContentWindow(iframe);
   assertEquals(window.frames[name], iframeWin);
@@ -1435,10 +1377,8 @@ function testCanHaveChildren() {
       goog.dom.TagName.SCRIPT, goog.dom.TagName.SOURCE, goog.dom.TagName.STYLE,
       goog.dom.TagName.TRACK, goog.dom.TagName.WBR);
 
-  // IE opens a dialog warning about using Java content if the following
-  // elements are created.
-  var IE_ILLEGAL_ELEMENTS =
-      goog.object.createSet(goog.dom.TagName.APPLET, goog.dom.TagName.EMBED);
+  // IE opens a dialog warning about using Java content if an EMBED is created.
+  var IE_ILLEGAL_ELEMENTS = goog.object.createSet(goog.dom.TagName.EMBED);
 
   for (var tag in goog.dom.TagName) {
     if (goog.userAgent.IE && tag in IE_ILLEGAL_ELEMENTS) {
@@ -1457,14 +1397,6 @@ function testCanHaveChildren() {
       node.appendChild(goog.dom.createDom(goog.dom.TagName.DIV, null, 'foo'));
     }
   }
-}
-
-function testGetAncestorNoElement() {
-  assertNull(goog.dom.getAncestor(
-      null /* element */, goog.functions.TRUE /* matcher */));
-  assertNull(goog.dom.getAncestor(
-      null /* element */, goog.functions.TRUE /* matcher */,
-      true /* opt_includeNode */));
 }
 
 function testGetAncestorNoMatch() {
@@ -1560,29 +1492,21 @@ function testGetAncestorByTagNameAndClass() {
 
 function testCreateTable() {
   var table = goog.dom.createTable(2, 3, true);
+  assertEquals(2, table.getElementsByTagName(goog.dom.TagName.TR).length);
   assertEquals(
-      2, goog.dom.getElementsByTagName(goog.dom.TagName.TR, table).length);
-  assertEquals(
-      3, goog.dom.getElementsByTagName(goog.dom.TagName.TR, table)[0]
-             .childNodes.length);
-  assertEquals(
-      6, goog.dom.getElementsByTagName(goog.dom.TagName.TD, table).length);
+      3, table.getElementsByTagName(goog.dom.TagName.TR)[0].childNodes.length);
+  assertEquals(6, table.getElementsByTagName(goog.dom.TagName.TD).length);
   assertEquals(
       goog.string.Unicode.NBSP,
-      goog.dom.getElementsByTagName(goog.dom.TagName.TD, table)[0]
-          .firstChild.nodeValue);
+      table.getElementsByTagName(goog.dom.TagName.TD)[0].firstChild.nodeValue);
 
   table = goog.dom.createTable(2, 3, false);
+  assertEquals(2, table.getElementsByTagName(goog.dom.TagName.TR).length);
   assertEquals(
-      2, goog.dom.getElementsByTagName(goog.dom.TagName.TR, table).length);
+      3, table.getElementsByTagName(goog.dom.TagName.TR)[0].childNodes.length);
+  assertEquals(6, table.getElementsByTagName(goog.dom.TagName.TD).length);
   assertEquals(
-      3, goog.dom.getElementsByTagName(goog.dom.TagName.TR, table)[0]
-             .childNodes.length);
-  assertEquals(
-      6, goog.dom.getElementsByTagName(goog.dom.TagName.TD, table).length);
-  assertEquals(
-      0, goog.dom.getElementsByTagName(goog.dom.TagName.TD, table)[0]
-             .childNodes.length);
+      0, table.getElementsByTagName(goog.dom.TagName.TD)[0].childNodes.length);
 }
 
 function testSafeHtmlToNode() {
@@ -1593,11 +1517,11 @@ function testSafeHtmlToNode() {
 
   var div = goog.dom.safeHtmlToNode(
       goog.html.testing.newSafeHtmlForTest('<div>3</div>'));
-  assertEquals(String(goog.dom.TagName.DIV), div.tagName);
+  assertEquals(goog.dom.TagName.DIV, div.tagName);
 
   var script = goog.dom.safeHtmlToNode(
       goog.html.testing.newSafeHtmlForTest('<script></script>'));
-  assertEquals(String(goog.dom.TagName.SCRIPT), script.tagName);
+  assertEquals(goog.dom.TagName.SCRIPT, script.tagName);
 
   if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)) {
     // Removing an Element from a DOM tree in IE sets its parentNode to a new
@@ -1610,115 +1534,55 @@ function testSafeHtmlToNode() {
   }
 }
 
-/**
- * Assert that the given goog.string.Const, when converted to a Node,
- * stringifies in one of the specified ways.
- *
- * @param{!Array<string>} potentialStringifications
- * @param{...!goog.string.Const} var_args The constants to use.
- */
-function assertConstHtmlToNodeStringifiesToOneOf(
-    potentialStringifications, var_args) {
-  var node =
-      goog.dom.constHtmlToNode.apply(undefined, goog.array.slice(arguments, 1));
-  var stringified = goog.dom.getOuterHtml(node);
-  if (goog.array.find(potentialStringifications, function(element) {
-        return element == stringified;
-      }) === null) {
-    fail(
-        'Unexpected stringification for a node built from "' +
-        goog.array.map(goog.array.slice(arguments, 1), goog.string.Const.unwrap)
-            .join('') +
-        '": "' + stringified + '"');
+function testHtmlToDocumentFragment() {
+  var docFragment = goog.dom.htmlToDocumentFragment('<a>1</a><b>2</b>');
+  assertNull(docFragment.parentNode);
+  assertEquals(2, docFragment.childNodes.length);
+
+  var div = goog.dom.htmlToDocumentFragment('<div>3</div>');
+  assertEquals(goog.dom.TagName.DIV, div.tagName);
+
+  var script = goog.dom.htmlToDocumentFragment('<script></script>');
+  assertEquals(goog.dom.TagName.SCRIPT, script.tagName);
+
+  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)) {
+    // Removing an Element from a DOM tree in IE sets its parentNode to a new
+    // DocumentFragment. Bizarre!
+    assertEquals(
+        goog.dom.NodeType.DOCUMENT_FRAGMENT,
+        goog.dom.removeNode(div).parentNode.nodeType);
+  } else {
+    assertNull(div.parentNode);
   }
 }
 
-function testRegularConstHtmlToNodeStringifications() {
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<b>foo</b>', '<B>foo</B>'], goog.string.Const.from('<b>foo</b>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<br>', '<BR>'], goog.string.Const.from('<br>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      [
-        '<SVG></B>', '<svg></svg>', '<svg xmlns="http://www.w3.org/2000/svg" />'
-      ],
-      goog.string.Const.from('<svg></b>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<unknown></unknown>', '<unknown>', '<UNKNOWN />'],
-      goog.string.Const.from('<unknown />'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['&lt;"&amp;', '&lt;"'], goog.string.Const.from('<"&'));
-}
-
-function testConcatenatedConstHtmlToNodeStringifications() {
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<b>foo</b>', '<B>foo</B>'], goog.string.Const.from('<b>foo<'),
-      goog.string.Const.from('/b>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<b>foo</b>', '<B>foo</B>'], goog.string.Const.from('<b>foo</b>'),
-      goog.string.Const.from(''));
-
-  assertConstHtmlToNodeStringifiesToOneOf(['']);
-}
-
-function testSpecialConstHtmlToNodeStringifications() {
-  // body one is IE8, \r\n is opera.
-  assertConstHtmlToNodeStringifiesToOneOf(
-      [
-        '<script></script>', '<SCRIPT></SCRIPT>', '<script></body></script>',
-        '\r\n' +
-            '<SCRIPT></SCRIPT>'
-      ],
-      goog.string.Const.from('<script>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['&lt;% %&gt;', '<% %>'], goog.string.Const.from('<% %>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['&lt;% <script> %></script>', '<% <script> %>'],
-      goog.string.Const.from('<% <script> %>'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['</ hi />', '<!-- hi /-->', ''], goog.string.Const.from('</ hi />'));
-
-  assertConstHtmlToNodeStringifiesToOneOf(
-      ['<!-- <script --> /&gt;', '</ <script>/&gt;', ' /&gt;'],
-      goog.string.Const.from('</ <script > />'));
-}
-
 function testAppend() {
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
-  var b = goog.dom.createElement(goog.dom.TagName.B);
+  var div = document.createElement(goog.dom.TagName.DIV);
+  var b = document.createElement(goog.dom.TagName.B);
   var c = document.createTextNode('c');
   goog.dom.append(div, 'a', b, c);
   assertEqualsCaseAndLeadingWhitespaceInsensitive('a<b></b>c', div.innerHTML);
 }
 
 function testAppend2() {
-  var dom = new goog.dom.DomHelper(myIframeDoc);
-  var div = dom.createElement(goog.dom.TagName.DIV);
-  var b = dom.createElement(goog.dom.TagName.B);
+  var div = myIframeDoc.createElement(goog.dom.TagName.DIV);
+  var b = myIframeDoc.createElement(goog.dom.TagName.B);
   var c = myIframeDoc.createTextNode('c');
   goog.dom.append(div, 'a', b, c);
   assertEqualsCaseAndLeadingWhitespaceInsensitive('a<b></b>c', div.innerHTML);
 }
 
 function testAppend3() {
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
-  var b = goog.dom.createElement(goog.dom.TagName.B);
+  var div = document.createElement(goog.dom.TagName.DIV);
+  var b = document.createElement(goog.dom.TagName.B);
   var c = document.createTextNode('c');
   goog.dom.append(div, ['a', b, c]);
   assertEqualsCaseAndLeadingWhitespaceInsensitive('a<b></b>c', div.innerHTML);
 }
 
 function testAppend4() {
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
-  var div2 = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
+  var div2 = document.createElement(goog.dom.TagName.DIV);
   div2.innerHTML = 'a<b></b>c';
   goog.dom.append(div, div2.childNodes);
   assertEqualsCaseAndLeadingWhitespaceInsensitive('a<b></b>c', div.innerHTML);
@@ -1779,7 +1643,7 @@ function testDefaultToScrollingElement() {
   var dh = new goog.dom.DomHelper(fakeDocument);
 
   // When scrollingElement isn't supported or is null (no element causes
-  // scrolling), then behavior is UA-dependent for maximum compatibility.
+  // scrolling), then behavior is UA-dependant for maximum compatibility.
   assertTrue(
       dh.getDocumentScrollElement() == fakeDocument.body ||
       dh.getDocumentScrollElement() == fakeDocument.documentElement);
@@ -1816,12 +1680,12 @@ function testParentElement() {
   var documentNotAnElement = goog.dom.getParentElement(htmlEl);
   assertNull(documentNotAnElement);
 
-  var tree = goog.dom.safeHtmlToNode(goog.html.testing.newSafeHtmlForTest(
+  var tree = goog.dom.htmlToDocumentFragment(
       '<div>' +
       '<p>Some text</p>' +
       '<blockquote>Some <i>special</i> <b>text</b></blockquote>' +
       '<address><!-- comment -->Foo</address>' +
-      '</div>'));
+      '</div>');
   assertNull(goog.dom.getParentElement(tree));
   pEl = goog.dom.getNextNode(tree);
   var fragmentRootEl = goog.dom.getParentElement(pEl);
@@ -1868,29 +1732,22 @@ function isIE8OrHigher() {
   return goog.userAgent.IE && goog.userAgent.product.isVersion('8');
 }
 
-/**
- * Stub out goog.dom.getWindow with passed object.
- * @param {!Object} win Fake window object.
- */
-function setWindow(win) {
-  stubs.set(goog.dom, 'getWindow', goog.functions.constant(win));
-}
 
 function testDevicePixelRatio() {
-  var devicePixelRatio = 1.5;
-  setWindow({
-    'matchMedia': function(query) {
-      return {
-        'matches': devicePixelRatio >= parseFloat(query.split(': ')[1], 10)
-      };
-    }
-  });
+  stubs.set(goog.dom, 'getWindow', goog.functions.constant({
+    matchMedia: function(query) { return {matches: query.indexOf('1.5') >= 0}; }
+  }));
 
-  assertEquals(devicePixelRatio, goog.dom.getPixelRatio());
+  stubs.set(goog.functions, 'CACHE_RETURN_VALUE', false);
 
-  setWindow({'devicePixelRatio': 2.0});
-  assertEquals(2, goog.dom.getPixelRatio());
+  assertEquals(goog.dom.getPixelRatio(), 1.5);
 
-  setWindow({});
-  assertEquals(1, goog.dom.getPixelRatio());
+  stubs.set(
+      goog.dom, 'getWindow', goog.functions.constant({devicePixelRatio: 2.0}));
+  goog.dom.devicePixelRatio_ = null;
+  assertEquals(goog.dom.getPixelRatio(), 2);
+
+  stubs.set(goog.dom, 'getWindow', goog.functions.constant({}));
+  goog.dom.devicePixelRatio_ = null;
+  assertEquals(goog.dom.getPixelRatio(), 1);
 }

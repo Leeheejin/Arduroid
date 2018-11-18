@@ -14,8 +14,6 @@
 
 goog.provide('goog.promise.Resolver');
 
-goog.forwardDeclare('goog.Promise');
-
 
 
 /**

@@ -36,7 +36,6 @@ goog.require('goog.a11y.aria');
 goog.require('goog.a11y.aria.Role');
 goog.require('goog.a11y.aria.State');
 goog.require('goog.asserts');
-goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.classlist');
 goog.require('goog.events.EventType');
@@ -143,10 +142,9 @@ goog.ui.Ratings.EventType = {
  * @override
  */
 goog.ui.Ratings.prototype.decorateInternal = function(el) {
-  var select = goog.dom.getElementsByTagName(
-      goog.dom.TagName.SELECT, goog.asserts.assert(el))[0];
+  var select = el.getElementsByTagName(goog.dom.TagName.SELECT)[0];
   if (!select) {
-    throw new Error(
+    throw Error(
         'Can not decorate ' + el + ', with Ratings. Must ' +
         'contain select box');
   }
@@ -167,7 +165,6 @@ goog.ui.Ratings.prototype.decorateInternal = function(el) {
  * Render the rating widget inside the provided element. This will override the
  * current content of the element.
  * @override
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Ratings.prototype.enterDocument = function() {
   var el = this.getElement();
@@ -362,7 +359,6 @@ goog.ui.Ratings.prototype.isEnabled = function() {
  * Handle the mouse moving over a star.
  * @param {goog.events.BrowserEvent} e The browser event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Ratings.prototype.onMouseOver_ = function(e) {
   if (!this.isEnabled()) {
@@ -384,7 +380,6 @@ goog.ui.Ratings.prototype.onMouseOver_ = function(e) {
  * Handle the mouse moving over a star.
  * @param {goog.events.BrowserEvent} e The browser event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Ratings.prototype.onMouseOut_ = function(e) {
   // Only remove the highlight if the mouse is not moving to another star
@@ -398,7 +393,6 @@ goog.ui.Ratings.prototype.onMouseOut_ = function(e) {
  * Handle the mouse moving over a star.
  * @param {goog.events.BrowserEvent} e The browser event.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.ui.Ratings.prototype.onClick_ = function(e) {
   if (!this.isEnabled()) {

@@ -43,7 +43,6 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.asserts');
 goog.require('goog.dom.TagName');
-goog.require('goog.dom.safe');
 goog.require('goog.events.Event');
 goog.require('goog.string');
 goog.require('goog.ui.Component');
@@ -336,8 +335,7 @@ goog.ui.ServerChart.prototype.createDom = function() {
  * @override
  */
 goog.ui.ServerChart.prototype.decorateInternal = function(img) {
-  goog.dom.safe.setImageSrc(
-      /** @type {!HTMLImageElement} */ (img), this.getUri().toString());
+  img.src = this.getUri();
   this.setElementInternal(img);
 };
 
@@ -347,9 +345,7 @@ goog.ui.ServerChart.prototype.decorateInternal = function(img) {
  */
 goog.ui.ServerChart.prototype.updateChart = function() {
   if (this.getElement()) {
-    goog.dom.safe.setImageSrc(
-        /** @type {!HTMLImageElement} */ (this.getElement()),
-        this.getUri().toString());
+    this.getElement().src = this.getUri();
   }
 };
 
@@ -1094,7 +1090,7 @@ goog.ui.ServerChart.prototype.getNumVisibleDataSets = function() {
 goog.ui.ServerChart.prototype.setVennSeries = function(
     weights, opt_legendText, opt_colors) {
   if (this.getType() != goog.ui.ServerChart.ChartType.VENN) {
-    throw new Error('Can only set a weight function for a Venn diagram.');
+    throw Error('Can only set a weight function for a Venn diagram.');
   }
   var dataMin = this.arrayMin_(weights);
   if (dataMin < this.minValue_) {
@@ -1201,7 +1197,7 @@ goog.ui.ServerChart.prototype.setLegend = function(legend) {
 /**
  * Sets the data scaling.
  * NOTE: This also changes the encoding type because data scaling will
- *     only work with `goog.ui.ServerChart.EncodingType.TEXT`
+ *     only work with {@code goog.ui.ServerChart.EncodingType.TEXT}
  *     encoding.
  * @param {number} minimum The lowest number to apply to the data.
  * @param {number} maximum The highest number to apply to the data.
@@ -1500,7 +1496,7 @@ goog.ui.ServerChart.prototype.addDataSet = function(
 
   if (goog.isDef(opt_legendText)) {
     if (this.setLegendTexts_.length < this.dataSets_.length) {
-      throw new Error('Cannot start adding legends text after first element.');
+      throw Error('Cannot start adding legends text after first element.');
     }
     this.setLegendTexts_.push(opt_legendText);
     this.uri_.setParameterValue(

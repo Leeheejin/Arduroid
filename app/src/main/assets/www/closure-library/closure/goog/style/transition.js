@@ -23,7 +23,6 @@ goog.provide('goog.style.transition.Css3Property');
 
 goog.require('goog.array');
 goog.require('goog.asserts');
-goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.dom.safe');
 goog.require('goog.dom.vendor');
@@ -57,7 +56,6 @@ goog.style.transition.Css3Property;
  * @param {goog.style.transition.Css3Property|
  *     Array<goog.style.transition.Css3Property>} properties A single CSS3
  *     transition property or array of properties.
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.style.transition.set = function(element, properties) {
   if (!goog.isArray(properties)) {
@@ -106,7 +104,7 @@ goog.style.transition.isSupported = goog.functions.cacheReturnValue(function() {
   // We create a test element with style=-vendor-transition
   // We then detect whether those style properties are recognized and
   // available from js.
-  var el = goog.dom.createElement(goog.dom.TagName.DIV);
+  var el = document.createElement(goog.dom.TagName.DIV);
   var transition = 'opacity 1s linear';
   var vendorPrefix = goog.dom.vendor.getVendorPrefix();
   var style = {'transition': transition};

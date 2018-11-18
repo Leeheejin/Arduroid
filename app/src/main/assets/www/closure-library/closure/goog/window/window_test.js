@@ -20,7 +20,6 @@ goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events');
 goog.require('goog.functions');
-goog.require('goog.html.SafeUrl');
 goog.require('goog.labs.userAgent.browser');
 goog.require('goog.labs.userAgent.engine');
 goog.require('goog.labs.userAgent.platform');
@@ -121,7 +120,7 @@ function doTestOpenWindow(noreferrer, urlParam, encodeUrlParam_opt) {
   if (encodeUrlParam_opt) {
     urlParam = encodeURIComponent(urlParam);
   }
-  // TODO(mlourenco): target is set because goog.window.open() will currently
+  // TODO(user): target is set because goog.window.open() will currently
   // allow it to be undefined, which in IE seems to result in the same window
   // being reused, instead of a new one being created. If goog.window.open()
   // is fixed to use "_blank" by default then target can be removed here.
@@ -219,37 +218,6 @@ function testOpenTag() {
 }
 
 
-function testOpenWindowSanitization() {
-  var navigatedUrl;
-  var mockWin = {open: function(url) { navigatedUrl = url; }};
-
-  goog.window.open('javascript:evil();', {}, mockWin);
-  assertEquals(goog.html.SafeUrl.INNOCUOUS_STRING, navigatedUrl);
-
-  // Try the other code path
-  goog.window.open({href: 'javascript:evil();'}, {}, mockWin);
-  assertEquals(goog.html.SafeUrl.INNOCUOUS_STRING, navigatedUrl);
-
-  goog.window.open('javascript:\'\'', {}, mockWin);
-  assertEquals(goog.html.SafeUrl.INNOCUOUS_STRING, navigatedUrl);
-
-  goog.window.open('about:blank', {}, mockWin);
-  assertEquals(goog.html.SafeUrl.INNOCUOUS_STRING, navigatedUrl);
-}
-
-
-function testOpenWindowNoSanitization() {
-  var navigatedUrl;
-  var mockWin = {open: function(url) { navigatedUrl = url; }};
-
-  goog.window.open('', {}, mockWin);
-  assertEquals('', navigatedUrl);
-
-  goog.window.open(goog.html.SafeUrl.ABOUT_BLANK, {}, mockWin);
-  assertEquals('about:blank', navigatedUrl);
-}
-
-
 function testOpenBlank() {
   newWin = goog.window.openBlank('Loading...');
   var urlParam = 'bogus~';
@@ -317,9 +285,7 @@ function testOpenIosBlank() {
   assertUndefined(newWin.document);
 
   // Attributes.
-  // element.href is directly set through goog.dom.safe.setAnchorHref, not with
-  // element.setAttribute.
-  assertEquals('http://google.com', element.href);
+  assertEquals('http://google.com', attrs['href']);
   assertEquals('_blank', attrs['target']);
   assertEquals('', attrs['rel'] || '');
 
@@ -357,9 +323,7 @@ function testOpenIosBlankNoreferrer() {
   assertUndefined(newWin.document);
 
   // Attributes.
-  // element.href is directly set through goog.dom.safe.setAnchorHref, not with
-  // element.setAttribute.
-  assertEquals('http://google.com', element.href);
+  assertEquals('http://google.com', attrs['href']);
   assertEquals('_blank', attrs['target']);
   assertEquals('noreferrer', attrs['rel']);
 
@@ -381,18 +345,4 @@ function testOpenNoReferrerEscapesUrl() {
   assertRegExp(
       'Does not contain expected HTML-escaped string: ' + documentWriteHtml,
       /hello&amp;world/, documentWriteHtml);
-}
-
-function testOpenNewWindowNoopener() {
-  newWin = goog.window.open(
-      REDIRECT_URL_PREFIX + 'theBest', {'target': '_blank', 'noopener': true});
-
-  // This mode cannot return a new window.
-  assertNotNull(newWin);
-  assertNotEquals(undefined, newWin.document);
-  assertNull(newWin.opener);
-
-  return waitForTestWindow(newWin).then(function(win) {
-    verifyWindow(win, false, 'theBest');
-  });
 }

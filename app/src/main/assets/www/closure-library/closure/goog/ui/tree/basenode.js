@@ -28,27 +28,24 @@ goog.provide('goog.ui.tree.BaseNode.EventType');
 
 goog.require('goog.Timer');
 goog.require('goog.a11y.aria');
-goog.require('goog.a11y.aria.State');
 goog.require('goog.asserts');
 goog.require('goog.dom.safe');
 goog.require('goog.events.Event');
 goog.require('goog.events.KeyCodes');
 goog.require('goog.html.SafeHtml');
 goog.require('goog.html.SafeStyle');
+goog.require('goog.html.legacyconversions');
 goog.require('goog.string');
 goog.require('goog.string.StringBuffer');
 goog.require('goog.style');
 goog.require('goog.ui.Component');
-
-goog.forwardDeclare('goog.ui.tree.TreeControl');  // circular
 
 
 
 /**
  * An abstract base class for a node in the tree.
  *
- * @param {string|!goog.html.SafeHtml} content The content of the node label.
- *     Strings are treated as plain-text and will be HTML escaped.
+ * @param {string|!goog.html.SafeHtml} html The html content of the node label.
  * @param {Object=} opt_config The configuration for the tree. See
  *    {@link goog.ui.tree.BaseNode.defaultConfig}. If not specified the
  *    default config will be used.
@@ -56,7 +53,7 @@ goog.forwardDeclare('goog.ui.tree.TreeControl');  // circular
  * @constructor
  * @extends {goog.ui.Component}
  */
-goog.ui.tree.BaseNode = function(content, opt_config, opt_domHelper) {
+goog.ui.tree.BaseNode = function(html, opt_config, opt_domHelper) {
   goog.ui.Component.call(this, opt_domHelper);
 
   /**
@@ -71,7 +68,10 @@ goog.ui.tree.BaseNode = function(content, opt_config, opt_domHelper) {
    * @type {!goog.html.SafeHtml}
    * @private
    */
-  this.html_ = goog.html.SafeHtml.htmlEscapePreservingNewlines(content);
+  this.html_ =
+      (html instanceof goog.html.SafeHtml ?
+           html :
+           goog.html.legacyconversions.safeHtmlFromString(html));
 
   /** @private {string} */
   this.iconClass_;
@@ -182,6 +182,7 @@ goog.ui.tree.BaseNode.prototype.initAccessibility = function() {
 
     goog.a11y.aria.setRole(el, 'treeitem');
     goog.a11y.aria.setState(el, 'selected', false);
+    goog.a11y.aria.setState(el, 'expanded', false);
     goog.a11y.aria.setState(el, 'level', this.getDepth());
     if (label) {
       goog.a11y.aria.setState(el, 'labelledby', label.id);
@@ -202,9 +203,6 @@ goog.ui.tree.BaseNode.prototype.initAccessibility = function() {
 
       // In case the children will be created lazily.
       if (ce.hasChildNodes()) {
-        // Only set aria-expanded if the node has children (can be expanded).
-        goog.a11y.aria.setState(el, goog.a11y.aria.State.EXPANDED, false);
-
         // do setsize for each child
         var count = this.getChildCount();
         for (var i = 1; i <= count; i++) {
@@ -243,7 +241,7 @@ goog.ui.tree.BaseNode.prototype.exitDocument = function() {
 
 /**
  * The method assumes that the child doesn't have parent node yet.
- * The `opt_render` argument is not used. If the parent node is expanded,
+ * The {@code opt_render} argument is not used. If the parent node is expanded,
  * the child node's state will be the same as the parent's. Otherwise the
  * child's DOM tree won't be created.
  * @override
@@ -278,19 +276,16 @@ goog.ui.tree.BaseNode.prototype.addChildAt = function(
 
   child.setDepth_(this.getDepth() + 1);
 
-  var el = this.getElement();
-  if (el) {
+  if (this.getElement()) {
     this.updateExpandIcon();
-    goog.a11y.aria.setState(
-        el, goog.a11y.aria.State.EXPANDED, this.getExpanded());
     if (this.getExpanded()) {
-      var childrenEl = this.getChildrenElement();
+      var el = this.getChildrenElement();
       if (!child.getElement()) {
         child.createDom();
       }
       var childElement = child.getElement();
       var nextElement = nextNode && nextNode.getElement();
-      childrenEl.insertBefore(childElement, nextElement);
+      el.insertBefore(childElement, nextElement);
 
       if (this.isInDocument()) {
         child.enterDocument();
@@ -300,7 +295,7 @@ goog.ui.tree.BaseNode.prototype.addChildAt = function(
         if (prevNode) {
           prevNode.updateExpandIcon();
         } else {
-          goog.style.setElementShown(childrenEl, true);
+          goog.style.setElementShown(el, true);
           this.setExpanded(this.getExpanded());
         }
       }
@@ -376,15 +371,15 @@ goog.ui.tree.BaseNode.prototype.removeChild = function(
   child.depth_ = -1;
 
   if (tree) {
-    // Tell the tree control that the child node is now removed.
-    tree.removeNode(child);
+    // Tell the tree control that this node is now removed.
+    tree.removeNode(this);
 
     if (this.isInDocument()) {
-      var childrenEl = this.getChildrenElement();
+      var el = this.getChildrenElement();
 
       if (child.isInDocument()) {
         var childEl = child.getElement();
-        childrenEl.removeChild(childEl);
+        el.removeChild(childEl);
 
         child.exitDocument();
       }
@@ -396,14 +391,9 @@ goog.ui.tree.BaseNode.prototype.removeChild = function(
         }
       }
       if (!this.hasChildren()) {
-        childrenEl.style.display = 'none';
+        el.style.display = 'none';
         this.updateExpandIcon();
         this.updateIcon_();
-
-        var el = this.getElement();
-        if (el) {
-          goog.a11y.aria.removeState(el, goog.a11y.aria.State.EXPANDED);
-        }
       }
     }
   }
@@ -430,7 +420,6 @@ goog.ui.tree.BaseNode.prototype.onTimeoutSelect_ = function() {
 
 /**
  * Returns the tree.
- * @return {?goog.ui.tree.TreeControl}
  */
 goog.ui.tree.BaseNode.prototype.getTree = goog.abstractMethod;
 
@@ -592,7 +581,7 @@ goog.ui.tree.BaseNode.prototype.select = function() {
 
 /**
  * Originally it was intended to deselect the node but never worked.
- * @deprecated Use `tree.setSelectedItem(null)`.
+ * @deprecated Use {@code tree.setSelectedItem(null)}.
  */
 goog.ui.tree.BaseNode.prototype.deselect = goog.nullFunction;
 
@@ -667,7 +656,6 @@ goog.ui.tree.BaseNode.prototype.setExpanded = function(expanded) {
       ce = this.getChildrenElement();
       if (ce) {
         goog.style.setElementShown(ce, expanded);
-        goog.a11y.aria.setState(el, goog.a11y.aria.State.EXPANDED, expanded);
 
         // Make sure we have the HTML for the children here.
         if (expanded && this.isInDocument() && !ce.hasChildNodes()) {
@@ -689,6 +677,7 @@ goog.ui.tree.BaseNode.prototype.setExpanded = function(expanded) {
   }
   if (el) {
     this.updateIcon_();
+    goog.a11y.aria.setState(el, 'expanded', expanded);
   }
 
   if (isStateChange) {
@@ -897,6 +886,18 @@ goog.ui.tree.BaseNode.prototype.getAfterLabelHtml = function() {
  */
 goog.ui.tree.BaseNode.prototype.getAfterLabelSafeHtml = function() {
   return this.afterLabelHtml_;
+};
+
+
+/**
+ * Sets the html that appears after the label. This is useful if you want to
+ * put extra UI on the row of the label but not inside the anchor tag.
+ * @param {string} html The html.
+ * @deprecated Use setAfterLabelSafeHtml.
+ */
+goog.ui.tree.BaseNode.prototype.setAfterLabelHtml = function(html) {
+  this.setAfterLabelSafeHtml(
+      goog.html.legacyconversions.safeHtmlFromString(html));
 };
 
 
@@ -1182,6 +1183,16 @@ goog.ui.tree.BaseNode.prototype.setText = function(s) {
  */
 goog.ui.tree.BaseNode.prototype.getText = function() {
   return goog.string.unescapeEntities(goog.html.SafeHtml.unwrap(this.html_));
+};
+
+
+/**
+ * Sets the html of the label.
+ * @param {string} s The html string for the label.
+ * @deprecated Use setSafeHtml.
+ */
+goog.ui.tree.BaseNode.prototype.setHtml = function(s) {
+  this.setSafeHtml(goog.html.legacyconversions.safeHtmlFromString(s));
 };
 
 

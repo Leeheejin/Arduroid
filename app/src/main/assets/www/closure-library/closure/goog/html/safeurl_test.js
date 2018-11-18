@@ -19,8 +19,6 @@
 goog.provide('goog.html.safeUrlTest');
 
 goog.require('goog.html.SafeUrl');
-goog.require('goog.html.TrustedResourceUrl');
-goog.require('goog.html.safeUrlTestVectors');
 goog.require('goog.i18n.bidi.Dir');
 goog.require('goog.object');
 goog.require('goog.string.Const');
@@ -51,7 +49,6 @@ function testSafeUrlFromBlob_withSafeType() {
   if (isIE9OrLower()) {
     return;
   }
-  assertBlobTypeIsSafe('audio/ogg', true);
   assertBlobTypeIsSafe('image/png', true);
   assertBlobTypeIsSafe('iMage/pNg', true);
   assertBlobTypeIsSafe('video/mpeg', true);
@@ -59,7 +56,6 @@ function testSafeUrlFromBlob_withSafeType() {
   assertBlobTypeIsSafe('video/mp4', true);
   assertBlobTypeIsSafe('video/ogg', true);
   assertBlobTypeIsSafe('video/webm', true);
-  assertBlobTypeIsSafe('video/quicktime', true);
 }
 
 
@@ -100,153 +96,61 @@ function assertBlobTypeIsSafe(type, isSafe) {
 }
 
 
-function testSafeUrlSanitize_sanitizeTelUrl() {
-  var vectors = goog.html.safeUrlTestVectors.TEL_VECTORS;
-  for (var i = 0; i < vectors.length; ++i) {
-    var v = vectors[i];
-    var observed = goog.html.SafeUrl.fromTelUrl(v.input);
-    assertEquals(v.expected, goog.html.SafeUrl.unwrap(observed));
+function testSafeUrlFromDataUrl_withSafeType() {
+  if (isIE9OrLower()) {
+    return;
   }
+  assertDataUrlIsSafe(
+      'data:image/png;base64,' +
+          'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=',
+      true);
+  assertDataUrlIsSafe('dATa:iMage/pNg;bASe64,abc===', true);
+  assertDataUrlIsSafe('data:image/webp;base64,abc===', true);
+  assertDataUrlIsSafe('data:video/mpeg;base64,abc', true);
+  assertDataUrlIsSafe('data:video/ogg;base64,z=', true);
+  assertDataUrlIsSafe('data:video/mp4;base64,z=', true);
+  assertDataUrlIsSafe('data:video/ogg;base64,z=', true);
+  assertDataUrlIsSafe('data:video/webm;base64,z=', true);
 }
 
 
-function testSafeUrlSanitize_sipUrlEmail() {
-  var expected = 'sip:username@example.com';
-  var observed = goog.html.SafeUrl.fromSipUrl('sip:username@example.com');
-  assertEquals(expected, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipsUrlEmail() {
-  var expected = 'sips:username@example.com';
-  var observed = goog.html.SafeUrl.fromSipUrl('sips:username@example.com');
-  assertEquals(expected, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipProtocolCase() {
-  var expected = 'Sip:username@example.com';
-  var observed = goog.html.SafeUrl.fromSipUrl('Sip:username@example.com');
-  assertEquals(expected, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlWithPort() {
-  var observed = goog.html.SafeUrl.fromSipUrl('sip:username@example.com:5000');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlFragment() {
-  var observed = goog.html.SafeUrl.fromSipUrl('sip:user#name@example.com');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlWithPassword() {
-  var observed =
-      goog.html.SafeUrl.fromSipUrl('sips:username:password@example.com');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlWithOptions() {
-  var observed = goog.html.SafeUrl.fromSipUrl('sips:user;na=me@example.com');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlWithPercent() {
-  var observed = goog.html.SafeUrl.fromSipUrl('sip:user%40name@example.com');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sipUrlWithAmbiguousQuery() {
-  var observed = goog.html.SafeUrl.fromSipUrl('sip:user?name@example.com');
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sanitizeSmsUrl() {
-  var vectors = goog.html.safeUrlTestVectors.SMS_VECTORS;
-  for (var i = 0; i < vectors.length; ++i) {
-    var v = vectors[i];
-    var observed = goog.html.SafeUrl.fromSmsUrl(v.input);
-    assertEquals(v.expected, goog.html.SafeUrl.unwrap(observed));
+function testSafeUrlFromDataUrl_withUnsafeType() {
+  if (isIE9OrLower()) {
+    return;
   }
+  assertDataUrlIsSafe('', false);
+  assertDataUrlIsSafe(':', false);
+  assertDataUrlIsSafe('data:', false);
+  assertDataUrlIsSafe('not-data:image/png;base64,z=', false);
+  assertDataUrlIsSafe(' data:image/png;base64,z=', false);
+  assertDataUrlIsSafe('data:image/png;base64,z= ', false);
+  assertDataUrlIsSafe('data:ximage/png', false);
+  assertDataUrlIsSafe('data:ximage/png;base64,z=', false);
+  assertDataUrlIsSafe('data:image/pngx;base64,z=', false);
+  assertDataUrlIsSafe('data:video/whatever;base64,z=', false);
+  assertDataUrlIsSafe('data:video/;base64,z=', false);
+  assertDataUrlIsSafe('data:image/png;base64,', false);
+  assertDataUrlIsSafe('data:image/png;base64,abc=!', false);
+  assertDataUrlIsSafe('data:image/png;base64,$$', false);
+  assertDataUrlIsSafe('data:image/png;base64,\0', false);
+  assertDataUrlIsSafe('data:video/mp4;baze64,z=', false);
+  assertDataUrlIsSafe('data:video/mp4;,z=', false);
+  assertDataUrlIsSafe('data:text/html,sdfsdfsdfsfsdfs;base64,anything', false);
 }
 
 
-function testSafeUrlSanitize_sanitizeChromeExtension() {
-  var extensionId = goog.string.Const.from('1234567890abcdef');
-  var observed = goog.html.SafeUrl.sanitizeChromeExtensionUrl(
-      'chrome-extension://1234567890abcdef/foo/bar', extensionId);
+/**
+ * Tests creating a SafeUrl from a data URL, asserting whether or not the
+ * SafeUrl returned is innocuous or not depending on the given boolean.
+ * @param {string} url URL to test.
+ * @param {boolean} isSafe Whether the given URL type should be considered safe
+ *     by {@link SafeUrl.fromDataUrl}.
+ */
+function assertDataUrlIsSafe(url, isSafe) {
+  var safeUrl = goog.html.SafeUrl.fromDataUrl(url);
   assertEquals(
-      'chrome-extension://1234567890abcdef/foo/bar',
-      goog.html.SafeUrl.unwrap(observed));
-
-  observed = goog.html.SafeUrl.sanitizeChromeExtensionUrl(
-      'chrome-extension://1234567890abcdef/foo/bar', [extensionId]);
-  assertEquals(
-      'chrome-extension://1234567890abcdef/foo/bar',
-      goog.html.SafeUrl.unwrap(observed));
-
-  observed = goog.html.SafeUrl.sanitizeChromeExtensionUrl(
-      'not-a-chrome-extension://1234567890abcdef/foo/bar', extensionId);
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-
-  observed = goog.html.SafeUrl.sanitizeChromeExtensionUrl(
-      'chrome-extension://fedcba0987654321/foo/bar', extensionId);
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sanitizeFirefoxExtension() {
-  var extensionId = goog.string.Const.from('1234-5678-90ab-cdef');
-  var observed = goog.html.SafeUrl.sanitizeFirefoxExtensionUrl(
-      'moz-extension://1234-5678-90ab-cdef/foo/bar', extensionId);
-  assertEquals(
-      'moz-extension://1234-5678-90ab-cdef/foo/bar',
-      goog.html.SafeUrl.unwrap(observed));
-
-  observed = goog.html.SafeUrl.sanitizeFirefoxExtensionUrl(
-      'moz-extension://ms-browser-extension://1234-5678-90ab-cdef/foo/bar',
-      extensionId);
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testSafeUrlSanitize_sanitizeEdgeExtension() {
-  var extensionId = goog.string.Const.from('1234-5678-90ab-cdef');
-  var observed = goog.html.SafeUrl.sanitizeEdgeExtensionUrl(
-      'ms-browser-extension://1234-5678-90ab-cdef/foo/bar', extensionId);
-  assertEquals(
-      'ms-browser-extension://1234-5678-90ab-cdef/foo/bar',
-      goog.html.SafeUrl.unwrap(observed));
-
-  observed = goog.html.SafeUrl.sanitizeEdgeExtensionUrl(
-      'chrome-extension://1234-5678-90ab-cdef/foo/bar', extensionId);
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(observed));
-}
-
-
-function testFromTrustedResourceUrl() {
-  var url = goog.string.Const.from('test');
-  var trustedResourceUrl = goog.html.TrustedResourceUrl.fromConstant(url);
-  var safeUrl = goog.html.SafeUrl.fromTrustedResourceUrl(trustedResourceUrl);
-  assertEquals(
-      goog.string.Const.unwrap(url), goog.html.SafeUrl.unwrap(safeUrl));
+      isSafe ? url : goog.html.SafeUrl.INNOCUOUS_STRING,
+      goog.html.SafeUrl.unwrap(safeUrl));
 }
 
 
@@ -266,59 +170,81 @@ function testUnwrap() {
 }
 
 
-function testSafeUrlSanitize_sanitizeUrl() {
-  var vectors = goog.html.safeUrlTestVectors.BASE_VECTORS;
-  for (var i = 0; i < vectors.length; ++i) {
-    var v = vectors[i];
-    if (v.input.match(/^data:/i)) {
-      var observed = goog.html.SafeUrl.fromDataUrl(v.input);
-      assertEquals(v.expected, goog.html.SafeUrl.unwrap(observed));
-    } else {
-      var observed = goog.html.SafeUrl.sanitize(v.input);
-      assertEquals(v.expected, goog.html.SafeUrl.unwrap(observed));
-      if (v.safe) {
-        var asserted = goog.html.SafeUrl.sanitizeAssertUnchanged(v.input);
-        assertEquals(v.expected, goog.html.SafeUrl.unwrap(asserted));
-      } else {
-        assertThrows(function() {
-          goog.html.SafeUrl.sanitizeAssertUnchanged(v.input);
-        });
-      }
-    }
+/**
+ * Assert that url passes through sanitization unchanged.
+ * @param {string|!goog.string.TypedString} url The URL to sanitize.
+ */
+function assertGoodUrl(url) {
+  var expected = url;
+  if (url.implementsGoogStringTypedString) {
+    expected = url.getTypedStringValue();
   }
+  var safeUrl = goog.html.SafeUrl.sanitize(url);
+  var extracted = goog.html.SafeUrl.unwrap(safeUrl);
+  assertEquals(expected, extracted);
 }
 
 
-function testSafeUrlSanitize_sanitizeProgramConstants() {
+/**
+ * Assert that url fails sanitization.
+ * @param {string|!goog.string.TypedString} url The URL to sanitize.
+ */
+function assertBadUrl(url) {
+  assertEquals(
+      goog.html.SafeUrl.INNOCUOUS_STRING,
+      goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(url)));
+}
+
+
+function testSafeUrlSanitize_validatesUrl() {
+  // Whitelisted schemes.
+  assertGoodUrl('http://example.com/');
+  assertGoodUrl('https://example.com');
+  assertGoodUrl('mailto:foo@example.com');
+  assertGoodUrl('ftp://example.com');
+  assertGoodUrl('ftp://username@example.com');
+  assertGoodUrl('ftp://username:password@example.com');
+  // Scheme is case-insensitive
+  assertGoodUrl('HTtp://example.com/');
+  // Different URL components go through.
+  assertGoodUrl('https://example.com/path?foo=bar#baz');
+  // Scheme-less URL with authority.
+  assertGoodUrl('//example.com/path');
+  // Absolute path with no authority.
+  assertGoodUrl('/path');
+  assertGoodUrl('/path?foo=bar#baz');
+  // Relative path.
+  assertGoodUrl('path');
+  assertGoodUrl('path?foo=bar#baz');
+  assertGoodUrl('p//ath');
+  assertGoodUrl('p//ath?foo=bar#baz');
+  assertGoodUrl('#baz');
+  // Restricted characters ('&', ':', \') after [/?#].
+  assertGoodUrl('/&');
+  assertGoodUrl('?:');
+
   // .sanitize() works on program constants.
-  var good = goog.string.Const.from('http://example.com/');
-  var goodOutput = goog.html.SafeUrl.sanitize(good);
-  assertEquals('http://example.com/', goog.html.SafeUrl.unwrap(goodOutput));
-  var asserted = goog.html.SafeUrl.sanitizeAssertUnchanged(good);
-  assertEquals('http://example.com/', goog.html.SafeUrl.unwrap(asserted));
+  assertGoodUrl(goog.string.Const.from('http://example.com/'));
+
+  // Non-whitelisted schemes.
+  assertBadUrl('javascript:evil();');
+  assertBadUrl('javascript:evil();//\nhttp://good.com/');
+  assertBadUrl('data:blah');
+  // Restricted characters before [/?#].
+  assertBadUrl('&');
+  assertBadUrl(':');
+  // '\' is not treated like '/': no restricted characters allowed after it.
+  assertBadUrl('\\:');
+  // Regex anchored to the left: doesn't match on '/:'.
+  assertBadUrl(':/:');
+  // Regex multiline not enabled: first line would match but second one
+  // wouldn't.
+  assertBadUrl('path\n:');
 
   // .sanitize() does not exempt values known to be program constants.
-  var bad = goog.string.Const.from('data:blah');
-  var badOutput = goog.html.SafeUrl.sanitize(bad);
-  assertEquals(
-      goog.html.SafeUrl.INNOCUOUS_STRING, goog.html.SafeUrl.unwrap(badOutput));
-  assertThrows(function() {
-    goog.html.SafeUrl.sanitizeAssertUnchanged(bad);
-  });
+  assertBadUrl(goog.string.Const.from('data:blah'));
 }
 
-function testSafeUrlSanitize_sanitizePlainStringWithTypedStringProperty() {
-  // .sanitize() works on plain strings with property that wrongly indicates
-  // that the text is of a type that implements `goog.string.TypedString`. This
-  // simulates a property renaming collision with a String property set
-  // externally (b/80124112).
-  var plainString = 'http://example.com/';
-  plainString.implementsGoogStringTypedString = true;
-  var output = goog.html.SafeUrl.sanitize(plainString);
-  assertEquals('http://example.com/', goog.html.SafeUrl.unwrap(output));
-  var asserted = goog.html.SafeUrl.sanitizeAssertUnchanged(plainString);
-  assertEquals('http://example.com/', goog.html.SafeUrl.unwrap(asserted));
-}
 
 function testSafeUrlSanitize_idempotentForSafeUrlArgument() {
   // This matches the safe prefix.
@@ -333,18 +259,4 @@ function testSafeUrlSanitize_idempotentForSafeUrlArgument() {
   safeUrl2 = goog.html.SafeUrl.sanitize(safeUrl);
   assertEquals(
       goog.html.SafeUrl.unwrap(safeUrl), goog.html.SafeUrl.unwrap(safeUrl2));
-}
-
-function testSafeUrlSanitize_base64ImageSrc() {
-  var dataUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAT4AAA';
-  var safeUrl = goog.html.SafeUrl.fromDataUrl(dataUrl);
-  assertEquals(goog.html.SafeUrl.unwrap(safeUrl), dataUrl);
-}
-
-function testSafeUrlSanitize_base64ImageSrcWithCRLF() {
-  var dataUrl = 'data:image/png;base64,iVBORw0KGgoA%0AAAANSUhEUgA%0DAAT4AAA%0A';
-  var safeUrl = goog.html.SafeUrl.fromDataUrl(dataUrl);
-  assertEquals(
-      goog.html.SafeUrl.unwrap(safeUrl),
-      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAT4AAA');
 }

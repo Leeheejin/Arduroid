@@ -17,14 +17,12 @@
  *
  */
 
-goog.setTestOnly('goog.testing.fs.FileReader');
 goog.provide('goog.testing.fs.FileReader');
 
 goog.require('goog.Timer');
 goog.require('goog.events.EventTarget');
 goog.require('goog.fs.Error');
 goog.require('goog.fs.FileReader');
-goog.require('goog.testing.fs.Blob');
 goog.require('goog.testing.fs.ProgressEvent');
 
 
@@ -105,7 +103,7 @@ goog.testing.fs.FileReader.ReturnType = {
  * @type {goog.testing.fs.FileReader.ReturnType}
  * @private
  */
-goog.testing.fs.FileReader.prototype.returnType_;
+goog.testing.fs.FileReader.returnType_;
 
 
 /**
@@ -132,7 +130,8 @@ goog.testing.fs.FileReader.prototype.getError = function() {
 goog.testing.fs.FileReader.prototype.abort = function() {
   if (this.readyState_ != goog.fs.FileReader.ReadyState.LOADING) {
     var msg = 'aborting read';
-    throw new goog.fs.Error({'name': 'InvalidStateError'}, msg);
+    throw new goog.fs.Error(
+        /** @type {!FileError} */ ({'name': 'InvalidStateError'}), msg);
   }
 
   this.aborted_ = true;
@@ -176,7 +175,8 @@ goog.testing.fs.FileReader.prototype.read_ = function(blob) {
   this.blob_ = blob;
   if (this.readyState_ == goog.fs.FileReader.ReadyState.LOADING) {
     var msg = 'reading file';
-    throw new goog.fs.Error({'name': 'InvalidStateError'}, msg);
+    throw new goog.fs.Error(
+        /** @type {!FileError} */ ({'name': 'InvalidStateError'}), msg);
   }
 
   this.readyState_ = goog.fs.FileReader.ReadyState.LOADING;
@@ -248,7 +248,8 @@ goog.testing.fs.FileReader.prototype.readAsDataUrl = function(blob) {
  * @private
  */
 goog.testing.fs.FileReader.prototype.abort_ = function(total) {
-  this.error_ = new goog.fs.Error({'name': 'AbortError'}, 'reading file');
+  this.error_ = new goog.fs.Error(
+      /** @type {!FileError} */ ({'name': 'AbortError'}), 'reading file');
   this.progressEvent_(goog.fs.FileReader.EventType.ERROR, 0, total);
   this.progressEvent_(goog.fs.FileReader.EventType.ABORT, 0, total);
   this.readyState_ = goog.fs.FileReader.ReadyState.DONE;

@@ -21,7 +21,6 @@ goog.require('goog.a11y.aria.State');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.dom.TagName');
-goog.require('goog.html.testing');
 goog.require('goog.testing.jsunit');
 goog.require('goog.ui.Palette');
 goog.require('goog.ui.PaletteRenderer');
@@ -36,38 +35,33 @@ var itemEls;
 var renderer;
 var palette;
 
-function setUp() {}
-
-function tearDown() {
-  palette.dispose();
-}
-
-/** @param {!Array<string>} items */
-function createPalette(items) {
+function setUp() {
   sandbox = goog.dom.getElement('sandbox');
   itemEls = goog.array.map(items, function(item, index, a) {
-    return goog.dom.safeHtmlToNode(goog.html.testing.newSafeHtmlForTest(item));
+    return goog.dom.htmlToDocumentFragment(item);
   });
   renderer = new goog.ui.PaletteRenderer();
   palette = new goog.ui.Palette(itemEls, renderer);
   palette.setSize(4, 1);
 }
 
+function tearDown() {
+  palette.dispose();
+}
+
 function testGridA11yRoles() {
-  createPalette(items);
   var grid = renderer.createDom(palette);
   assertEquals(goog.a11y.aria.Role.GRID, goog.a11y.aria.getRole(grid));
-  var table = goog.dom.getElementsByTagName(goog.dom.TagName.TABLE, grid)[0];
-  var row = goog.dom.getElementsByTagName(goog.dom.TagName.TR, table)[0];
+  var table = grid.getElementsByTagName(goog.dom.TagName.TABLE)[0];
+  var row = table.getElementsByTagName(goog.dom.TagName.TR)[0];
   assertEquals(goog.a11y.aria.Role.ROW, goog.a11y.aria.getRole(row));
-  var cell = goog.dom.getElementsByTagName(goog.dom.TagName.TD, row)[0];
+  var cell = row.getElementsByTagName(goog.dom.TagName.TD)[0];
   assertEquals(goog.a11y.aria.Role.GRIDCELL, goog.a11y.aria.getRole(cell));
 }
 
 function testCellA11yLabels() {
-  createPalette(items);
   var grid = renderer.createDom(palette);
-  var cells = goog.dom.getElementsByTagName(goog.dom.TagName.TD, grid);
+  var cells = grid.getElementsByTagName(goog.dom.TagName.TD);
 
   assertEquals(
       'An aria-label is used as a label', 'label-0',
@@ -84,10 +78,9 @@ function testCellA11yLabels() {
 }
 
 function testA11yActiveDescendant() {
-  createPalette(items);
   palette.render();
-  var cells = goog.dom.getElementsByTagName(
-      goog.dom.TagName.TD, palette.getElementStrict());
+  var cells =
+      palette.getElementStrict().getElementsByTagName(goog.dom.TagName.TD);
 
   renderer.highlightCell(palette, cells[1].firstChild, true);
   assertEquals(
@@ -106,35 +99,4 @@ function testA11yActiveDescendant() {
       cells[1].id,
       goog.a11y.aria.getState(
           palette.getElementStrict(), goog.a11y.aria.State.ACTIVEDESCENDANT));
-}
-
-function testSetContentIncremental() {
-  var items = goog.array.repeat('<div class="item">item</div>', 6);
-  var itemEls = goog.array.map(items, function(item) {
-    return goog.dom.safeHtmlToNode(goog.html.testing.newSafeHtmlForTest(item));
-  });
-
-  createPalette([]);
-  palette.render();
-  var paletteEl = palette.getElementStrict();
-
-  var rows = goog.dom.getElementsByTagName(goog.dom.TagName.TR, paletteEl);
-  assertEquals(1, rows.length);
-  assertEquals(0, goog.dom.getElementsByClass('item', rows[0]).length);
-
-  palette.setContent(itemEls.slice(0, 1));
-  rows = goog.dom.getElementsByTagName(goog.dom.TagName.TR, paletteEl);
-  assertEquals(1, rows.length);
-  assertEquals(1, goog.dom.getElementsByClass('item', rows[0]).length);
-
-  palette.setContent(itemEls.slice(0, 3));
-  rows = goog.dom.getElementsByTagName(goog.dom.TagName.TR, paletteEl);
-  assertEquals(1, rows.length);
-  assertEquals(3, goog.dom.getElementsByClass('item', rows[0]).length);
-
-  palette.setContent(itemEls);
-  rows = goog.dom.getElementsByTagName(goog.dom.TagName.TR, paletteEl);
-  assertEquals(2, rows.length);
-  assertEquals(4, goog.dom.getElementsByClass('item', rows[0]).length);
-  assertEquals(2, goog.dom.getElementsByClass('item', rows[1]).length);
 }

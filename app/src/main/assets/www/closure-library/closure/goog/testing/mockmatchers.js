@@ -22,7 +22,6 @@
  */
 
 
-goog.setTestOnly('goog.testing.mockmatchers');
 goog.provide('goog.testing.mockmatchers');
 goog.provide('goog.testing.mockmatchers.ArgumentMatcher');
 goog.provide('goog.testing.mockmatchers.IgnoreArgument');
@@ -34,9 +33,8 @@ goog.provide('goog.testing.mockmatchers.TypeOf');
 
 goog.require('goog.array');
 goog.require('goog.dom');
+goog.require('goog.testing.TestCase');
 goog.require('goog.testing.asserts');
-
-goog.forwardDeclare('goog.testing.MockExpectation'); // circular
 
 
 
@@ -74,7 +72,7 @@ goog.testing.mockmatchers.ArgumentMatcher = function(
  * which (if provided) will get error information and returns whether or
  * not it matches.
  * @param {*} toVerify The argument that should be verified.
- * @param {?goog.testing.MockExpectation=} opt_expectation The expectation
+ * @param {goog.testing.MockExpectation?=} opt_expectation The expectation
  *     for this match.
  * @return {boolean} Whether or not a given argument passes verification.
  */
@@ -95,7 +93,7 @@ goog.testing.mockmatchers.ArgumentMatcher.prototype.matches = function(
     }
     return isamatch;
   } else {
-    throw new Error('No match function defined for this mock matcher');
+    throw Error('No match function defined for this mock matcher');
   }
 };
 
@@ -186,8 +184,10 @@ goog.inherits(
  * @extends {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.ObjectEquals = function(expectedObject) {
-  /** @private */
-  this.expectedObject_ = expectedObject;
+  goog.testing.mockmatchers.ArgumentMatcher.call(this, function(matchObject) {
+    assertObjectEquals('Expected equal objects', expectedObject, matchObject);
+    return true;
+  }, 'objectEquals(' + expectedObject + ')');
 };
 goog.inherits(
     goog.testing.mockmatchers.ObjectEquals,
@@ -197,17 +197,20 @@ goog.inherits(
 /** @override */
 goog.testing.mockmatchers.ObjectEquals.prototype.matches = function(
     toVerify, opt_expectation) {
-  // Override the default matches implementation to provide a custom error
-  // message to opt_expectation if it exists.
-  var differences =
-      goog.testing.asserts.findDifferences(this.expectedObject_, toVerify);
-  if (differences) {
+  // Override the default matches implementation to capture the exception thrown
+  // by assertObjectEquals (if any) and add that message to the expectation.
+  try {
+    return goog.testing.mockmatchers.ObjectEquals.superClass_.matches.call(
+        this, toVerify, opt_expectation);
+  } catch (e) {
     if (opt_expectation) {
-      opt_expectation.addErrorMessage('Expected equal objects\n' + differences);
+      opt_expectation.addErrorMessage(e.message);
     }
+    // The mock will report the error when validated, so ignore the caught
+    // assertion exception.
+    goog.testing.TestCase.invalidateAssertionException(e);
     return false;
   }
-  return true;
 };
 
 
@@ -267,7 +270,7 @@ goog.testing.mockmatchers.SaveArgument.prototype.arg;
 
 /**
  * An instance of the IgnoreArgument matcher. Returns true for all matches.
- * @type {!goog.testing.mockmatchers.IgnoreArgument}
+ * @type {goog.testing.mockmatchers.IgnoreArgument}
  */
 goog.testing.mockmatchers.ignoreArgument =
     new goog.testing.mockmatchers.IgnoreArgument();
@@ -275,7 +278,7 @@ goog.testing.mockmatchers.ignoreArgument =
 
 /**
  * A matcher that verifies that an argument is an array.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isArray =
     new goog.testing.mockmatchers.ArgumentMatcher(goog.isArray, 'isArray');
@@ -284,7 +287,7 @@ goog.testing.mockmatchers.isArray =
 /**
  * A matcher that verifies that an argument is a array-like.  A NodeList is an
  * example of a collection that is very close to an array.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isArrayLike =
     new goog.testing.mockmatchers.ArgumentMatcher(
@@ -293,7 +296,7 @@ goog.testing.mockmatchers.isArrayLike =
 
 /**
  * A matcher that verifies that an argument is a date-like.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isDateLike =
     new goog.testing.mockmatchers.ArgumentMatcher(
@@ -302,7 +305,7 @@ goog.testing.mockmatchers.isDateLike =
 
 /**
  * A matcher that verifies that an argument is a string.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isString =
     new goog.testing.mockmatchers.ArgumentMatcher(goog.isString, 'isString');
@@ -310,7 +313,7 @@ goog.testing.mockmatchers.isString =
 
 /**
  * A matcher that verifies that an argument is a boolean.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isBoolean =
     new goog.testing.mockmatchers.ArgumentMatcher(goog.isBoolean, 'isBoolean');
@@ -318,7 +321,7 @@ goog.testing.mockmatchers.isBoolean =
 
 /**
  * A matcher that verifies that an argument is a number.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isNumber =
     new goog.testing.mockmatchers.ArgumentMatcher(goog.isNumber, 'isNumber');
@@ -326,7 +329,7 @@ goog.testing.mockmatchers.isNumber =
 
 /**
  * A matcher that verifies that an argument is a function.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isFunction =
     new goog.testing.mockmatchers.ArgumentMatcher(
@@ -335,7 +338,7 @@ goog.testing.mockmatchers.isFunction =
 
 /**
  * A matcher that verifies that an argument is an object.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isObject =
     new goog.testing.mockmatchers.ArgumentMatcher(goog.isObject, 'isObject');
@@ -343,7 +346,7 @@ goog.testing.mockmatchers.isObject =
 
 /**
  * A matcher that verifies that an argument is like a DOM node.
- * @type {!goog.testing.mockmatchers.ArgumentMatcher}
+ * @type {goog.testing.mockmatchers.ArgumentMatcher}
  */
 goog.testing.mockmatchers.isNodeLike =
     new goog.testing.mockmatchers.ArgumentMatcher(

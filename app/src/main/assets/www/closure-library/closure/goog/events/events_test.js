@@ -96,23 +96,12 @@ function testSelfRemove() {
     // Test that goog.events.getListener ignores events marked as 'removed'.
     assertNull(goog.events.getListener(et1, 'click', callback));
   };
-  goog.events.listen(et1, 'click', callback);
+  var key = goog.events.listen(et1, 'click', callback);
   goog.events.dispatchEvent(et1, 'click');
 }
 
-function testMediaQueryList() {
-  if (!window.matchMedia) return;
-
-  var mql = window.matchMedia('(max-width: 640px)');
-  var key = goog.events.listen(mql, 'change', goog.nullFunction);
-
-  // I don't know of any way to make it raise an event in a test.
-
-  goog.events.unlistenByKey(key);
-}
-
 function testHasListener() {
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   assertFalse(goog.events.hasListener(div));
 
   var key = goog.events.listen(div, 'click', function() {});
@@ -133,7 +122,7 @@ function testHasListener() {
 function testHasListenerWithEventTarget() {
   assertFalse(goog.events.hasListener(et1));
 
-  function callback() {}
+  function callback(){};
   goog.events.listen(et1, 'test', callback, true);
   assertTrue(goog.events.hasListener(et1));
   assertTrue(goog.events.hasListener(et1, 'test'));
@@ -148,7 +137,7 @@ function testHasListenerWithEventTarget() {
 }
 
 function testHasListenerWithMultipleTargets() {
-  function callback() {}
+  function callback(){};
 
   goog.events.listen(et1, 'test1', callback, true);
   goog.events.listen(et2, 'test2', callback, true);
@@ -239,46 +228,6 @@ function testCaptureAndBubble() {
   goog.events.listen(et2, 'test', callbackBubble2, false);
   goog.events.listen(et3, 'test', callbackCapture3, true);
   goog.events.listen(et3, 'test', callbackBubble3, false);
-
-  et1.dispatchEvent('test');
-
-  assertEquals(6, count);
-
-  goog.events.removeAll(et1);
-  goog.events.removeAll(et2);
-  goog.events.removeAll(et3);
-
-  // Try again with the new API:
-  count = 0;
-
-  goog.events.listen(et1, 'test', callbackCapture1, {capture: true});
-  goog.events.listen(et1, 'test', callbackBubble1, {capture: false});
-  goog.events.listen(et2, 'test', callbackCapture2, {capture: true});
-  goog.events.listen(et2, 'test', callbackBubble2, {capture: false});
-  goog.events.listen(et3, 'test', callbackCapture3, {capture: true});
-  goog.events.listen(et3, 'test', callbackBubble3, {capture: false});
-
-  et1.dispatchEvent('test');
-
-  assertEquals(6, count);
-
-  goog.events.removeAll(et1);
-  goog.events.removeAll(et2);
-  goog.events.removeAll(et3);
-
-
-  // Try again with the new API and without capture simulation:
-  if (!goog.events.BrowserFeature.HAS_W3C_EVENT_SUPPORT) return;
-  goog.events.CAPTURE_SIMULATION_MODE =
-      goog.events.CaptureSimulationMode.OFF_AND_FAIL;
-  count = 0;
-
-  goog.events.listen(et1, 'test', callbackCapture1, {capture: true});
-  goog.events.listen(et1, 'test', callbackBubble1, {capture: false});
-  goog.events.listen(et2, 'test', callbackCapture2, {capture: true});
-  goog.events.listen(et2, 'test', callbackBubble2, {capture: false});
-  goog.events.listen(et3, 'test', callbackCapture3, {capture: true});
-  goog.events.listen(et3, 'test', callbackBubble3, {capture: false});
 
   et1.dispatchEvent('test');
 
@@ -402,7 +351,7 @@ function testCreationStack() {
   if (!new Error().stack) return;
   propertyReplacer.replace(goog.events.Listener, 'ENABLE_MONITORING', true);
 
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   var key =
       goog.events.listen(div, goog.events.EventType.CLICK, goog.nullFunction);
   var listenerStack = key.creationStack;
@@ -474,14 +423,14 @@ function testUnlistenAfterListenOnce() {
 }
 
 function testEventBubblingWithReentrantDispatch_bubbling() {
-  runEventPropagationWithReentrantDispatch(false);
+  runEventPropogationWithReentrantDispatch(false);
 }
 
 function testEventBubblingWithReentrantDispatch_capture() {
-  runEventPropagationWithReentrantDispatch(true);
+  runEventPropogationWithReentrantDispatch(true);
 }
 
-function runEventPropagationWithReentrantDispatch(useCapture) {
+function runEventPropogationWithReentrantDispatch(useCapture) {
   var eventType = 'test-event-type';
 
   var child = et1;
@@ -510,15 +459,15 @@ function runEventPropagationWithReentrantDispatch(useCapture) {
   assertEquals(2, secondListener.getCallCount());
 }
 
-function testEventPropagationWhenListenerRemoved_bubbling() {
-  runEventPropagationWhenListenerRemoved(false);
+function testEventPropogationWhenListenerRemoved_bubbling() {
+  runEventPropogationWhenListenerRemoved(false);
 }
 
-function testEventPropagationWhenListenerRemoved_capture() {
-  runEventPropagationWhenListenerRemoved(true);
+function testEventPropogationWhenListenerRemoved_capture() {
+  runEventPropogationWhenListenerRemoved(true);
 }
 
-function runEventPropagationWhenListenerRemoved(useCapture) {
+function runEventPropogationWhenListenerRemoved(useCapture) {
   var eventType = 'test-event-type';
 
   var child = et1;
@@ -538,15 +487,15 @@ function runEventPropagationWhenListenerRemoved(useCapture) {
   assertEquals(1, secondListener.getCallCount());
 }
 
-function testEventPropagationWhenListenerAdded_bubbling() {
-  runEventPropagationWhenListenerAdded(false);
+function testEventPropogationWhenListenerAdded_bubbling() {
+  runEventPropogationWhenListenerAdded(false);
 }
 
-function testEventPropagationWhenListenerAdded_capture() {
-  runEventPropagationWhenListenerAdded(true);
+function testEventPropogationWhenListenerAdded_capture() {
+  runEventPropogationWhenListenerAdded(true);
 }
 
-function runEventPropagationWhenListenerAdded(useCapture) {
+function runEventPropogationWhenListenerAdded(useCapture) {
   var eventType = 'test-event-type';
 
   var child = et1;
@@ -567,15 +516,15 @@ function runEventPropagationWhenListenerAdded(useCapture) {
   assertEquals(1, secondListener.getCallCount());
 }
 
-function testEventPropagationWhenListenerAddedAndRemoved_bubbling() {
-  runEventPropagationWhenListenerAddedAndRemoved(false);
+function testEventPropogationWhenListenerAddedAndRemoved_bubbling() {
+  runEventPropogationWhenListenerAddedAndRemoved(false);
 }
 
-function testEventPropagationWhenListenerAddedAndRemoved_capture() {
-  runEventPropagationWhenListenerAddedAndRemoved(true);
+function testEventPropogationWhenListenerAddedAndRemoved_capture() {
+  runEventPropogationWhenListenerAddedAndRemoved(true);
 }
 
-function runEventPropagationWhenListenerAddedAndRemoved(useCapture) {
+function runEventPropogationWhenListenerAddedAndRemoved(useCapture) {
   var eventType = 'test-event-type';
 
   var child = et1;
@@ -628,7 +577,7 @@ function testPropagationStoppedDuringCapture() {
   var bubbleHandler = goog.testing.recordFunction();
 
   var body = document.body;
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   body.appendChild(div);
   try {
     goog.events.listen(body, 'click', captureHandler, true);
@@ -657,7 +606,7 @@ function testPropagationStoppedDuringBubble() {
   var bubbleHandler2 = goog.testing.recordFunction();
 
   var body = document.body;
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   body.appendChild(div);
   try {
     goog.events.listen(body, 'click', captureHandler, true);
@@ -677,7 +626,7 @@ function testPropagationStoppedDuringBubble() {
 
 function testAddingCaptureListenerDuringBubbleShouldNotFireTheListener() {
   var body = document.body;
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   body.appendChild(div);
 
   var captureHandler1 = goog.testing.recordFunction();
@@ -706,7 +655,7 @@ function testAddingCaptureListenerDuringBubbleShouldNotFireTheListener() {
 
 function testRemovingCaptureListenerDuringBubbleWouldNotFireListenerTwice() {
   var body = document.body;
-  var div = goog.dom.createElement(goog.dom.TagName.DIV);
+  var div = document.createElement(goog.dom.TagName.DIV);
   body.appendChild(div);
 
   var captureHandler = goog.testing.recordFunction();

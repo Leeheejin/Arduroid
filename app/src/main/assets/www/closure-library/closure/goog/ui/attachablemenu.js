@@ -170,7 +170,7 @@ goog.ui.AttachableMenu.prototype.setSelectedItem = function(obj) {
 
     if (elt.id) {
       // Update activedescendant to reflect the new selection. ARIA roles for
-      // menu and menuitem can be set statically (through Soy templates, for
+      // menu and menuitem can be set statically (thru Soy templates, for
       // example) whereas this needs to be updated as the selection changes.
       goog.a11y.aria.setState(
           el, goog.a11y.aria.State.ACTIVEDESCENDANT, elt.id);
@@ -208,9 +208,8 @@ goog.ui.AttachableMenu.prototype.showPopupElement = function() {
 
 /**
  * Called after the menu is shown.
- * @override
  * @protected
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
+ * @override
  */
 goog.ui.AttachableMenu.prototype.onShow = function() {
   goog.ui.AttachableMenu.superClass_.onShow.call(this);

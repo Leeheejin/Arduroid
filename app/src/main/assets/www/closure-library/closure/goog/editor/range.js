@@ -440,7 +440,7 @@ goog.editor.range.isEditable = function(range) {
  * Returns whether the given range intersects with any instance of the given
  * tag.
  * @param {goog.dom.AbstractRange} range The range to check.
- * @param {!goog.dom.TagName} tagName The name of the tag.
+ * @param {goog.dom.TagName} tagName The name of the tag.
  * @return {boolean} Whether the given range intersects with any instance of
  *     the given tag.
  */
@@ -495,7 +495,7 @@ goog.editor.range.Point.prototype.getParentPoint = function() {
  * @param {Node} node The node containing the point.
  * @param {number} offset The offset of the point from the node.
  * @param {boolean=} opt_trendLeft Notice that a (node, offset) pair may be
- *     equivalent to more than one descendant (node, offset) pair in the DOM.
+ *     equivalent to more than one descendent (node, offset) pair in the DOM.
  *     By default, we trend rightward. If this parameter is true, then we
  *     trend leftward. The tendency to fall rightward by default is for
  *     consistency with other range APIs (like placeCursorNextTo).

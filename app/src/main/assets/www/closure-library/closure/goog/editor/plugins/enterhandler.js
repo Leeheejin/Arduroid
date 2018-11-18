@@ -60,7 +60,7 @@ goog.inherits(goog.editor.plugins.EnterHandler, goog.editor.Plugin);
  * The type of block level tag to add on enter, for browsers that support
  * specifying the default block-level tag. Can be overriden by subclasses; must
  * be either DIV or P.
- * @type {!goog.dom.TagName}
+ * @type {goog.dom.TagName}
  * @protected
  */
 goog.editor.plugins.EnterHandler.prototype.tag = goog.dom.TagName.DIV;
@@ -135,7 +135,7 @@ goog.editor.plugins.EnterHandler.prototype.handleBackspaceInternal = function(
 
 /**
  * Fix paragraphs to be the correct type of node.
- * @param {goog.events.Event} e The `<enter>` key event.
+ * @param {goog.events.Event} e The <enter> key event.
  * @param {boolean} split Whether we already split up a blockquote by
  *     manually inserting elements.
  * @protected
@@ -269,33 +269,20 @@ goog.editor.plugins.EnterHandler.prototype.deleteBrGecko = function(e) {
 
 
 /** @override */
-goog.editor.plugins.EnterHandler.prototype.handleKeyDown = function(e) {
-  if (goog.userAgent.GECKO) {
-    // If a dialog doesn't have selectable field, Gecko grabs the event and
-    // performs actions in editor window. This solves that problem and allows
-    // the event to be passed on to proper handlers.
-    if (this.getFieldObject().inModalMode()) {
-      return false;
-    }
-
-    // Firefox will allow the first node in an iframe to be deleted
-    // on a backspace.  Disallow it if the node is empty.
-    if (e.keyCode == goog.events.KeyCodes.BACKSPACE) {
-      this.handleBackspaceInternal(e, this.getFieldObject().getRange());
-    } else if (e.keyCode == goog.events.KeyCodes.DELETE) {
-      this.handleDeleteGecko(e);
-    }
+goog.editor.plugins.EnterHandler.prototype.handleKeyPress = function(e) {
+  // If a dialog doesn't have selectable field, Gecko grabs the event and
+  // performs actions in editor window. This solves that problem and allows
+  // the event to be passed on to proper handlers.
+  if (goog.userAgent.GECKO && this.getFieldObject().inModalMode()) {
+    return false;
   }
 
-  return false;
-};
+  // Firefox will allow the first node in an iframe to be deleted
+  // on a backspace.  Disallow it if the node is empty.
+  if (e.keyCode == goog.events.KeyCodes.BACKSPACE) {
+    this.handleBackspaceInternal(e, this.getFieldObject().getRange());
 
-
-/** @override */
-goog.editor.plugins.EnterHandler.prototype.handleKeyPress = function(e) {
-  // ENTER must be handled in keyPress as it requires a beforechange event,
-  // which is fired in between keydown and keyup.
-  if (e.keyCode == goog.events.KeyCodes.ENTER) {
+  } else if (e.keyCode == goog.events.KeyCodes.ENTER) {
     if (goog.userAgent.GECKO) {
       if (!e.shiftKey) {
         // Behave similarly to IE's content editable return carriage:
@@ -326,6 +313,9 @@ goog.editor.plugins.EnterHandler.prototype.handleKeyPress = function(e) {
       this.processParagraphTagsInternal(e, split);
       this.getFieldObject().dispatchChange();
     }
+
+  } else if (goog.userAgent.GECKO && e.keyCode == goog.events.KeyCodes.DELETE) {
+    this.handleDeleteGecko(e);
   }
 
   return false;
@@ -430,8 +420,9 @@ goog.editor.plugins.EnterHandler.DO_NOT_ENSURE_BLOCK_NODES_ =
  */
 goog.editor.plugins.EnterHandler.isBrElem = function(node) {
   return goog.editor.node.isEmpty(node) &&
-      goog.dom.getElementsByTagName(
-          goog.dom.TagName.BR, /** @type {!Element} */ (node)).length == 1;
+      /** @type {!Element} */ (node)
+          .getElementsByTagName(goog.dom.TagName.BR)
+          .length == 1;
 };
 
 
@@ -444,14 +435,14 @@ goog.editor.plugins.EnterHandler.isBrElem = function(node) {
  * listen to keypress to force nodes that the user is leaving to turn into
  * blocks, but we also need to listen to keyup to force nodes that the user is
  * entering to turn into blocks.
- * Example:  html is: `<h2>foo[cursor]</h2>`, and the user hits enter.  We
+ * Example:  html is: "<h2>foo[cursor]</h2>", and the user hits enter.  We
  * don't want to format the h2, but we do want to format the P that is
  * created on enter.  The P node is not available until keyup.
- * @param {!goog.dom.TagName} tag The tag name to convert to.
+ * @param {goog.dom.TagName} tag The tag name to convert to.
  * @param {boolean=} opt_keyUp Whether the function is being called on key up.
  *     When called on key up, the cursor is in the newly created node, so the
  *     semantics for when to change it to a block are different.  Specifically,
- *     if the resulting node contains only a BR, it is converted to `<tag>`.
+ *     if the resulting node contains only a BR, it is converted to <tag>.
  * @protected
  */
 goog.editor.plugins.EnterHandler.prototype.ensureBlockIeOpera = function(
@@ -460,8 +451,7 @@ goog.editor.plugins.EnterHandler.prototype.ensureBlockIeOpera = function(
   var container = range.getContainer();
   var field = this.getFieldObject().getElement();
 
-  /** @type {!Node|undefined} */
-  var paragraph = undefined;
+  var paragraph;
   while (container && container != field) {
     // We don't need to ensure a block if we are already in the same block, or
     // in another block level node that we don't want to change the format of

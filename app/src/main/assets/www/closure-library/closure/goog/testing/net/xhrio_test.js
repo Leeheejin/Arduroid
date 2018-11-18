@@ -28,10 +28,6 @@ goog.require('goog.testing.jsunit');
 goog.require('goog.testing.mockmatchers.InstanceOf');
 goog.require('goog.testing.net.XhrIo');
 
-// In order to emulate the actual behavior of XhrIo, set this value for all
-// tests until the default value is false.
-goog.testing.net.XhrIo.allowUnsafeAccessToXhrIoOutsideCallbacks = false;
-
 var mockControl;
 
 function setUp() {
@@ -62,7 +58,7 @@ function testStaticSend() {
 function testStaticSendWithException() {
   goog.testing.net.XhrIo.send('url', function() {
     if (!this.isSuccess()) {
-      throw new Error('The xhr did not complete successfully!');
+      throw Error('The xhr did not complete successfully!');
     }
   });
   var sendInstances = goog.testing.net.XhrIo.getSendInstances();
@@ -115,7 +111,7 @@ function testGetLastUri() {
 
 function testGetLastMethod() {
   var xhr = new goog.testing.net.XhrIo();
-  assertEquals('nothing sent yet, empty method', xhr.getLastMethod(), '');
+  assertUndefined('nothing sent yet, empty method', xhr.getLastMethod());
 
   var method = 'POKE';
   xhr.send('http://www.example.com/', method);
@@ -180,8 +176,8 @@ function testGetResponseText() {
   assertTrue(called);
 
   // XML response came.
-  called = false;
-  xhr = new goog.testing.net.XhrIo();
+  var called = false;
+  var xhr = new goog.testing.net.XhrIo();
   var xml = goog.dom.xml.createDocument();
   xml.appendChild(xml.createElement('root'));
   goog.events.listen(xhr, goog.net.EventType.SUCCESS, function(e) {
@@ -191,9 +187,6 @@ function testGetResponseText() {
   });
   xhr.simulateResponse(200, xml);
   assertTrue(called);
-
-  // Outside the callback, getResponseText returns an empty string.
-  assertEquals('', xhr.getResponseText());
 }
 
 function testGetResponseJson() {
@@ -217,15 +210,12 @@ function testGetResponseJson() {
   xhr.simulateResponse(200, ')]}\', \n[0, 1]');
   assertTrue(called);
 
-  // Outside the callback, getResponseJson returns undefined.
-  assertUndefined(xhr.getResponseJson());
-
   // Invalid JSON response came.
   var called = false;
   var xhr = new goog.testing.net.XhrIo();
   goog.events.listen(xhr, goog.net.EventType.SUCCESS, function(e) {
     called = true;
-    assertThrows(goog.bind(e.target.getResponseJson, e.target));
+    assertThrows(e.target.getResponseJson);
   });
   xhr.simulateResponse(200, '[0, 1');
   assertTrue(called);
@@ -237,7 +227,7 @@ function testGetResponseJson() {
   xml.appendChild(xml.createElement('root'));
   goog.events.listen(xhr, goog.net.EventType.SUCCESS, function(e) {
     called = true;
-    assertThrows(goog.bind(e.target.getResponseJson, e.target));
+    assertThrows(e.target.getResponseJson);
   });
   xhr.simulateResponse(200, xml);
   assertTrue(called);
@@ -265,35 +255,6 @@ function testGetResponseXml() {
   });
   xhr.simulateResponse(200, xml);
   assertTrue(called);
-
-  // Outside the callback, getResponseXml returns null.
-  assertNull(xhr.getResponseXml());
-}
-
-function testGetResponsesAllowUnsafeAccessToXhrIoOutsideCallbacks() {
-  // Test that if true is passed for opt_allowAccessToXhrIoOutsideOfCallback,
-  // then we can call getResponse*() outside of the SUCCESS event callback.
-  goog.testing.net.XhrIo.allowUnsafeAccessToXhrIoOutsideCallbacks = true;
-
-  var xhr = new goog.testing.net.XhrIo();
-  xhr.simulateResponse(200, 'text');
-  assertEquals('text', xhr.getResponseText());
-
-  xhr.simulateResponse(200, '[0, 1]');
-  assertArrayEquals([0, 1], xhr.getResponseJson());
-
-  var xml = goog.dom.xml.createDocument();
-  xml.appendChild(xml.createElement('root'));
-  xhr.simulateResponse(200, xml);
-  assertEquals(xml, xhr.getResponseXml());
-
-  var headers = {'test1': 'foo', 'test2': 'bar'};
-  xhr.simulateResponse(200, '', headers);
-  assertObjectEquals(headers, xhr.getResponseHeaders());
-  assertEquals('test1: foo\r\ntest2: bar', xhr.getAllResponseHeaders());
-
-  // Reset the value for future tests.
-  goog.testing.net.XhrIo.allowUnsafeAccessToXhrIoOutsideCallbacks = false;
 }
 
 function testGetResponseHeaders_noHeadersPresent() {
@@ -447,10 +408,6 @@ function testGetResponseHeaders() {
 
   // Simulate an XHR with 2 headers.
   xhr.simulateResponse(200, '', {'test1': 'foo', 'test2': 'bar'});
-
-  // Outside the callback, getResponseHeaders returns an empty object.
-  assertObjectEquals({}, xhr.getResponseHeaders());
-  assertEquals('', xhr.getAllResponseHeaders());
 
   mockControl.$verifyAll();
   mockControl.$resetAll();

@@ -132,8 +132,7 @@ function testExternallyCreatedMenu() {
   comboBox = new goog.ui.ComboBox(null, menu);
   comboBox.render(goog.dom.getElement('combo'));
 
-  input = goog.dom.getElementsByTagName(
-      goog.dom.TagName.INPUT, comboBox.getElement())[0];
+  input = comboBox.getElement().getElementsByTagName(goog.dom.TagName.INPUT)[0];
   menu.getItemAt(2).dispatchEvent(goog.ui.Component.EventType.ACTION);
   assertEquals('Blue', input.value);
 }

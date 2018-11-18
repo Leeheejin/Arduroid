@@ -114,7 +114,7 @@
  * listening for events on the IframeIo object itself. The following events
  * will be sent:
  * - goog.net.EventType.COMPLETE: when the request is completed
- *   (either successfully or unsuccessfully). You can find out about the result
+ *   (either sucessfully or unsuccessfully). You can find out about the result
  *   using the isSuccess() and getLastError
  *   methods.
  * - goog.net.EventType.SUCCESS</code>: when the request was completed
@@ -139,7 +139,7 @@ goog.require('goog.Timer');
 goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.asserts');
-goog.require('goog.debug.HtmlFormatter');
+goog.require('goog.debug');
 goog.require('goog.dom');
 goog.require('goog.dom.InputType');
 goog.require('goog.dom.TagName');
@@ -331,7 +331,8 @@ goog.net.IframeIo.getNextName_ = function() {
  */
 goog.net.IframeIo.getForm_ = function() {
   if (!goog.net.IframeIo.form_) {
-    goog.net.IframeIo.form_ = goog.dom.createDom(goog.dom.TagName.FORM);
+    goog.net.IframeIo.form_ = /** @type {!HTMLFormElement} */ (
+        goog.dom.createDom(goog.dom.TagName.FORM));
     goog.net.IframeIo.form_.acceptCharset = 'utf-8';
 
     // Hide the form and move it off screen
@@ -538,7 +539,7 @@ goog.net.IframeIo.prototype.send = function(
     uri, opt_method, opt_noCache, opt_data) {
 
   if (this.active_) {
-    throw new Error('[goog.net.IframeIo] Unable to send, already active.');
+    throw Error('[goog.net.IframeIo] Unable to send, already active.');
   }
 
   var uriObj = new goog.Uri(uri);
@@ -601,7 +602,7 @@ goog.net.IframeIo.prototype.send = function(
 goog.net.IframeIo.prototype.sendFromForm = function(
     form, opt_uri, opt_noCache) {
   if (this.active_) {
-    throw new Error('[goog.net.IframeIo] Unable to send, already active.');
+    throw Error('[goog.net.IframeIo] Unable to send, already active.');
   }
 
   var uri = new goog.Uri(opt_uri || form.action);
@@ -717,9 +718,10 @@ goog.net.IframeIo.prototype.getResponseHtml = function() {
 
 
 /**
- * Parses the content as JSON. This is a legacy method for browsers without
- * JSON.parse or for responses that are not valid JSON (e.g. containing NaN).
- * Use JSON.parse(this.getResponseText()) in the other cases.
+ * Parses the content as JSON. This is a safe parse and may throw an error
+ * if the response is malformed.
+ * Use goog.json.unsafeparse(this.getResponseText()) if you are sure of the
+ * state of the returned content.
  * @return {Object} The parsed content.
  */
 goog.net.IframeIo.prototype.getResponseJson = function() {
@@ -728,7 +730,7 @@ goog.net.IframeIo.prototype.getResponseJson = function() {
 
 
 /**
- * Returns the document object from the last request.  Not truly XML, but
+ * Returns the document object from the last request.  Not truely XML, but
  * used to mirror the XhrIo interface.
  * @return {HTMLDocument} The document object from the last request.
  */
@@ -822,7 +824,6 @@ goog.net.IframeIo.prototype.setIgnoreResponse = function(ignore) {
 /**
  * Submits the internal form to the iframe.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.net.IframeIo.prototype.sendFormInternal_ = function() {
   this.active_ = true;
@@ -846,7 +847,7 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
           this.onIeReadyStateChange_, false, this);
     }
 
-
+    /** @preserveTry */
     try {
       this.errorHandled_ = false;
       this.form_.submit();
@@ -902,8 +903,7 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
     }
 
     // Fix text areas, since importNode won't clone changes to the value
-    var textareas = goog.dom.getElementsByTagName(
-        goog.dom.TagName.TEXTAREA, goog.asserts.assert(this.form_));
+    var textareas = this.form_.getElementsByTagName(goog.dom.TagName.TEXTAREA);
     for (var i = 0, n = textareas.length; i < n; i++) {
       // The childnodes represent the initial child nodes for the text area
       // appending a text node essentially resets the initial value ready for
@@ -923,15 +923,13 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
     doc.body.appendChild(clone);
 
     // Fix select boxes, importNode won't override the default value
-    var selects = goog.dom.getElementsByTagName(
-        goog.dom.TagName.SELECT, goog.asserts.assert(this.form_));
-    var clones = goog.dom.getElementsByTagName(
-        goog.dom.TagName.SELECT, /** @type {!Element} */ (clone));
+    var selects = this.form_.getElementsByTagName(goog.dom.TagName.SELECT);
+    var clones = clone.getElementsByTagName(goog.dom.TagName.SELECT);
     for (var i = 0, n = selects.length; i < n; i++) {
       var selectsOptions =
-          goog.dom.getElementsByTagName(goog.dom.TagName.OPTION, selects[i]);
+          selects[i].getElementsByTagName(goog.dom.TagName.OPTION);
       var clonesOptions =
-          goog.dom.getElementsByTagName(goog.dom.TagName.OPTION, clones[i]);
+          clones[i].getElementsByTagName(goog.dom.TagName.OPTION);
       for (var j = 0, m = selectsOptions.length; j < m; j++) {
         clonesOptions[j].selected = selectsOptions[j].selected;
       }
@@ -941,10 +939,8 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
     // attribute for <input type="file"> nodes, which results in an empty
     // upload if the clone is submitted.  Check, and if the clone failed, submit
     // using the original form instead.
-    var inputs = goog.dom.getElementsByTagName(
-        goog.dom.TagName.INPUT, goog.asserts.assert(this.form_));
-    var inputClones = goog.dom.getElementsByTagName(
-        goog.dom.TagName.INPUT, /** @type {!Element} */ (clone));
+    var inputs = this.form_.getElementsByTagName(goog.dom.TagName.INPUT);
+    var inputClones = clone.getElementsByTagName(goog.dom.TagName.INPUT);
     for (var i = 0, n = inputs.length; i < n; i++) {
       if (inputs[i].type == goog.dom.InputType.FILE) {
         if (inputs[i].value != inputClones[i].value) {
@@ -960,7 +956,7 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
 
     goog.log.fine(this.logger_, 'Submitting form');
 
-
+    /** @preserveTry */
     try {
       this.errorHandled_ = false;
       clone.submit();
@@ -981,8 +977,7 @@ goog.net.IframeIo.prototype.sendFormInternal_ = function() {
 
       goog.log.error(
           this.logger_,
-          'Error when submitting form: ' +
-              goog.debug.HtmlFormatter.exposeException(e));
+          'Error when submitting form: ' + goog.debug.exposeException(e));
 
       if (!this.ignoreResponse_) {
         goog.events.unlisten(
@@ -1045,7 +1040,7 @@ goog.net.IframeIo.prototype.onIeReadyStateChange_ = function(e) {
         this.iframe_, goog.events.EventType.READYSTATECHANGE,
         this.onIeReadyStateChange_, false, this);
     var doc;
-
+    /** @preserveTry */
     try {
       doc = goog.dom.getFrameContentDocument(this.iframe_);
 
@@ -1103,7 +1098,7 @@ goog.net.IframeIo.prototype.handleLoad_ = function(contentDocument) {
   // Try to get the innerHTML.  If this fails then it can be an access denied
   // error or the document may just not have a body, typical case is if there
   // is an IE's default 404.
-
+  /** @preserveTry */
   try {
     var body = contentDocument.body;
     this.lastContent_ = body.textContent || body.innerText;
@@ -1206,16 +1201,16 @@ goog.net.IframeIo.prototype.createIframe_ = function() {
 
   this.iframeName_ = this.name_ + '_' + (this.nextIframeId_++).toString(36);
 
-  var dom = goog.dom.getDomHelper(this.form_);
-  this.iframe_ = dom.createDom(
-      goog.dom.TagName.IFRAME,
-      {'name': this.iframeName_, 'id': this.iframeName_});
-
+  var iframeAttributes = {'name': this.iframeName_, 'id': this.iframeName_};
   // Setting the source to javascript:"" is a fix to remove IE6 mixed content
   // warnings when being used in an https page.
   if (goog.userAgent.IE && Number(goog.userAgent.VERSION) < 7) {
-    this.iframe_.src = 'javascript:""';
+    iframeAttributes.src = 'javascript:""';
   }
+
+  this.iframe_ = /** @type {!HTMLIFrameElement} */ (
+      goog.dom.getDomHelper(this.form_)
+          .createDom(goog.dom.TagName.IFRAME, iframeAttributes));
 
   var s = this.iframe_.style;
   s.visibility = 'hidden';
@@ -1252,7 +1247,6 @@ goog.net.IframeIo.prototype.appendIframe_ = function() {
  * will not detect that the response has correctly finished and the loading bar
  * will stay active forever.
  * @private
- * @suppress {strictMissingProperties} Part of the go/strict_warnings_migration
  */
 goog.net.IframeIo.prototype.scheduleIframeDisposal_ = function() {
   var iframe = this.iframe_;

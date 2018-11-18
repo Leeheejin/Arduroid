@@ -14,9 +14,6 @@
 
 goog.provide('goog.Thenable');
 
-/** @suppress {extraRequire} */
-goog.forwardDeclare('goog.Promise'); // for the type reference.
-
 
 
 /**
@@ -34,19 +31,19 @@ goog.Thenable = function() {};
  * Adds callbacks that will operate on the result of the Thenable, returning a
  * new child Promise.
  *
- * If the Thenable is fulfilled, the `onFulfilled` callback will be
+ * If the Thenable is fulfilled, the {@code onFulfilled} callback will be
  * invoked with the fulfillment value as argument, and the child Promise will
  * be fulfilled with the return value of the callback. If the callback throws
  * an exception, the child Promise will be rejected with the thrown value
  * instead.
  *
- * If the Thenable is rejected, the `onRejected` callback will be invoked
+ * If the Thenable is rejected, the {@code onRejected} callback will be invoked
  * with the rejection reason as argument, and the child Promise will be rejected
  * with the return value of the callback or thrown value.
  *
  * @param {?(function(this:THIS, TYPE): VALUE)=} opt_onFulfilled A
  *     function that will be invoked with the fulfillment value if the Promise
- *     is fulfilled.
+ *     is fullfilled.
  * @param {?(function(this:THIS, *): *)=} opt_onRejected A function that will
  *     be invoked with the rejection reason if the Promise is rejected.
  * @param {THIS=} opt_context An optional context object that will be the
@@ -78,7 +75,7 @@ goog.Thenable.prototype.then = function(
 
 /**
  * An expando property to indicate that an object implements
- * `goog.Thenable`.
+ * {@code goog.Thenable}.
  *
  * {@see addImplementation}.
  *
@@ -98,6 +95,7 @@ goog.Thenable.IMPLEMENTED_BY_PROP = '$goog_Thenable';
  *     corresponding class must have already implemented the interface.
  */
 goog.Thenable.addImplementation = function(ctor) {
+  goog.exportProperty(ctor.prototype, 'then', ctor.prototype.then);
   if (COMPILED) {
     ctor.prototype[goog.Thenable.IMPLEMENTED_BY_PROP] = true;
   } else {
@@ -108,9 +106,9 @@ goog.Thenable.addImplementation = function(ctor) {
 
 
 /**
- * @param {?} object
- * @return {boolean} Whether a given instance implements `goog.Thenable`.
- *     The class/superclass of the instance must call `addImplementation`.
+ * @param {*} object
+ * @return {boolean} Whether a given instance implements {@code goog.Thenable}.
+ *     The class/superclass of the instance must call {@code addImplementation}.
  */
 goog.Thenable.isImplementedBy = function(object) {
   if (!object) {

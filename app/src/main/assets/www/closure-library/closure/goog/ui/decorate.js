@@ -22,8 +22,6 @@ goog.provide('goog.ui.decorate');
 
 goog.require('goog.ui.registry');
 
-goog.forwardDeclare('goog.ui.Component');
-
 
 /**
  * Decorates the element with a suitable {@link goog.ui.Component} instance, if

@@ -25,14 +25,11 @@ goog.require('goog.dom');
 goog.require('goog.dom.TagName');
 goog.require('goog.events');
 goog.require('goog.functions');
-goog.require('goog.html.TrustedResourceUrl');
-goog.require('goog.loader.activeModuleManager');
 goog.require('goog.module.ModuleLoader');
 goog.require('goog.module.ModuleManager');
 goog.require('goog.net.BulkLoader');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.object');
-goog.require('goog.string.Const');
 goog.require('goog.testing.PropertyReplacer');
 goog.require('goog.testing.TestCase');
 goog.require('goog.testing.events.EventObserver');
@@ -49,12 +46,6 @@ var modB1Loaded = false;
 var moduleLoader = null;
 var moduleManager = null;
 var stubs = new goog.testing.PropertyReplacer();
-var modA1 = goog.html.TrustedResourceUrl.fromConstant(
-    goog.string.Const.from('testdata/modA_1.js'));
-var modA2 = goog.html.TrustedResourceUrl.fromConstant(
-    goog.string.Const.from('testdata/modA_2.js'));
-var modB1 = goog.html.TrustedResourceUrl.fromConstant(
-    goog.string.Const.from('testdata/modB_1.js'));
 
 var EventType = goog.module.ModuleLoader.EventType;
 var observer;
@@ -79,7 +70,10 @@ function setUp() {
 
   moduleManager.setLoader(moduleLoader);
   moduleManager.setAllModuleInfo({'modA': [], 'modB': ['modA']});
-  moduleManager.setModuleTrustedUris({'modA': [modA1, modA2], 'modB': [modB1]});
+  moduleManager.setModuleUris({
+    'modA': ['testdata/modA_1.js', 'testdata/modA_2.js'],
+    'modB': ['testdata/modB_1.js']
+  });
 
   assertNotLoaded('modA');
   assertNotLoaded('modB');
@@ -92,14 +86,14 @@ function tearDown() {
 
   // Ensure that the module manager was created.
   assertNotNull(goog.module.ModuleManager.getInstance());
-  goog.loader.activeModuleManager.reset();
+  moduleManager = goog.module.ModuleManager.instance_ = null;
 
   // tear down the module loaded flag.
   modA1Loaded = false;
 
   // Remove all the fake scripts.
   var scripts =
-      goog.array.clone(goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT));
+      goog.array.clone(document.getElementsByTagName(goog.dom.TagName.SCRIPT));
   for (var i = 0; i < scripts.length; i++) {
     if (scripts[i].src.indexOf('testdata') != -1) {
       goog.dom.removeNode(scripts[i]);
@@ -186,7 +180,10 @@ function testLoadDebugModuleB() {
 function testLoadDebugModuleAThenB() {
   // Swap the script tags of module A, to introduce a race condition.
   // See the comments on this in ModuleLoader's debug loader.
-  moduleManager.setModuleTrustedUris({'modA': [modA2, modA1], 'modB': [modB1]});
+  moduleManager.setModuleUris({
+    'modA': ['testdata/modA_2.js', 'testdata/modA_1.js'],
+    'modB': ['testdata/modB_1.js']
+  });
   moduleLoader.setDebugMode(true);
   return new goog
       .Promise(function(resolve, reject) {
@@ -197,7 +194,7 @@ function testLoadDebugModuleAThenB() {
         assertLoaded('modB');
 
         var scripts = goog.array.clone(
-            goog.dom.getElementsByTagName(goog.dom.TagName.SCRIPT));
+            document.getElementsByTagName(goog.dom.TagName.SCRIPT));
         var seenLastScriptOfModuleA = false;
         for (var i = 0; i < scripts.length; i++) {
           var uri = scripts[i].src;
@@ -266,15 +263,13 @@ function testModuleLoaderRecursesTooDeep(opt_numModules) {
     uris[modName] = [];
     deps[modName] = num ? ['mod' + (num - 1)] : [];
     for (var i = 0; i < 5; i++) {
-      uris[modName].push(goog.html.TrustedResourceUrl.format(
-          goog.string.Const.from(
-              'https://www.google.com/crossdomain%{num}x%{i}.js'),
-          {'num': num, 'i': i}));
+      uris[modName].push(
+          'http://www.google.com/crossdomain' + num + 'x' + i + '.js');
     }
   }
 
   moduleManager.setAllModuleInfo(deps);
-  moduleManager.setModuleTrustedUris(uris);
+  moduleManager.setModuleUris(uris);
 
   // Make all XHRs throw an error, so that we test the error-handling
   // functionality.
@@ -506,8 +501,8 @@ function testLoadErrorCallbackExecutedWhenPrefetchFails() {
   moduleManager.registerCallback(
       goog.module.ModuleManager.CallbackType.ERROR, errorHandler);
 
-  moduleLoader.prefetchModule('modA', moduleManager.moduleInfoMap['modA']);
-  moduleLoader.loadModules(['modA'], moduleManager.moduleInfoMap, function() {
+  moduleLoader.prefetchModule('modA', moduleManager.moduleInfoMap_['modA']);
+  moduleLoader.loadModules(['modA'], moduleManager.moduleInfoMap_, function() {
     fail('modA should not load successfully');
   }, errorHandler);
 

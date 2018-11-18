@@ -26,7 +26,7 @@
 /**
  * @fileoverview A Html SAX parser.
  *
- * Examples of usage of the `goog.string.html.HtmlParser`:
+ * Examples of usage of the {@code goog.string.html.HtmlParser}:
  * <pre>
  *   var handler = new MyCustomHtmlVisitorHandlerThatExtendsHtmlSaxHandler();
  *   var parser = new goog.string.html.HtmlParser();
@@ -39,8 +39,7 @@
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/tokenization.html
  * http://www.whatwg.org/specs/web-apps/current-work/multipage/tree-construction.html
  *
- * @author msamuel@google.com (Mike Samuel)
- * @supported IE6+, FF1.5+, Chrome 3.0+, Safari and Opera 10.
+ * @supported IE6, IE7, IE8, FF1.5, FF2, FF3, Chrome 3.0, Safari and Opera 10.
  */
 
 goog.provide('goog.string.html');
@@ -53,8 +52,8 @@ goog.provide('goog.string.html.HtmlSaxHandler');
 
 
 /**
- * An Html parser: `parse` takes a string and calls methods on
- * `goog.string.html.HtmlSaxHandler` while it is visiting it.
+ * An Html parser: {@code parse} takes a string and calls methods on
+ * {@code goog.string.html.HtmlSaxHandler} while it is visiting it.
  *
  * @constructor
  */
@@ -64,7 +63,7 @@ goog.string.html.HtmlParser = function() {
 
 /**
  * HTML entities that are encoded/decoded.
- * TODO(user): use `goog.string.htmlEncode` instead.
+ * TODO(user): use {@code goog.string.htmlEncode} instead.
  * @type {!Object<string, string>}
  */
 goog.string.html.HtmlParser.Entities = {
@@ -354,8 +353,8 @@ goog.string.html.HtmlParser.OUTSIDE_TAG_TOKEN_ = new RegExp(
 
 
 /**
- * Given a SAX-like `goog.string.html.HtmlSaxHandler` parses a
- * `htmlText` and lets the `handler` know the structure while
+ * Given a SAX-like {@code goog.string.html.HtmlSaxHandler} parses a
+ * {@code htmlText} and lets the {@code handler} know the structure while
  * visiting the nodes.
  *
  * @param {goog.string.html.HtmlSaxHandler} handler The HtmlSaxHandler that will
@@ -366,8 +365,7 @@ goog.string.html.HtmlParser.prototype.parse = function(handler, htmlText) {
   var htmlLower = null;
   var inTag = false;  // True iff we're currently processing a tag.
   var attribs = [];  // Accumulates attribute names and values.
-  /** @type {string|undefined} */
-  var tagName = undefined;  // The name of the tag currently being processed.
+  var tagName;  // The name of the tag currently being processed.
   var eflags;  // The element flags for the current tag.
   var openTag;  // True if the current tag is an open tag.
 
@@ -490,7 +488,8 @@ goog.string.html.HtmlParser.prototype.lookupEntity_ = function(name) {
   var m = name.match(goog.string.html.HtmlParser.DECIMAL_ESCAPE_RE_);
   if (m) {
     return String.fromCharCode(parseInt(m[1], 10));
-  } else if (m = name.match(goog.string.html.HtmlParser.HEX_ESCAPE_RE_)) {
+  } else if (
+      !!(m = name.match(goog.string.html.HtmlParser.HEX_ESCAPE_RE_))) {
     return String.fromCharCode(parseInt(m[1], 16));
   }
   return '';
@@ -511,7 +510,7 @@ goog.string.html.HtmlParser.prototype.stripNULs_ = function(s) {
 /**
  * The plain text of a chunk of HTML CDATA which possibly containing.
  *
- * TODO(goto): use `goog.string.unescapeEntities` instead ?
+ * TODO(goto): use {@code goog.string.unescapeEntities} instead ?
  * @param {string} s A chunk of HTML CDATA.  It must not start or end inside
  *   an HTML entity.
  * @return {string} The unescaped entities.
@@ -561,7 +560,7 @@ goog.string.html.toLowerCase = function(str) {
 
 
 /**
- * An interface to the `goog.string.html.HtmlParser` visitor, that gets
+ * An interface to the {@code goog.string.html.HtmlParser} visitor, that gets
  * called while the HTML is being parsed.
  *
  * @interface

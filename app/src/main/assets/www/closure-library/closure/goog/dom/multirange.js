@@ -23,14 +23,12 @@ goog.provide('goog.dom.MultiRange');
 goog.provide('goog.dom.MultiRangeIterator');
 
 goog.require('goog.array');
-goog.require('goog.dom');
 goog.require('goog.dom.AbstractMultiRange');
 goog.require('goog.dom.AbstractRange');
 goog.require('goog.dom.RangeIterator');
 goog.require('goog.dom.RangeType');
 goog.require('goog.dom.SavedRange');
 goog.require('goog.dom.TextRange');
-goog.require('goog.iter');
 goog.require('goog.iter.StopIteration');
 goog.require('goog.log');
 
@@ -215,10 +213,6 @@ goog.dom.MultiRange.prototype.getSortedRanges = function() {
         return 0;
       }
 
-      /**
-       * @suppress {missingRequire} Cannot depend on goog.dom.Range because
-       *     it creates a circular dependency.
-       */
       return goog.dom.Range.isReversed(
                  aStartNode, aStartOffset, bStartNode, bStartOffset) ?
           1 :
@@ -477,7 +471,7 @@ goog.dom.MultiRangeIterator.prototype.isLast = function() {
 
 /** @override */
 goog.dom.MultiRangeIterator.prototype.next = function() {
-
+  /** @preserveTry */
   try {
     var it = this.iterators_[this.currentIdx_];
     var next = it.next();
