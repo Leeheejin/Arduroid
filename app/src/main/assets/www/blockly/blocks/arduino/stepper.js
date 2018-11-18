@@ -29,6 +29,13 @@ Blockly.Blocks['stepper_config'] = {
    * @this Blockly.Block
    */
   init: function() {
+    var dropdownOptions = [[Blockly.Msg.ARD_STEPPER_TWO_PINS, 'TWO'],
+                           [Blockly.Msg.ARD_STEPPER_FOUR_PINS, 'FOUR']];
+    var dropdown = new Blockly.FieldDropdown(dropdownOptions, function(option) {
+      var input = (option == 'FOUR');
+      this.sourceBlock_.updateShape_(input);
+    });
+
     this.setHelpUrl('http://arduino.cc/en/Reference/StepperConstructor');
     this.setColour(Blockly.Blocks.stepper.HUE);
     this.appendDummyInput()
@@ -39,7 +46,11 @@ Blockly.Blocks['stepper_config'] = {
                                       true, true, false),
             'STEPPER_NAME')
         .appendField(Blockly.Msg.ARD_STEPPER_MOTOR);
-    this.appendDummyInput()
+    this.appendDummyInput('PINS_DROPDOWN')
+        .setAlign(Blockly.ALIGN_RIGHT)
+        .appendField(Blockly.Msg.ARD_STEPPER_NUMBER_OF_PINS)
+        .appendField(dropdown, "STEPPER_NUMBER_OF_PINS");
+    this.appendDummyInput('PINS')
         .setAlign(Blockly.ALIGN_RIGHT)
         .appendField(Blockly.Msg.ARD_STEPPER_PIN1)
         .appendField(new Blockly.FieldDropdown(
@@ -58,6 +69,55 @@ Blockly.Blocks['stepper_config'] = {
     this.setTooltip(Blockly.Msg.ARD_STEPPER_SETUP_TIP);
   },
   /**
+   * Parse XML to restore the number of pins available.
+   * @param {!Element} xmlElement XML storage element.
+   * @this Blockly.Block
+   */
+  domToMutation: function(xmlElement) {
+    var input = (xmlElement.getAttribute('number_of_pins') == 'FOUR');
+    this.updateShape_(input);
+  },
+  /**
+   * Create XML to represent number of pins selection.
+   * @return {!Element} XML storage element.
+   * @this Blockly.Block
+   */
+  mutationToDom: function() {
+    var container = document.createElement('mutation');
+    var input = this.getFieldValue('STEPPER_NUMBER_OF_PINS');
+    container.setAttribute("number_of_pins", input);
+    return container;
+  },
+  /**
+   * Modify this block to have the correct number of pins available.
+   * @param {boolean} fourPins True if this block has a 4 or 2 stepper pins.
+   * @private
+   * @this Blockly.Block
+   */
+  updateShape_: function(fourPins) {
+    // Single check as Pin 3 and 4 should always be added or removed together
+    var extraPinsExist = this.getFieldValue('STEPPER_PIN3');
+    if (fourPins) {
+      if (!extraPinsExist) {
+         this.getInput("PINS")
+            .appendField(Blockly.Msg.ARD_STEPPER_PIN3, "PIN3")
+            .appendField(new Blockly.FieldDropdown(
+                Blockly.Arduino.Boards.selected.digitalPins), 'STEPPER_PIN3')
+            .appendField(Blockly.Msg.ARD_STEPPER_PIN4, "PIN4")
+            .appendField(new Blockly.FieldDropdown(
+                Blockly.Arduino.Boards.selected.digitalPins), 'STEPPER_PIN4');
+      }
+    } else {
+      // Two pins is selected
+      if (extraPinsExist) {
+        this.getInput("PINS").removeField("STEPPER_PIN3");
+        this.getInput("PINS").removeField("PIN3");
+        this.getInput("PINS").removeField("STEPPER_PIN4");
+        this.getInput("PINS").removeField("PIN4");
+      }
+    }
+  },
+  /**
    * Updates the content of the the pin related fields.
    * @this Blockly.Block
    */
@@ -66,6 +126,10 @@ Blockly.Blocks['stepper_config'] = {
         this, 'STEPPER_PIN1', 'digitalPins');
     Blockly.Boards.refreshBlockFieldDropdown(
         this, 'STEPPER_PIN2', 'digitalPins');
+    Blockly.Boards.refreshBlockFieldDropdown(
+        this, 'STEPPER_PIN3', 'digitalPins');
+    Blockly.Boards.refreshBlockFieldDropdown(
+        this, 'STEPPER_PIN4', 'digitalPins');
   }
 };
 
@@ -83,7 +147,8 @@ Blockly.Blocks['stepper_step'] = {
             new Blockly.FieldInstance('Stepper',
                                       Blockly.Msg.ARD_STEPPER_DEFAULT_NAME,
                                       false, true, false),
-            'STEPPER_NAME');
+            'STEPPER_NAME')
+            .appendField(Blockly.Msg.ARD_STEPPER_STEP1);
     this.appendValueInput('STEPPER_STEPS')
         .setCheck(Blockly.Types.NUMBER.checkList);
     this.appendDummyInput()
@@ -97,8 +162,11 @@ Blockly.Blocks['stepper_step'] = {
    * It checks/warns if the selected stepper instance has a config block.
    * @this Blockly.Block
    */
-  onchange: function() {
-    if (!this.workspace) return;  // Block has been deleted.
+  onchange: function(event) {
+    if (!this.workspace || event.type == Blockly.Events.MOVE ||
+        event.type == Blockly.Events.UI) {
+        return;  // Block deleted or irrelevant event
+    }
 
     var instanceName = this.getFieldValue('STEPPER_NAME')
     if (Blockly.Instances.isInstancePresent(instanceName, 'Stepper', this)) {

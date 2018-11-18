@@ -101,5 +101,5 @@ Ardublockly.LOCALISED_TEXT = {
    catTime: "시간",
    catAudio: "소리",
    catMotors: "모터",
-  catComms: "Comms",
+  catComms: "통신",
 };

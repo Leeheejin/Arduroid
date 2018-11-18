@@ -10,7 +10,6 @@
 'use strict';
 
 goog.provide('Blockly.Arduino.time');
-
 goog.require('Blockly.Arduino');
 
 
@@ -23,21 +22,25 @@ goog.require('Blockly.Arduino');
  Blockly.Arduino['time_delay'] = function(block) {
   var delayTime = Blockly.Arduino.valueToCode(
       block, 'DELAY_TIME_MILI', Blockly.Arduino.ORDER_ATOMIC) || '0';
-  var code = 'delay(' + delayTime + ');\n';
+    var code = 'delay(' + delayTime + ');\n';
   return code;
 };
 
-/**
- * Code generator for the delayMicroseconds block.
- * Arduino code: loop { delayMicroseconds(X); }
- * @param {!Blockly.Block} block Block to generate the code from.
- * @return {string} Completed code.
- */
+
  Blockly.Arduino['time_delaymicros'] = function(block) {
   var delayTimeMs = Blockly.Arduino.valueToCode(
       block, 'DELAY_TIME_MICRO', Blockly.Arduino.ORDER_ATOMIC) || '0';
   var code = 'delayMicroseconds(' + delayTimeMs + ');\n';
   return code;
+};
+
+
+ Blockly.Arduino['time_delaysec'] = function(block) {
+ var delayTimeSec = Blockly.Arduino.valueToCode(
+       block, 'DELAY_TIME_SEC', Blockly.Arduino.ORDER_ATOMIC) || '0';
+       delayTimeSec *=1000;
+   var code = 'delay(' + delayTimeSec + ');\n';
+   return code;
 };
 
 /**

@@ -57,3 +57,39 @@ Blockly.Arduino['serial_setup'] = function(block) {
   var code = '';
   return code;
 };
+
+Blockly.Arduino['blue_begin'] = function(block) {
+  var blueId = block.getFieldValue('BLUE_SERIAL_ID');
+  var blueserialSpeed = block.getFieldValue('SPEED');
+  var code = blueId + '.begin(' + blueserialSpeed + ')\n;';
+ // Blockly.Arduino.addSetup('serial_' + blueId, serialSetupCode, true);
+  //var code = '';
+  return code;
+};
+
+Blockly.Arduino['blue_available'] = function(block) {
+  var blueId = block.getFieldValue('BLUE_SERIAL_ID');
+  var code = blueId + '.available(' + ')';
+ // Blockly.Arduino.addSetup('serial_' + blueId, serialSetupCode, true);
+  //var code = '';
+  return code;
+};
+
+Blockly.Arduino['blue_read'] = function(block) {
+  var blueId = block.getFieldValue('BLUE_SERIAL_ID');
+  var code = blueId + '.read(' + ')';
+ // Blockly.Arduino.addSetup('serial_' + blueId, serialSetupCode, true);
+  //var code = '';
+  return code;
+};
+Blockly.Arduino['blue_write'] = function(block) {
+  var blueId = block.getFieldValue('BLUE_SERIAL_ID');
+  var code = blueId + '.write(' + ')\n';
+
+  return code;
+};
+Blockly.Arduino['blue_end'] = function(block) {
+  var blueId = block.getFieldValue('BLUE_SERIAL_ID');
+  var code = blueId + '.end(' + ');\n';
+  return code;
+};

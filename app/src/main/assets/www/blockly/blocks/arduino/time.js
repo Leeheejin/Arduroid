@@ -19,25 +19,7 @@ goog.require('Blockly.Types');
 /** Common HSV hue for all blocks in this category. */
 Blockly.Blocks.time.HUE = 140;
 
-Blockly.Blocks['time_delaysec'] = {
-  /**
-   * Delay block definition
-   * @Arduroid
-   */
-  init: function() {
-    this.setHelpUrl('http://arduino.cc/en/Reference/Delay');
-    this.setColour(Blockly.Blocks.time.HUE);
-    this.appendValueInput('DELAY_TIME_SEC')
-        .setCheck(Blockly.Types.NUMBER.checkList)
-        .appendField(Blockly.Msg.ARD_TIME_DELAY);
-    this.appendDummyInput()
-        .appendField(Blockly.Msg.ARD_TIME_DELAY_SEC);
-    this.setInputsInline(true);
-    this.setPreviousStatement(true, null);
-    this.setNextStatement(true, null);
-    this.setTooltip(Blockly.Msg.ARD_TIME_DELAY_SEC_TIP);
-  }
-};
+
 
 Blockly.Blocks['time_delay'] = {
   /**
@@ -76,6 +58,26 @@ Blockly.Blocks['time_delaymicros'] = {
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, null);
     this.setTooltip(Blockly.Msg.ARD_TIME_DELAY_MICRO_TIP);
+  }
+};
+
+Blockly.Blocks['time_delaysec'] = {
+  /**
+   * delayMicroseconds block definition
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.setHelpUrl('http://arduino.cc/en/Reference/Delay');
+    this.setColour(Blockly.Blocks.time.HUE);
+    this.appendValueInput('DELAY_TIME_SEC')
+        .setCheck(Blockly.Types.NUMBER.checkList)
+        .appendField(Blockly.Msg.ARD_TIME_DELAY);
+    this.appendDummyInput()
+        .appendField(Blockly.Msg.ARD_TIME_DELAY_SEC);
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setTooltip(Blockly.Msg.ARD_TIME_DELAY_SEC_TIP);
   }
 };
 
