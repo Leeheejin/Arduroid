@@ -20,10 +20,9 @@ A application of platform that helps block style coding without personal compute
 - license
 
 [![Plat Form](https://img.shields.io/badge/Platform-Android-lightgrey.svg)
-![AppVeyor](https://img.shields.io/github/issues/badges/shields.svg)](https://github.com/Leeheejin/Arduroid)
 [![GitHub issues](https://img.shields.io/github/issues/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/issues)
 [![GitHub stars](https://img.shields.io/github/stars/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/stargazers)
-[![GitHub release](https://img.shields.io/badge/release-v1.2-green.svg)](https://github.com/Leeheejin/Arduroid)
+[![GitHub release](https://img.shields.io/badge/release-v1.2.1-green.svg)](https://github.com/Leeheejin/Arduroid)
 ![License: CC BY 4.0](https://img.shields.io/badge/license-CC%20BY%204.0%20%2F%20Apache--2.0-blue.svg)
 
 
@@ -54,7 +53,7 @@ you can release apk file on your IDE, or just see the below video!
 
 ## Usage
 
-Just drag block! and edit sentence! if you have arduino device, even can upload your source code on yours!
+Just drag blocks! and edit sentence! if you have arduino device, even can upload your source code on yours!
 
 ---
 
@@ -95,6 +94,13 @@ Just drag block! and edit sentence! if you have arduino device, even can upload 
 - You should probably find team member's lastest project
 
 ---
+
+## Special thanks
+
+> Contributors(unofficial)
+
+**Hyunho Moon : Interpret English to Korean with *notepad*! and discuss the direction of the project together**
+
 
 
 ## FAQ
