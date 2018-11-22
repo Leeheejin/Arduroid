@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_main);
 
         WebView mWebView = (WebView) findViewById(R.id.WebView);
@@ -39,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
 
-        mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // 접속 URL
+        //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // 접속 URL
+        mWebView.loadUrl("http://175.195.42.157:8000/ardublockly/index.html#"); // 접속 URL
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
 
