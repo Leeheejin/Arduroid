@@ -20,7 +20,6 @@ goog.require('Blockly.Types');
 Blockly.Blocks.time.HUE = 140;
 
 
-
 Blockly.Blocks['time_delay'] = {
   /**
    * Delay block definition
