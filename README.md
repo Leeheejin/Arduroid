@@ -19,7 +19,7 @@ A application of platform that helps block style coding without personal compute
 - release version
 - license
 
-[![Plat Form](https://img.shields.io/badge/Platform-Android-lightgrey.svg)
+![Plat Form](https://img.shields.io/badge/Platform-Android-lightgrey.svg)
 [![GitHub issues](https://img.shields.io/github/issues/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/issues)
 [![GitHub stars](https://img.shields.io/github/stars/Leeheejin/Arduroid.svg)](https://github.com/Leeheejin/Arduroid/stargazers)
 [![GitHub release](https://img.shields.io/badge/release-v1.2.1-green.svg)](https://github.com/Leeheejin/Arduroid)
