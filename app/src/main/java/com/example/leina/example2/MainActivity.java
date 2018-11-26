@@ -1,31 +1,19 @@
 package com.example.leina.example2;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
-    private WebViewInterface mWebViewInterface;
 
-    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +26,8 @@ public class MainActivity extends AppCompatActivity {
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
 
-        mWebViewInterface = new WebViewInterface(MainActivity.this, mWebView); //JavascriptInterface object
-        mWebView.addJavascriptInterface(mWebViewInterface, "Bridge"); //webview JavascriptInterface
-
         //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // URL
-        //mWebView.loadUrl("http://175.195.42.157:8000"); // URL
+        mWebView.loadUrl("http://175.195.42.157:8000"); // URL
         //mWebView.loadUrl("http://121.168.23.64:8000"); // URL
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
@@ -52,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
             public  boolean onTouch(View view, MotionEvent motionEvent) {
                 WebView.HitTestResult hr = ((WebView)view).getHitTestResult();
 
-                Log.i("TAG", "getExtra = "+ hr.getExtra() + "\t\t Type=" + hr.getType());
+                //Toast.makeText(getApplicationContext(),str, Toast.LENGTH_SHORT).show();
                 return false;
             }
         });
@@ -75,4 +60,5 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
+
 }
