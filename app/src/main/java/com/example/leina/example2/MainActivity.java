@@ -1,30 +1,31 @@
 package com.example.leina.example2;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.net.Uri;
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.webkit.DownloadListener;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
     private WebView mWebView;
+    private WebViewInterface mWebViewInterface;
 
+    @SuppressLint("JavascriptInterface")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,13 +34,16 @@ public class MainActivity extends AppCompatActivity {
 
         WebView mWebView = (WebView) findViewById(R.id.WebView);
         mWebView.getSettings().setJavaScriptEnabled(true);
-
-        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
 
+        mWebViewInterface = new WebViewInterface(MainActivity.this, mWebView); //JavascriptInterface 객체화
+        mWebView.addJavascriptInterface(mWebViewInterface, "Bridge"); //웹뷰에 JavascriptInterface를 연결
+
         //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // 접속 URL
-        mWebView.loadUrl("http://175.195.42.157:8000/ardublockly/index.html#"); // 접속 URL
+        //mWebView.loadUrl("http://175.195.42.157:8000"); // 접속 URL
+        //mWebView.loadUrl("http://121.168.23.64:8000"); // 접속 URL
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
 
@@ -71,5 +75,4 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     }
-
 }

@@ -178,6 +178,7 @@ class Serial(SerialBase):
         try:
             # must call overloaded method with byte array argument
             # as this is the only one not applying encodings
+
             self._port_handle.Write(as_byte_array(data), 0, len(data))
         except System.TimeoutException:
             raise writeTimeoutError

@@ -24,7 +24,7 @@
 # - hp (HP-UX)              /dev/tty%dp0 (not tested)
 # - sunos (Solaris/SunOS)   /dev/tty%c (letters, 'a'..'z') (confirmed)
 # - aix (AIX)               /dev/tty%d
-
+# android                   /dev/ttyGS*
 
 # pylint: disable=abstract-method
 import errno
@@ -59,7 +59,7 @@ CMSPAR = 0  # default, for unsupported platforms, override below
 # for the platform
 plat = sys.platform.lower()
 
-if plat[:5] == 'linux':    # Linux (confirmed)  # noqa
+if plat[:5] == 'android':    # Linux (confirmed)  # noqa
     import array
 
     # extra termios flags

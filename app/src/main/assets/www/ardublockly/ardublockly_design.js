@@ -26,7 +26,7 @@ Ardublockly.materializeJsInit = function() {
   // Navigation bar
   $('.button-collapse').sideNav({
       menuWidth: 240,
-      activationWidth: 70,
+      activationWidth: 50,
       edge: 'left'
   });
   // Drop down menus

@@ -26,7 +26,7 @@ void loop() {
 """
 
 # Default sketch name
-default_sketch_name = 'ArdublocklySketch'
+default_sketch_name = 'ArduroidSketch'
 
 
 def create_sketch(sketch_dir, sketch_name=default_sketch_name,

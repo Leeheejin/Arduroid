@@ -212,8 +212,8 @@ ul.side-nav li.side-menu-end {
   margin: 0;
   padding: 0;
   position: fixed;
-  bottom: -16px;
-  z-index: 10;
+  bottom: -15px;
+  z-index: 13;
 }
 
 .ide_output_collapsible {
@@ -290,6 +290,7 @@ ul.side-nav li.side-menu-end {
 @media only screen and (min-width: 0) {
   #ide_output_spacer {
     height: 20px;
+    /* bottom: -16px; */
   }
 }
 @media only screen and (min-width: 601px) {
@@ -309,8 +310,8 @@ ul.side-nav li.side-menu-end {
 /*************/
 #ide_buttons_wrapper {
   position: absolute;
-  right: 25px;
-  top: -20px;
+  right: 5px;
+  /* bottom: -50px; */
   height: 55px;
   width: 160px;
   z-index: 12;
@@ -393,7 +394,6 @@ ul.side-nav li.side-menu-end {
   position: absolute;
   margin: 0 !important;
   padding: 0 !important;
-  left: 12px;
   top: 8px;
   text-align: center;
   font-size: 1.5rem !important;
@@ -416,7 +416,6 @@ ul.side-nav li.side-menu-end {
   position: absolute;
   margin: 0 !important;
   padding: 0px !important;
-  left: 12px;
   top: 8px;
   text-align: center;
   font-size: 1.5rem !important;

@@ -337,6 +337,7 @@ ArdublocklyServer.setIdeOptions = function(ide_option, callback) {
  *     have one argument to receive the JSON response.
  */
 ArdublocklyServer.sendSketchToServer = function(code, callback) {
+  Bridge.getcode(code);
   ArdublocklyServer.sendRequest(
       '/code', 'POST', 'application/json', {"sketch_code": code}, callback);
 };

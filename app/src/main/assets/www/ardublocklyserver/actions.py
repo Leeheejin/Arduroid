@@ -70,6 +70,7 @@ def load_arduino_cli(sketch_path):
     settings = ServerCompilerSettings()
 
     # Check if CLI flags have been set
+
     if not settings.compiler_dir:
         success = False
         exit_code = 53
@@ -89,7 +90,6 @@ def load_arduino_cli(sketch_path):
         success = False
         exit_code = 55
         err_out = 'Serial Port configured in Settings not accessible.'
-
     if success:
         ide_mode = settings.load_ide_option
         # Concatenates the CLI command and execute if the flags are valid

@@ -268,6 +268,7 @@ Ardublockly.loadUserXmlFile = function() {
       filename = filename.substr(0, extensionPosition);
     }
 
+
     var reader = new FileReader();
     reader.onload = function() {
       var success = Ardublockly.replaceBlocksfromXml(reader.result);
