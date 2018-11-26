@@ -38,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
 
-        mWebViewInterface = new WebViewInterface(MainActivity.this, mWebView); //JavascriptInterface 객체화
-        mWebView.addJavascriptInterface(mWebViewInterface, "Bridge"); //웹뷰에 JavascriptInterface를 연결
+        mWebViewInterface = new WebViewInterface(MainActivity.this, mWebView); //JavascriptInterface object
+        mWebView.addJavascriptInterface(mWebViewInterface, "Bridge"); //webview JavascriptInterface
 
-        //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // 접속 URL
-        //mWebView.loadUrl("http://175.195.42.157:8000"); // 접속 URL
-        //mWebView.loadUrl("http://121.168.23.64:8000"); // 접속 URL
+        //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // URL
+        //mWebView.loadUrl("http://175.195.42.157:8000"); // URL
+        //mWebView.loadUrl("http://121.168.23.64:8000"); // URL
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
 
