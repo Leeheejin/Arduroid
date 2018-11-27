@@ -145,6 +145,11 @@ ArdublocklyServer.jsonToIdeModal = function(jsonObj) {
   } else if (jsonObj.success && jsonObj.ide_mode) {
     // Format a successful response
     if (jsonObj.ide_mode == 'upload') {
+      try{
+        Android.getclick();
+         }
+         catch(e){
+         }
       elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpUploadedTitle');
     } else if (jsonObj.ide_mode == 'verify') {
       elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpVerifiedTitle');
@@ -337,11 +342,6 @@ ArdublocklyServer.setIdeOptions = function(ide_option, callback) {
  *     have one argument to receive the JSON response.
  */
 ArdublocklyServer.sendSketchToServer = function(code, callback) {
-    try{
-  Bridge.getcode(code);
-  }
-  catch(e){
-  }
   ArdublocklyServer.sendRequest(
       '/code', 'POST', 'application/json', {"sketch_code": code}, callback);
 };
