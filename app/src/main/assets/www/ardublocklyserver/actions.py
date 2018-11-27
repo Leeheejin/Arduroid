@@ -85,22 +85,16 @@ def load_arduino_cli(sketch_path):
         success = False
         exit_code = 56
         err_out = 'Arduino Board not configured in the Settings.'
-    elif not settings.get_serial_port_flag() and \
-            settings.load_ide_option == 'upload':
-        success = False
-        exit_code = 55
-        err_out = 'Serial Port configured in Settings not accessible.'
     if success:
         ide_mode = settings.load_ide_option
         # Concatenates the CLI command and execute if the flags are valid
         cli_command = [settings.compiler_dir, "%s" % sketch_path]
         if settings.load_ide_option == 'upload':
             print('\nUploading sketch to Arduino...')
-            cli_command.append('--upload')
-            cli_command.append('--port')
-            cli_command.append(settings.get_serial_port_flag())
-            cli_command.append('--board')
-            cli_command.append(settings.get_arduino_board_flag())
+            if (get_arduino_boards() is not None):
+                cli_command.append('--verify')
+                cli_command.append('--board')
+                cli_command.append(settings.get_arduino_board_flag())
         elif settings.load_ide_option == 'verify':
             print('\nVerifying the sketch...')
             cli_command.append('--board')
@@ -113,7 +107,6 @@ def load_arduino_cli(sketch_path):
         if sys.version_info[0] < 3:
             sys_locale = locale.getpreferredencoding()
             cli_command = [x.encode(sys_locale) for x in cli_command]
-
         if settings.load_ide_option == 'open':
             # Open IDE in a subprocess without capturing outputs
             subprocess.Popen(cli_command, shell=False)
@@ -224,36 +217,6 @@ def get_arduino_boards():
     :return: List of Arduino board types.
     """
     return ServerCompilerSettings().get_arduino_board_types()
-
-
-#
-# Serial Port settings
-#
-def set_serial_port(new_value):
-    """Set a new serial port in the Settings.
-
-    :param new_value: New serial port to save.
-    :return: Same as get_serial_ports() function.
-    """
-    ServerCompilerSettings().serial_port = new_value
-    return get_serial_port_selected()
-
-
-def get_serial_ports():
-    """Get the available serial ports.
-
-    :return: Dictionary of serial ports.
-    """
-    return ServerCompilerSettings().get_serial_ports()
-
-
-def get_serial_port_selected():
-    """Get the selected serial port from the Settings.
-
-    :return: The currently selected serial port in the Settings.
-    """
-    return ServerCompilerSettings().serial_port
-
 
 #
 # Load IDE settings

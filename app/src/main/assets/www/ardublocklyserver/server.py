@@ -176,11 +176,6 @@ def handler_settings_get_all():
                             for board in actions.get_arduino_boards()],
                 'selected': actions.get_arduino_board_selected()
             }, {
-                'settings_type': 'serial',
-                'options': [{'value': k, 'display_text': v}
-                            for k, v in iteritems(actions.get_serial_ports())],
-                'selected': actions.get_serial_port_selected()
-            }, {
                 'settings_type': 'ide',
                 'options': [{'value': k, 'display_text': v} for k, v in
                             iteritems(actions.get_load_ide_options())],
@@ -216,11 +211,6 @@ def handler_settings_get_individual(name):
             'options': [{'value': board, 'display_text': board}
                         for board in actions.get_arduino_boards()],
             'selected': actions.get_arduino_board_selected()})
-    elif name == 'serial':
-        response_dict.update({
-            'options': [{'value': k, 'display_text': v}
-                        for k, v in iteritems(actions.get_serial_ports())],
-            'selected': actions.get_serial_port_selected()})
     elif name == 'ide':
         response_dict.update({
             'options': [{'value': k, 'display_text': v}
@@ -318,10 +308,6 @@ def handler_settings_update_individual(name):
                 set_value = actions.set_arduino_board(new_value)
                 options = [{'value': board, 'display_text': board}
                            for board in actions.get_arduino_boards()]
-            elif name == 'serial':
-                set_value = actions.set_serial_port(new_value)
-                options = [{'value': k, 'display_text': v}
-                           for k, v in iteritems(actions.get_serial_ports())]
             elif name == 'ide':
                 set_value = actions.set_load_ide_only(new_value)
                 options = [{'value': k, 'display_text': v} for k, v in
@@ -379,7 +365,6 @@ def handler_code_post():
     52 - Invalid path to internally created sketch file
     53 - Compiler directory not configured in the Settings
     54 - Launch IDE option not configured in the Settings
-    55 - Serial Port configured in Settings not accessible.
     56 - Arduino Board not configured in the Settings.
     52 - Unexpected server error.
     64 - Unable to parse sent JSON.

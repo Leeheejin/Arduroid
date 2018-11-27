@@ -168,8 +168,6 @@ Ardublockly.ideButtonLeftAction = Ardublockly.ideSendOpen;
 
 /** Initialises the IDE buttons with the default option from the server. */
 Ardublockly.initialiseIdeButtons = function() {
-  document.getElementById('button_ide_left').title =
-      Ardublockly.getLocalStr('openSketch');
   document.getElementById('button_ide_middle').title =
       Ardublockly.getLocalStr('verifySketch');
   document.getElementById('button_ide_large').title =
@@ -198,7 +196,6 @@ Ardublockly.changeIdeButtons = function(value) {
     Ardublockly.ideButtonLeftAction = Ardublockly.ideSendOpen;
     Ardublockly.ideButtonMiddleAction = Ardublockly.ideSendVerify;
     Ardublockly.ideButtonLargeAction = Ardublockly.ideSendUpload;
-    leftButton.title = openTitle;
     middleButton.title = verifyTitle;
     largeButton.title = uploadTitle;
   } else if (value === 'verify') {
@@ -206,17 +203,8 @@ Ardublockly.changeIdeButtons = function(value) {
     Ardublockly.ideButtonLeftAction = Ardublockly.ideSendOpen;
     Ardublockly.ideButtonMiddleAction = Ardublockly.ideSendUpload;
     Ardublockly.ideButtonLargeAction = Ardublockly.ideSendVerify;
-    leftButton.title = openTitle;
     middleButton.title = uploadTitle;
     largeButton.title = verifyTitle;
-  } else if (value === 'open') {
-    Ardublockly.changeIdeButtonsDesign(value);
-    Ardublockly.ideButtonLeftAction = Ardublockly.ideSendVerify;
-    Ardublockly.ideButtonMiddleAction = Ardublockly.ideSendUpload;
-    Ardublockly.ideButtonLargeAction = Ardublockly.ideSendOpen;
-    leftButton.title = verifyTitle;
-    middleButton.title = uploadTitle;
-    largeButton.title = openTitle;
   }
 };
 
@@ -353,10 +341,6 @@ Ardublockly.openSettings = function() {
     Ardublockly.setArduinoBoardsHtml(
         ArdublocklyServer.jsonToHtmlDropdown(jsonObj));
   });
-  ArdublocklyServer.requestSerialPorts(function(jsonObj) {
-    Ardublockly.setSerialPortsHtml(
-        ArdublocklyServer.jsonToHtmlDropdown(jsonObj));
-  });
   ArdublocklyServer.requestIdeOptions(function(jsonObj) {
     Ardublockly.setIdeHtml(ArdublocklyServer.jsonToHtmlDropdown(jsonObj));
   });
@@ -438,31 +422,9 @@ Ardublockly.setBoard = function() {
  * @param {element} jsonResponse JSON data coming back from the server.
  * @return {undefined} Might exit early if response is null.
  */
-Ardublockly.setSerialPortsHtml = function(newEl) {
-  if (newEl === null) return Ardublockly.openNotConnectedModal();
-
-  var serialDropdown = document.getElementById('serial_port');
-  if (serialDropdown !== null) {
-    // Restarting the select elements built by materialize
-    $('select').material_select('destroy');
-    newEl.name = 'settings_serial';
-    newEl.id = 'serial_port';
-    newEl.onchange = Ardublockly.setSerial;
-    serialDropdown.parentNode.replaceChild(newEl, serialDropdown);
-    // Refresh the materialize select menus
-    $('select').material_select();
-  }
-};
 
 /** Sets the Serial Port with the selected user input from the drop down. */
-Ardublockly.setSerial = function() {
-  var el = document.getElementById('serial_port');
-  var serialValue = el.options[el.selectedIndex].value;
-  ArdublocklyServer.setSerialPort(serialValue, function(jsonObj) {
-    var newEl = ArdublocklyServer.jsonToHtmlDropdown(jsonObj);
-    Ardublockly.setSerialPortsHtml(newEl);
-  });
-};
+
 
 /**
  * Replaces IDE options form data with a new HTMl element.

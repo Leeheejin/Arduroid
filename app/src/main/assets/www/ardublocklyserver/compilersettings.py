@@ -17,7 +17,6 @@ import codecs
 # local-packages imports
 import configparser
 # This package modules
-import ardublocklyserver.serialport
 
 
 class ServerCompilerSettings(object):
@@ -33,7 +32,6 @@ class ServerCompilerSettings(object):
         sketch_name
         sketch_dir
         arduino_board
-        serial_port
         load_ide_option
     """
 
@@ -66,8 +64,6 @@ class ServerCompilerSettings(object):
                        'ESP8266 Huzzah': 'esp8266:esp8266:generic',
                        'ESP8266 WeMos D1': 'esp8266:esp8266:generic'}
 
-    # Class dictionary to contain the computer COM ports, dynamic content
-    __serial_ports = {'port0': 'COM1'}
 
     # Class dictionary to define IDE load options, static content
     __ide_load_options = {'open': 'Open sketch in IDE',
@@ -101,8 +97,6 @@ class ServerCompilerSettings(object):
         self.__sketch_name = None
         self.__arduino_board_key = None
         self.__arduino_board_value = None
-        self.__serial_port_key = None
-        self.__serial_port_value = None
         if settings_dir:
             self.__settings_path = os.path.join(settings_dir,
                                                 self.__settings_filename)
@@ -308,157 +302,6 @@ class ServerCompilerSettings(object):
         return [key for key in self.__arduino_types]
 
     #
-    # Serial Port and lists accessors
-    # Extra checks of the available Ports are required as states can change
-    #
-    def get_serial_port(self):
-        """Check available Serial Ports and populates the port dictionary.
-
-        Returns currently selected Serial Port key if available.
-        Returns None if selected Serial Port is not available anymore.
-        :return: Serial Port dictionary key
-        """
-        self.populate_serial_port_list()
-        if not self.__serial_ports:
-            print('There are no available Serial Ports !!!')
-            self.__serial_port_key = None
-            self.__serial_port_value = None
-            self.save_settings()
-        elif self.__serial_port_value not in self.__serial_ports.values():
-            print('The selected Serial Port is no longer available !!!')
-            self.__serial_port_key = None
-            self.__serial_port_value = None
-            self.save_settings()
-        elif self.__serial_ports[self.__serial_port_key] != \
-                self.__serial_port_value:
-            # At this point the dictionary is not empty and the value is
-            # present, but not with the right key. So correct the key.
-            for key, value in self.__serial_ports.items():
-                if self.__serial_port_value == value:
-                    self.__serial_port_key = key
-            # No need to save settings as only value saved and stays the same
-        return self.__serial_port_key
-
-    def set_serial_port(self, new_port):
-        """Check available Serial Ports and populates the port dictionary.
-
-        If the new serial port is not in the dictionary or the dictionary is
-        empty it prints an error in the console.
-
-        :param new_port: the new port to set
-        """
-        if new_port in self.__serial_ports:
-            self.__serial_port_value = self.__serial_ports[new_port]
-            self.__serial_port_key = new_port
-            # Now we check if the Port is still available
-            self.populate_serial_port_list()
-            if not self.__serial_ports:
-                print('There are no available Serial Ports !!!')
-                self.__serial_port_key = None
-                self.__serial_port_value = None
-            elif self.__serial_port_value not in self.__serial_ports.values():
-                print('The selected Serial Port is no longer available !!!')
-                self.__serial_port_key = None
-                self.__serial_port_value = None
-            print('Serial Port set to:\n\t%s' % self.__serial_port_value)
-            self.save_settings()
-        else:
-            print('Provided Serial Port is not valid: !!!'
-                  '\n\t%s' % new_port)
-            if self.__serial_port_key and self.__serial_port_value:
-                print('Previous Serial Port maintained:\n\t%s' %
-                      self.__serial_port_value)
-            else:
-                self.set_serial_port_default()
-                print('Default Serial Port set:\n\t%s' %
-                      self.__serial_port_value)
-                self.save_settings()
-
-    serial_port = property(get_serial_port, set_serial_port)
-
-    def set_serial_port_default(self):
-        """Check available Serial Ports and populate the port dictionary.
-
-        If there are no available serial ports is resets the variables.
-        """
-        self.populate_serial_port_list()
-        if not self.__serial_ports:
-            self.__serial_port_key = None
-            self.__serial_port_value = None
-        else:
-            self.__serial_port_key = sorted(self.__serial_ports.keys())[0]
-            self.__serial_port_value = \
-                self.__serial_ports[self.__serial_port_key]
-
-    def set_serial_port_from_file(self, new_port_value):
-        """Check available Serial Ports and populate the port dictionary.
-
-        If the new serial port is not in the dictionary or the dictionary is
-        empty it prints an error in the console.
-
-        :param new_port_value: the new port to set
-        """
-        # Check if the settings file value is present in available ports list
-        set_default = True
-        self.populate_serial_port_list()
-        if self.__serial_ports:
-            for key, value in self.__serial_ports.items():
-                if new_port_value == value:
-                    self.__serial_port_key = key
-                    self.__serial_port_value = value
-                    set_default = False
-        if set_default:
-            print('Settings file Serial Port is not currently available:'
-                  '\n\t%s' % new_port_value)
-            self.set_serial_port_default()
-            print('Default Serial Port set:\n\t%s' % self.__serial_port_value)
-
-    def get_serial_port_flag(self):
-        """Check available Serial Ports and populates the port dictionary.
-
-        Returns currently selected Serial Port value if available.
-        Returns None if selected Serial Port is not available anymore.
-
-        :return: Serial Port dictionary value
-        """
-        self.populate_serial_port_list()
-        if not self.__serial_ports:
-            print('There are no available Serial Ports !!!')
-            self.__serial_port_key = None
-            self.__serial_port_value = None
-            self.save_settings()
-        elif self.__serial_port_value not in self.__serial_ports.values():
-            print('The selected Serial Port is no longer available !!!')
-            self.__serial_port_key = None
-            self.__serial_port_value = None
-            self.save_settings()
-        elif self.__serial_ports[self.__serial_port_key] != \
-                self.__serial_port_value:
-            # At this point the dictionary is not empty and the flag
-            # (dictionary value) is present, but not with the right key.
-            # So correct the key.
-            for key, value in self.__serial_ports.items():
-                if self.__serial_port_value == value:
-                    self.__serial_port_key = key
-            # No need to save settings as only value saved and stays the same
-        return self.__serial_port_value
-
-    def get_serial_ports(self):
-        self.populate_serial_port_list()
-        return self.__serial_ports
-
-    def populate_serial_port_list(self):
-        """Populate the serial ports dictionary with the available ports."""
-        port_list = ardublocklyserver.serialport.get_port_list()
-        self.__serial_ports = {}
-        if port_list:
-            port_id = 0
-            for item in port_list:
-                id_string = 'port' + str(port_id)
-                self.__serial_ports.update({id_string: item})
-                port_id += 1
-
-    #
     # Load the IDE accessors
     #
     def get_load_ide(self):
@@ -509,7 +352,6 @@ class ServerCompilerSettings(object):
         self.set_compiler_dir_default()
         self.set_sketch_dir_default()
         self.set_sketch_name_default()
-        self.set_serial_port_default()
         self.set_arduino_board_default()
 
     #
@@ -524,10 +366,6 @@ class ServerCompilerSettings(object):
             'Arduino_IDE', 'arduino_exec_path', '%s' % self.compiler_dir)
         settings_parser.set(
             'Arduino_IDE', 'arduino_board', '%s' % self.arduino_board)
-        settings_parser.set(
-            'Arduino_IDE',
-            'arduino_serial_port',
-            '%s' % self.__serial_port_value)
         # Sketch section
         settings_parser.add_section('Arduino_Sketch')
         settings_parser.set(
@@ -561,8 +399,6 @@ class ServerCompilerSettings(object):
         if settings_dict:
             self.set_compiler_dir_from_file(settings_dict['arduino_exec_path'])
             self.set_arduino_board_from_file(settings_dict['arduino_board'])
-            self.set_serial_port_from_file(
-                    settings_dict['arduino_serial_port'])
             self.set_sketch_name_from_file(settings_dict['sketch_name'])
             self.set_sketch_dir_from_file(settings_dict['sketch_directory'])
             self.set_load_ide_from_file(settings_dict['ide_load'])
@@ -575,7 +411,6 @@ class ServerCompilerSettings(object):
         print('\tCompiler directory: %s' % self.__compiler_dir)
         print('\tArduino Board Key: %s' % self.__arduino_board_key)
         print('\tArduino Board Value: %s' % self.__arduino_board_value)
-        print('\tSerial Port Value: %s' % self.__serial_port_value)
         print('\tSketch Name: %s' % self.__sketch_name)
         print('\tSketch Directory: %s' % self.__sketch_dir)
         print('\tLoad IDE option: %s' % self.__load_ide_option)
@@ -599,8 +434,6 @@ class ServerCompilerSettings(object):
                 settings_parser.get('Arduino_IDE', 'arduino_exec_path')
             settings_dict['arduino_board'] =\
                 settings_parser.get('Arduino_IDE', 'arduino_board')
-            settings_dict['arduino_serial_port'] =\
-                settings_parser.get('Arduino_IDE', 'arduino_serial_port')
             settings_dict['sketch_name'] =\
                 settings_parser.get('Arduino_Sketch', 'sketch_name')
             settings_dict['sketch_directory'] =\

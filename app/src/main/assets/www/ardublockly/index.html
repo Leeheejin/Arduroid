@@ -29,13 +29,13 @@
   <script src="../blockly/blocks/arduino/io.js"></script>
   <script src="../blockly/blocks/arduino/map.js"></script>
   <script src="../blockly/blocks/arduino/procedures.js"></script>
-  <script src="../blockly/blocks/arduino/serial.js"></script>
   <script src="../blockly/blocks/arduino/servo.js"></script>
   <script src="../blockly/blocks/arduino/spi.js"></script>
   <script src="../blockly/blocks/arduino/stepper.js"></script>
   <script src="../blockly/blocks/arduino/time.js"></script>
   <script src="../blockly/blocks/arduino/tone.js"></script>
   <script src="../blockly/blocks/arduino/variables.js"></script>
+  <script src="../blockly/blocks/arduino/serial.js"></script>
   <script src="../blockly/generators/arduino.js"></script>
   <script src="../blockly/generators/arduino/boards.js"></script>
   <script src="../blockly/generators/arduino/io.js"></script>
@@ -45,13 +45,13 @@
   <script src="../blockly/generators/arduino/map.js"></script>
   <script src="../blockly/generators/arduino/math.js"></script>
   <script src="../blockly/generators/arduino/procedures.js"></script>
-  <script src="../blockly/generators/arduino/serial.js"></script>
   <script src="../blockly/generators/arduino/servo.js"></script>
   <script src="../blockly/generators/arduino/spi.js"></script>
   <script src="../blockly/generators/arduino/stepper.js"></script>
   <script src="../blockly/generators/arduino/text.js"></script>
   <script src="../blockly/generators/arduino/time.js"></script>
   <script src="../blockly/generators/arduino/tone.js"></script>
+  <script src="../blockly/generators/arduino/serial.js"></script>
   <script src="../blockly/generators/arduino/variables.js"></script>
 
   <!-- Default language js files, user selection appended to head on load -->
@@ -73,7 +73,7 @@
         </span>
     </a>
     <!-- Horizontal Navbar links only shown on large resolutions -->
-    <ul id="nav-mobile" class="right hide-on-med-and-down">
+    <ul id="nav-mobile" class="right hide-on-med-and-down" style="display:none">
       <li><a href="#" id="button_load"><span class="translatable_open">Open</span><i class="mdi-file-file-upload left"></i></a></li>
       <li><a href="#" id="button_save"><span class="translatable_save">Save</span><i class="mdi-file-file-download left"></i></a></li>
       <li><a href="#" id="button_delete"><span class="translatable_deleteAll">Delete All</span><i class="mdi-action-delete left"></i></a></li>
@@ -209,20 +209,14 @@
 </div>
 <div id="ide_output_spacer"></div>
 
-<!-- Settings: Displayed as a Materialize Modal -->  <!-- 세팅 인비지블-->
-<div id="settings_dialog" class="modal modal-fixed-footer" style="display: none">
+<!-- Settings: Displayed as a Materialize Modal -->
+<div id="settings_dialog" class="modal modal-fixed-footer">
   <div class="modal-content">
     <h4><span class="translatable_settings">Settings</span></h4>
     <div class="modal_section">
       <label><span class="translatable_arduinoBoard">Arduino Board</span>:</label>
       <select name="settings_board" id="board">
         <option value="uno" class="translatable_arduinoBoardDefault">Arduino Board unknown</option>
-      </select>
-    </div>
-    <div class="modal_section">
-      <label><span class="translatable_comPort">COM Port<span>:</label>
-      <select name="settings_serial" id="serial_port">
-        <option value="COMX" class="translatable_comPortDefault">COM Port unknown</option>
       </select>
     </div>
     <div class="modal_section">
@@ -287,7 +281,7 @@
     <div class="translatable_noServerBody">
       <p>For all the Arduroid features to be enabled, the Arduroid desktop application must be running locally on your computer.</p>
       <p>If you are using an online version you will not be able to configure the settings nor load the blocks code into an Arduino.</p>
-      <p>Installation instruction can be found in the <a href="https://github.com/carlosperate/ardublockly">Arduroid repository</a>.</p>
+      <p>Installation instruction can be found in the <a href="https://github.com/Leeheejin/Arduroid">Arduroid repository</a>.</p>
       <p>If you have Arduroid already installed, make sure the application is running correctly.</p>
     </div>
   </div>

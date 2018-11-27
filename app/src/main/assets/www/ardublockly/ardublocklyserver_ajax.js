@@ -153,11 +153,7 @@ ArdublocklyServer.jsonToIdeModal = function(jsonObj) {
       elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpUploadedTitle');
     } else if (jsonObj.ide_mode == 'verify') {
       elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpVerifiedTitle');
-    } else if (jsonObj.ide_mode == 'open') {
-      elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpOpenedTitle');
-      // This is a corner case where we also add to the stand out
-      elStdOp.innerHTML += Ardublockly.getLocalStr('arduinoOpOpenedBody');
-    } else {
+    }  else {
       elTitle.innerHTML = Ardublockly.getLocalStr('arduinoOpErrorTitle');
     }
   } else {
@@ -292,9 +288,6 @@ ArdublocklyServer.setArduinoBoard = function(new_board, callback) {
  * @param {!function} callback Callback function for the server request, must
  *     have one argument to receive the JSON response.
  */
-ArdublocklyServer.requestSerialPorts = function(callback) {
-  ArdublocklyServer.getJson('/settings/serial', callback);
-};
 
 /**
  * Sends the inputted Serial Port to the Ardublockly Server Settings. The new
@@ -304,10 +297,6 @@ ArdublocklyServer.requestSerialPorts = function(callback) {
  * @param {!function} callback Callback function for the server request, must
  *     have one argument to receive the JSON response.
  */
-ArdublocklyServer.setSerialPort = function(new_port, callback) {
-  ArdublocklyServer.putJson(
-      '/settings/serial', {"new_value": new_port}, callback);
-};
 
 /**
  * Gets the current IDE setting from the Ardublockly Server settings. The new
