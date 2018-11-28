@@ -22,14 +22,54 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.hardware.usb.UsbManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RadioGroup.OnCheckedChangeListener;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.physicaloid.lib.Boards;
+import com.physicaloid.lib.Physicaloid;
+import com.physicaloid.lib.Physicaloid.UploadCallBack;
+import com.physicaloid.lib.programmer.avr.UploadErrors;
+import com.physicaloid.lib.usb.driver.uart.ReadLisener;
+import com.physicaloid.lib.usb.driver.uart.UartConfig;
+
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private WebView mWebView;
     private WebViewInterface mWebViewInterface;
@@ -38,29 +78,38 @@ public class MainActivity extends AppCompatActivity {
     String[] PERMISSIONS = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE"};
 
     static final int PERMISSION_REQUEST_CODE = 1;
+    //****************************************************************
+    //TODO:HEX UPLOADER
+
+    TextView tvRead;
+    Physicaloid mPhysicaloid;
+
+    //****************************************************************
 
     private boolean hasPermissions(String[] permissions) {
         int res = 0;
-        // permission check in string array
+        //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
         for (String perms : permissions){
             res = checkCallingOrSelfPermission(perms);
             if (!(res == PackageManager.PERMISSION_GRANTED)){
-                //permission denied
+                //퍼미션 허가 안된 경우
                 return false;
             }
 
         }
-        //permission ckecked
+        //퍼미션이 허가된 경우
         return true;
     }
 
 
     private void requestNecessaryPermissions(String[] permissions) {
-        //must need with API 23 Runtime Permission
+        //마시멜로( API 23 )이상에서 런타임 퍼미션(Runtime Permission) 요청
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
     }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +117,10 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (!hasPermissions(PERMISSIONS)) { //permission check
-            requestNecessaryPermissions(PERMISSIONS);//if doesn't check
+        if (!hasPermissions(PERMISSIONS)) { //퍼미션 허가를 했었는지 여부를 확인
+            requestNecessaryPermissions(PERMISSIONS);//퍼미션 허가안되어 있다면 사용자에게 요청
         } else {
-            //already checked
+            //이미 사용자에게 퍼미션 허가를 받음.
         }
 
         WebView mWebView = (WebView) findViewById(R.id.WebView);
@@ -88,6 +137,27 @@ public class MainActivity extends AppCompatActivity {
         //mWebView.loadUrl("http://121.168.23.64:8000"); // URL
         mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
+
+
+        tvRead  = (TextView) findViewById(R.id.tvRead);
+        tvRead.setEnabled(false);
+        mPhysicaloid = new Physicaloid(this);
+
+
+
+
+        //****************************************************************
+        //This part is Physicaloid Library
+
+
+        //****************************************************************
+        // TODO : register intent filtered actions for device being attached or detached
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(mUsbReceiver, filter);
+        //****************************************************************
+
     }
 
     private class WebViewClientClass extends WebViewClient {
@@ -117,22 +187,22 @@ public class MainActivity extends AppCompatActivity {
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             outputFile= new File(path, "ArdublocklySketch.ino.hex"); //
 
-            if (outputFile.exists()) { // file exists?
+            if (outputFile.exists()) { //이미 다운로드 되어 있는 경우
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("아두이노 스케치 저장 및 업데이트");
-                builder.setMessage("기존 파일이 존재합니다. 업데이트 할까요?");
+                builder.setTitle("파일 다운로드");
+                builder.setMessage("이미 SD 카드에 존재합니다. 다시 다운로드 받을까요?");
                 builder.setNegativeButton("아니오",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-                                Toast.makeText(getApplicationContext(),"기존 파일을 유지합니다.",Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(),"기존 파일을 플레이합니다.",Toast.LENGTH_LONG).show();
                             }
                         });
                 builder.setPositiveButton("예",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                outputFile.delete(); //file delete
+                                outputFile.delete(); //파일 삭제
 
                                 final DownloadFilesTask downloadTask = new DownloadFilesTask(MainActivity.this);
                                 downloadTask.execute(fileURL);
@@ -141,10 +211,18 @@ public class MainActivity extends AppCompatActivity {
                         });
                 builder.show();
 
-            } else { // new download accept
+            } else { //새로 다운로드 받는 경우
                 final DownloadFilesTask downloadTask = new DownloadFilesTask(MainActivity.this);
                 downloadTask.execute(fileURL);
             }
+
+            //****************************************************************
+            //This part is Physicaloid Library
+            openDevice();
+            Toast.makeText(getApplicationContext(), "아두이노에 연결합니다.", Toast.LENGTH_LONG).show();
+            Log.v("ArduroidNew", "This part button click");
+            onClickUpload();
+
         }
     }
     private class DownloadFilesTask extends AsyncTask<String, String, Long> {
@@ -157,11 +235,13 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
+        //파일 다운로드를 시작하기 전에 프로그레스바를 화면에 보여줍니다.
         @Override
         protected void onPreExecute() { //2
             super.onPreExecute();
 
-            //background cpu running when sketch download
+            //사용자가 다운로드 중 파워 버튼을 누르더라도 CPU가 잠들지 않도록 해서
+            //다시 파워버튼 누르면 그동안 다운로드가 진행되고 있게 됩니다.
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
             mWakeLock.acquire();
@@ -169,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //fie downloading...
+        //파일 다운로드를 진행합니다.
         @Override
         protected Long doInBackground(String... string_url) { //3
             int count;
@@ -184,22 +264,23 @@ public class MainActivity extends AppCompatActivity {
                 connection.connect();
 
 
-                //file size load
+                //파일 크기를 가져옴
                 FileSize = connection.getContentLength();
 
-                //URL input stream
+                //URL 주소로부터 파일다운로드하기 위한 input stream
                 input = new BufferedInputStream(url.openStream(), 8192);
 
                 path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 outputFile= new File(path, "ArdublocklySketch.ino.hex"); //파일명까지 포함함 경로의 File 객체 생성
 
-                // for SDcard Output stream
+                // SD카드에 저장하기 위한 Output stream
                 output = new FileOutputStream(outputFile);
 
 
                 byte data[] = new byte[1024];
                 long downloadedSize = 0;
                 while ((count = input.read(data)) != -1) {
+                    //사용자가 BACK 버튼 누르면 취소가능
                     if (isCancelled()) {
                         input.close();
                         return Long.valueOf(-1);
@@ -214,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    //write data in file
+                    //파일에 데이터를 기록합니다.
                     output.write(data, 0, count);
                 }
                 // Flush output
@@ -243,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //when file down complete
+        //파일 다운로드 완료 후
         @Override
         protected void onPostExecute(Long size) { //5
             super.onPostExecute(size);
@@ -257,9 +338,10 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-            else //exception!
+            else
                 Toast.makeText(getApplicationContext(), "다운로드 에러", Toast.LENGTH_LONG).show();
         }
+
 
     }
 
@@ -307,5 +389,155 @@ public class MainActivity extends AppCompatActivity {
         });
         myDialog.show();
     }
+
+
+    //****************************************************************
+    //TODO : This part is Hex file upload method
+    //****************************************************************
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //****************************************************************
+        // TODO : unregister the intent filtered actions
+        unregisterReceiver(mUsbReceiver);
+        //****************************************************************
+    }
+
+
+    private void openDevice() {
+        if (!mPhysicaloid.isOpened()) {
+            Log.v("ArduroidNEw", "This part 001");
+            if (mPhysicaloid.open()) { // default 9600bps
+                Log.v("ArduroidNEw", "This part 002");
+
+
+                mPhysicaloid.addReadListener(new ReadLisener() {
+                    String readStr;
+                    // callback when reading one or more size buffer
+                    @Override
+                    public void onRead(int size) {
+                        byte[] buf = new byte[size];
+
+                        mPhysicaloid.read(buf, size);
+                        try {
+                            readStr = new String(buf, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            Log.e(TAG, e.toString());
+                            return;
+                        }
+
+                        // UI thread
+                        tvAppend(tvRead, readStr);
+                    }
+                });
+            }
+        }
+    }
+
+    public void onClickClose(View v) {
+        closeDevice();
+    }
+
+    private void closeDevice() {
+        if(mPhysicaloid.close()) {
+            mPhysicaloid.clearReadListener();
+        }
+    }
+
+
+    private UploadCallBack mUploadCallback = new UploadCallBack() {
+        @Override
+        public void onPreUpload() {
+            tvAppend(tvRead, "Upload : Start\n");
+            Log.v("arduroid", "Upload : Start");
+        }
+
+        @Override
+        public void onUploading(int value) {
+            tvAppend(tvRead, "Upload : "+value+" %\n");
+            Log.v("arduroid", "Upload : onUploading");
+        }
+
+        @Override
+        public void onPostUpload(boolean success) {
+            if(success) {
+                tvAppend(tvRead, "Upload : Successful\n");
+                Log.v("arduroid", "Upload : onPostUpload");
+            } else {
+                tvAppend(tvRead, "Upload fail\n");
+                Log.v("arduroid", "Upload : onPostUpload fail");
+            }
+        }
+
+        @Override
+        public void onCancel() {
+            tvAppend(tvRead, "Cancel uploading\n");
+            Log.v("arduroid", "Upload : onPostUpload onCancel");
+        }
+
+        @Override
+        public void onError(UploadErrors err) {
+            tvAppend(tvRead, "Error  : "+err.toString()+"\n");
+            Log.v("arduroid", "Upload : Error" + err.toString());
+        }
+    };
+
+    public void onClickUpload() {
+        Log.v("arduroid", "Click Upload");
+        try {
+
+
+            String fileName = "ArdublocklySketch.ino.hex";
+            String path1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) +"/"+fileName;
+            File file = new File(path1);
+            FileInputStream fileInputStream = new FileInputStream(file);
+            mPhysicaloid.upload(Boards.ARDUINO_UNO, fileInputStream, mUploadCallback);
+
+
+            Log.v("arduroid", "Try what?");
+        } catch (RuntimeException e) {
+            Log.e(TAG, e.toString());
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+        }
+
+    }
+
+    Handler mHandler = new Handler();
+    private void tvAppend(TextView tv, CharSequence text) {
+        final TextView ftv = tv;
+        final CharSequence ftext = text;
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                ftv.append(ftext);
+            }
+        });
+    }
+
+
+    //****************************************************************
+    // TODO : get intent when a USB device attached
+    protected void onNewIntent(Intent intent) {
+        String action = intent.getAction();
+
+        if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+            openDevice();
+        }
+    };
+    //****************************************************************
+
+    //****************************************************************
+    // TODO : get intent when a USB device detached
+    BroadcastReceiver mUsbReceiver = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                closeDevice();
+            }
+        }
+    };
 
 }
