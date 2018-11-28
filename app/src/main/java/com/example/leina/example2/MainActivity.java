@@ -554,7 +554,7 @@ public class MainActivity extends AppCompatActivity {
         try {
 
 
-            String fileName = "ArdublocklySketch.ino.hex";
+            String fileName = "ArduroidSketch.ino.hex";
             String path1 = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) +"/"+fileName;
             File file = new File(path1);
             FileInputStream fileInputStream = new FileInputStream(file);
