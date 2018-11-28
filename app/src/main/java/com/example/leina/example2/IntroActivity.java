@@ -34,7 +34,11 @@ public class IntroActivity extends AppCompatActivity {
     private int[] layouts;
     private Button btnSkip, btnNext;
 
-    String[] PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION","android.permission.ACCESS_FINE_LOCATION","android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO","android.hardware.usb.action.USB_DEVICE_ATTACHED"};
+    String[] PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION","android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO",
+            "android.hardware.usb.action.USB_DEVICE_ATTACHED"};
+
     static final int PERMISSION_REQUEST_CODE = 1;
 
     private boolean hasPermissions(String[] permissions) {
@@ -52,7 +56,6 @@ public class IntroActivity extends AppCompatActivity {
         return true;
     }
 
-
     private void requestNecessaryPermissions(String[] permissions) {
         // API 23 of higher version need check Runtime Permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -63,6 +66,12 @@ public class IntroActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (!hasPermissions(PERMISSIONS)) { //check permission
+            requestNecessaryPermissions(PERMISSIONS);//if not, request
+        } else {
+            // already accepted
+        }
 
         // Checking for first time launch - before calling setContentView()
 
@@ -117,12 +126,6 @@ public class IntroActivity extends AppCompatActivity {
                 }
             }
         });
-
-        if (!hasPermissions(PERMISSIONS)) { //check permission
-            requestNecessaryPermissions(PERMISSIONS);//if not, request
-        } else {
-            // already accepted
-        }
     }
 
     private void addBottomDots(int currentPage) {

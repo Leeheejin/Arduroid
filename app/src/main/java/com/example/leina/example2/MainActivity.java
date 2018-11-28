@@ -54,7 +54,10 @@ public class MainActivity extends AppCompatActivity {
     private File outputFile;
     private File path;
 
-    String[] PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION","android.permission.ACCESS_FINE_LOCATION","android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO","android.hardware.usb.action.USB_DEVICE_ATTACHED"};
+    String[] PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION","android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO",
+            "android.hardware.usb.action.USB_DEVICE_ATTACHED"};
     static final int PERMISSION_REQUEST_CODE = 1;
 
     //****************************************************************
@@ -65,11 +68,34 @@ public class MainActivity extends AppCompatActivity {
 
     //****************************************************************
 
+    private boolean hasPermissions(String[] permissions) {
+        int res = 0;
+        // Check state of permission of string array
+        for (String perms : permissions){
+            res = checkCallingOrSelfPermission(perms);
+            if (!(res == PackageManager.PERMISSION_GRANTED)){
+                // case : denied permission
+                return false;
+            }
+
+        }
+        // case : accepted permission
+        return true;
+    }
+
+    private void requestNecessaryPermissions(String[] permissions) {
+        // API 23 of higher version need check Runtime Permission
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
 
         //  Declare a new thread to do a preference check
         Thread t = new Thread(new Runnable() {
@@ -105,7 +131,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         // Start the thread
         t.start();
 
@@ -135,7 +160,6 @@ public class MainActivity extends AppCompatActivity {
         mWebView.setWebViewClient(new WebViewClientClass());
         mWebView.setWebChromeClient(new WebChromeClient());
 
-        /*
         mWebView.addJavascriptInterface(new Object()
         {
             @JavascriptInterface
@@ -153,7 +177,8 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "오픈클릭", Toast.LENGTH_LONG).show();
             }
         }, "two");
-        */
+
+
 
         mWebView.addJavascriptInterface(new Object()
         {
@@ -166,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         }, "two");
+
 
         tvRead  = (TextView) findViewById(R.id.tvRead);
         tvRead.setVisibility(View.VISIBLE);
@@ -208,10 +234,10 @@ public class MainActivity extends AppCompatActivity {
         public void getclick () {
             //Toast.makeText(mContext, "clicked!", Toast.LENGTH_LONG).show();
 
-            final String fileURL = "http://175.195.42.157:8000/ardublockly/data/ArdublocklySketch.ino.hex";
+            final String fileURL = "http://175.195.42.157:8000/ardublockly/data/ArduroidSketch.ino.hex";
 
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            outputFile= new File(path, "ArdublocklySketch.ino.hex"); //
+            outputFile= new File(path, "ArduroidSketch.ino.hex"); //
 
             if (outputFile.exists()) {
 
@@ -313,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
                 input = new BufferedInputStream(url.openStream(), 8192);
 
                 path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                outputFile= new File(path, "ArdublocklySketch.ino.hex"); //File obj create
+                outputFile= new File(path, "ArduroidSketch.ino.hex"); //File obj create
 
                 // Output stream for SDcard
                 output = new FileOutputStream(outputFile);
