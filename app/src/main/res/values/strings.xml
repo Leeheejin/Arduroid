@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Arduroid</string>
 
-    <string name="next">NEXT</string>
-    <string name="skip">SKIP</string>
-    <string name="start">GOT IT</string>
+    <string name="next">다음</string>
+    <string name="skip">그만보기</string>
+    <string name="start">시작하기</string>
 
 </resources>
