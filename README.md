@@ -34,6 +34,10 @@ These instructions will get you a copy of the project up and running on your mob
 
 you can release apk file on your IDE, or just see the below video!
 
+#### Actual demonstration of Arduroid
+![build-test](https://github.com/Leeheejin/Arduroid/blob/master/app/src/main/res/drawable/buildapp.jpg?raw=true)
+
+
 #### previous version, Landscape mode
 ![build-test](https://media.giphy.com/media/9S5dmprXZC5uq1t6Mx/giphy.gif)
 
@@ -85,6 +89,15 @@ ide_load = verify
 Third, in MainActivity, when you running start.py (It is a server! you can have your own server.) you can take url to webview, and can controll.
 ```java
 mWebView.loadUrl("input your url");
+```
+
+Fourth, We use Physicaloid which is [https://github.com/ksksue/PhysicaloidLibrary](https://github.com/ksksue/PhysicaloidLibrary "https://github.com/ksksue/PhysicaloidLibrary") you should check your arduino device's id.
+```xml
+
+<usb-device vendor-id="10755" product-id="67" />
+<usb-device vendor-id="9025" product-id="67" />
+<!-- Like this -->
+
 ```
 
 as you see, when you running start.py you can see like....
