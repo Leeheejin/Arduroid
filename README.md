@@ -34,6 +34,10 @@ These instructions will get you a copy of the project up and running on your mob
 
 you can release apk file on your IDE, or just see the below video!
 
+#### Actual demonstration of Arduroid
+![build-test](https://github.com/Leeheejin/Arduroid/blob/master/app/src/main/res/drawable/buildapp.jpg?raw=true)
+
+
 #### previous version, Landscape mode
 ![build-test](https://media.giphy.com/media/9S5dmprXZC5uq1t6Mx/giphy.gif)
 
