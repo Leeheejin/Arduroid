@@ -10,10 +10,11 @@ Todo list for Arduroid
 - [X] change block option (as lang, func ...)
 - [X] Compile with server side Arduino IDE
 - [X] import compiled source code to Arduino device
+- [X] Store .hex file in android internal storage.
 - [ ] Add bluetooth module in Arduroid block.
 - [ ] test Android to Arduino coding with example code
 
 ## Stuff to check out later on
 
-* How store .hex file in android internal storage.
+* How handle error message when click upload button in js
 * Make every custom block being used at other platform
