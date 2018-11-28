@@ -1,46 +1,46 @@
 var Ardublockly = Ardublockly || {};
 Ardublockly.LOCALISED_TEXT = {
-  translationLanguage: "�ѱ���",
-  title: "Ardublockly",
-  blocks: "Blocks",
+  translationLanguage: "한국어",
+  title: "Arduroid",
+  blocks: "블록들",
   /* Menu */
   open: "Open",
   save: "Save",
   deleteAll: "Delete All",
-  settings: "Settings",
+  settings: "설정",
   documentation: "Documentation",
-  reportBug: "Report Bug",
-  examples: "Examples",
+  reportBug: "도움말",
+  examples: "예제",
   /* Settings */
   compilerLocation: "Compiler Location",
   compilerLocationDefault: "Compiler Location unknown",
   sketchFolder: "Sketch Folder",
   sketchFolderDefault: "Sketch Folder unknown",
-  arduinoBoard: "Arduino Board",
-  arduinoBoardDefault: "Arduino Board unknown",
+  arduinoBoard: "아두이노 보드",
+  arduinoBoardDefault: "아두이노 보드를 찾을 수 없습니다.",
   comPort: "COM Port",
   comPortDefault: "COM Port unknown",
-  defaultIdeButton: "Default IDE Button",
-  defaultIdeButtonDefault: "IDE options unknown",
-  language: "Language",
-  languageDefault: "Language unknown",
+  defaultIdeButton: "컴파일 옵션",
+  defaultIdeButtonDefault: "컴파일 옵션이 지정되지 않았습니다.",
+  language: "언어",
+  languageDefault: "언어를 찾을 수 없습니다.",
   sketchName: "Sketch Name",
   /* Arduino console output */
-  arduinoOpMainTitle: "Arduino IDE output",
-  arduinoOpWaiting: "Waiting for the IDE output...",
-  arduinoOpUploadedTitle: "Successfully Uploaded Sketch",
-  arduinoOpVerifiedTitle: "Successfully Verified Sketch",
+  arduinoOpMainTitle: "아두이노 IDE 결과창",
+  arduinoOpWaiting: "IDE의 응답을 기다리는 중...",
+  arduinoOpUploadedTitle: "성공적으로 업로드가 완료되었습니다.",
+  arduinoOpVerifiedTitle: "스케치 검사가를 성공적으로 완료하였습니다.",
   arduinoOpOpenedTitle: "Sketch opened in IDE",
   arduinoOpOpenedBody: "The sketch should be loaded in the Arduino IDE.",
-  arduinoOpErrorTitle: "There has been an error",
-  arduinoOpErrorIdContext_0: "No error.",
-  arduinoOpErrorIdContext_1: "Build or Upload failed.",
-  arduinoOpErrorIdContext_2: "Sketch not found.",
-  arduinoOpErrorIdContext_3: "Invalid command line argument.",
+  arduinoOpErrorTitle: "에러가 발생하였습니다.",
+  arduinoOpErrorIdContext_0: "에러가 없습니다.",
+  arduinoOpErrorIdContext_1: "스케치 검사 혹은 업로드 중에 문제가 발생했습니다.",
+  arduinoOpErrorIdContext_2: "스케치를 찾을 수 없습니다.",
+  arduinoOpErrorIdContext_3: "잘못된 명령어 입력입니다.",
   arduinoOpErrorIdContext_4: "Preference passed to 'get-pref' flag does not exist.",
-  arduinoOpErrorIdContext_5: "Not Clear, but Arduino IDE sometimes errors with this.",
-  arduinoOpErrorIdContext_50: "Unexpected error code from Arduino IDE",
-  arduinoOpErrorIdContext_51: "Could not create sketch file",
+  arduinoOpErrorIdContext_5: "아두이노 IDE 에러, 다시 시도하십시오.",
+  arduinoOpErrorIdContext_50: "아두이노 IDE 에러, 다시 시도하십시오.",
+  arduinoOpErrorIdContext_51: "스케치를 생성할 수 없습니다.",
   arduinoOpErrorIdContext_52: "Invalid path to internally created sketch file",
   arduinoOpErrorIdContext_53: "Unable to find Arduino IDE<br>" +
                               "The compiler directory has not been set correctly.<br>" +
@@ -48,58 +48,57 @@ Ardublockly.LOCALISED_TEXT = {
   arduinoOpErrorIdContext_54: "What should we do with the Sketch?<br>" +
                               "The launch IDE option has not been set.<br>" +
                               "Please select an IDE option in the Settings.",
-  arduinoOpErrorIdContext_55: "Serial Port unavailable<br>" +
-                              "The Serial Port is not accessible.<br>" +
-                              "Please check if the Arduino is correctly connected to the PC and select the Serial Port in the Settings.",
-  arduinoOpErrorIdContext_56: "Unknown Arduino Board<br>" +
-                              "The Arduino Board has not been set.<br>" +
-                              "Please select the appropriate Arduino Board from the settings.",
-  arduinoOpErrorIdContext_52: "Unexpected server error.",
-  arduinoOpErrorIdContext_64: "Unable to parse sent JSON.",
-  arduinoOpErrorUnknown: "Unexpected error",
+  arduinoOpErrorIdContext_55: "비정상적인 시리얼 포트 연결<br>" +
+                              "시리얼 포트를 찾을 수 없습니다.<br>" +
+                              "아두이노 보드가 정상적으로 연결되어 인식되는지 확인해 주세요.",
+  arduinoOpErrorIdContext_56: "아두이노 보드 인식 문제 발생<br>" +
+                              "아두이노 보드가 정상적으로 연결되어 있지 않습니다. <br>" +
+                              "아두이노 보드 연결을 확인해 주십시오.",
+  arduinoOpErrorIdContext_52: "예상치 못한 서버의 오류",
+  arduinoOpErrorIdContext_64: "연결 중에 문제가 발생했습니다.",
+  arduinoOpErrorUnknown: "예상치 못한 에러",
   /* Modals */
-  noServerTitle: "Ardublockly app not running",
-  noServerTitleBody: "<p>For all the Ardublockly features to be enabled, the Ardublockly desktop application must be running locally on your computer.</p>" +
-                     "<p>If you are using an online version you will not be able to configure the settings nor load the blocks code into an Arduino.</p>" +
-                     "<p>Installation instruction can be found in the <a href=\"https://github.com/carlosperate/ardublockly\">Ardublockly repository</a>.</p>" +
-                     "<p>If you have Ardublockly already installed, make sure the application is running correctly.</p>",
+  noServerTitle: "아두로이드의 서버가 작동하지 않습니다.",
+  noServerTitleBody: "<p>아두로이드의 서버에 현재 문제가 발생했습니다.</p>" +
+                     "<p>빠른 시일 내에 정상작동 하도록 하겠습니다. </p>" +
+                     "<p>이용에 불편을 드려서 정말 죄송합니다. </p>",
   noServerNoLangBody: "If the Ardublockly application is not running the language cannot be fully changed.",
   addBlocksTitle: "Additional Blocks",
   /* Alerts */
-  loadNewBlocksTitle: "Load new blocks?",
-  loadNewBlocksBody: "Loading a new XML file will replace the current blocks from the workspace.<br>" +
-                     "Are you sure you want to proceed?",
-  discardBlocksTitle: "Delete blocks?",
-  discardBlocksBody: "There are %1 blocks on the workspace.<br>" +
-                     "Are you sure you want to delete them?",
-  invalidXmlTitle: "Invalid XML",
-  invalidXmlBody: "The XML file was not successfully parsed into blocks. Please review the XML code and try again.",
+  loadNewBlocksTitle: "새 블록들을 불러올까요?",
+  loadNewBlocksBody: "불러오는 XML 파일이 현재 작업창을 대체할 것입니다. <br>" +
+                     "정말 교체하시겠습니까?",
+  discardBlocksTitle: "작업창 초기화?",
+  discardBlocksBody: "%1 개의 블록이 배치되어 있습니다.<br>" +
+                     "정말 작업화면을 초기화 하시겠습니까?",
+  invalidXmlTitle: "잘못된 형식의 XML",
+  invalidXmlBody: "XML 파일을 불러오는데 실패했습니다. 다시 시도하시거나 올바른 파일을 선택해 주세요.",
   /* Tooltips */
-  uploadingSketch: "Uploading Sketch into Arduino...",
-  uploadSketch: "Upload Sketch to the Arduino",
-  verifyingSketch: "Verifying Sketch...",
-  verifySketch: "Verify the Sketch",
+  uploadingSketch: "스케치를 아두이노에 업로딩...",
+  uploadSketch: "아두이노에 스케치 업로드",
+  verifyingSketch: "스케치 검사중...",
+  verifySketch: "스케치 검사",
   openingSketch: "Opening Sketch in the Arduino IDE...",
   openSketch: "Open Sketch in IDE",
-  notImplemented: "Function not yet implemented",
+  notImplemented: "아직 구현되지 않은 함수입니다.",
   /* Prompts */
   ok: "OK",
-  okay: "Okay",
-  cancel: "Cancel",
-  return: "Return",
+  okay: "네",
+  cancel: "아니요",
+  return: "돌아가기",
   /* Cards */
   arduinoSourceCode: "Arduino Source Code",
   blocksXml: "Blocks XML",
   /* Toolbox Categories*/
- catLogic: "��",
-   catLoops: "�ݺ�",
-   catMath: "����",
-   catText: "�ؽ�Ʈ",
-   catVariables: "����",
-   catFunctions: "�Լ�",
-   catInputOutput: "��/���",
-   catTime: "�ð�",
-   catAudio: "�Ҹ�",
-   catMotors: "����",
-  catComms: "���",
+  catLogic: "논리",
+    catLoops: "반복",
+    catMath: "연산",
+    catText: "텍스트",
+    catVariables: "변수",
+    catFunctions: "함수",
+    catInputOutput: "입/출력",
+    catTime: "시간",
+    catAudio: "소리",
+    catMotors: "모터",
+    catComms: "통신",
 };
