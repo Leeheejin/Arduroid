@@ -6,4 +6,5 @@
     <usb-device vendor-id="1027"/> <!-- FTDI VID:0x0403 -->
     <usb-device vendor-id="9025"/> <!-- Arduino VID:0x2341 PID:0x0043 -->
     <usb-device vendor-id="10755" product-id="67" />
+    <usb-device vendor-id="9025" product-id="67" />
 </resources>

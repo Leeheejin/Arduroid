@@ -75,7 +75,8 @@ public class MainActivity extends AppCompatActivity {
     private WebViewInterface mWebViewInterface;
     private File outputFile;
     private File path;
-    String[] PERMISSIONS = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE"};
+    String[] PERMISSIONS = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO","android.hardware.usb.action.USB_DEVICE_ATTACHED"};
+
 
     static final int PERMISSION_REQUEST_CODE = 1;
     //****************************************************************
@@ -182,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         public void getclick () {
             //Toast.makeText(mContext, "clicked!", Toast.LENGTH_LONG).show();
 
-            final String fileURL = "http://175.195.42.157:8000/ardublockly/ArdublocklySketch.ino.hex";
+            final String fileURL = "http://175.195.42.157:8000/ardublockly/data/ArdublocklySketch.ino.hex";
 
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             outputFile= new File(path, "ArdublocklySketch.ino.hex"); //

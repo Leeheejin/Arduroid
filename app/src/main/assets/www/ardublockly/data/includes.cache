@@ -1,0 +1,17 @@
+[
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\cores\\arduino"
+  },
+  {
+    "Sourcefile": "",
+    "Include": "",
+    "Includepath": "C:\\Program Files (x86)\\Arduino\\hardware\\arduino\\avr\\variants\\standard"
+  },
+  {
+    "Sourcefile": "C:\\Users\\leina\\Documents\\GitHub\\example2\\app\\src\\main\\assets\\www\\ardublockly\\data\\sketch\\ArduroidSketch.ino.cpp",
+    "Include": "",
+    "Includepath": ""
+  }
+]
