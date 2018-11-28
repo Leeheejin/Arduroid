@@ -41,22 +41,22 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean hasPermissions(String[] permissions) {
         int res = 0;
-        //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
+        // permission check in string array
         for (String perms : permissions){
             res = checkCallingOrSelfPermission(perms);
             if (!(res == PackageManager.PERMISSION_GRANTED)){
-                //퍼미션 허가 안된 경우
+                //permission denied
                 return false;
             }
 
         }
-        //퍼미션이 허가된 경우
+        //permission ckecked
         return true;
     }
 
 
     private void requestNecessaryPermissions(String[] permissions) {
-        //마시멜로( API 23 )이상에서 런타임 퍼미션(Runtime Permission) 요청
+        //must need with API 23 Runtime Permission
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             requestPermissions(permissions, PERMISSION_REQUEST_CODE);
         }
@@ -68,10 +68,10 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (!hasPermissions(PERMISSIONS)) { //퍼미션 허가를 했었는지 여부를 확인
-            requestNecessaryPermissions(PERMISSIONS);//퍼미션 허가안되어 있다면 사용자에게 요청
+        if (!hasPermissions(PERMISSIONS)) { //permission check
+            requestNecessaryPermissions(PERMISSIONS);//if doesn't check
         } else {
-            //이미 사용자에게 퍼미션 허가를 받음.
+            //already checked
         }
 
         WebView mWebView = (WebView) findViewById(R.id.WebView);
@@ -117,22 +117,22 @@ public class MainActivity extends AppCompatActivity {
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             outputFile= new File(path, "ArdublocklySketch.ino.hex"); //
 
-            if (outputFile.exists()) { //이미 다운로드 되어 있는 경우
+            if (outputFile.exists()) { // file exists?
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("파일 다운로드");
-                builder.setMessage("이미 SD 카드에 존재합니다. 다시 다운로드 받을까요?");
+                builder.setTitle("아두이노 스케치 저장 및 업데이트");
+                builder.setMessage("기존 파일이 존재합니다. 업데이트 할까요?");
                 builder.setNegativeButton("아니오",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
-                                Toast.makeText(getApplicationContext(),"기존 파일을 플레이합니다.",Toast.LENGTH_LONG).show();
+                                Toast.makeText(getApplicationContext(),"기존 파일을 유지합니다.",Toast.LENGTH_LONG).show();
                             }
                         });
                 builder.setPositiveButton("예",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                outputFile.delete(); //파일 삭제
+                                outputFile.delete(); //file delete
 
                                 final DownloadFilesTask downloadTask = new DownloadFilesTask(MainActivity.this);
                                 downloadTask.execute(fileURL);
@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                 builder.show();
 
-            } else { //새로 다운로드 받는 경우
+            } else { // new download accept
                 final DownloadFilesTask downloadTask = new DownloadFilesTask(MainActivity.this);
                 downloadTask.execute(fileURL);
             }
@@ -157,13 +157,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드를 시작하기 전에 프로그레스바를 화면에 보여줍니다.
         @Override
         protected void onPreExecute() { //2
             super.onPreExecute();
 
-            //사용자가 다운로드 중 파워 버튼을 누르더라도 CPU가 잠들지 않도록 해서
-            //다시 파워버튼 누르면 그동안 다운로드가 진행되고 있게 됩니다.
+            //background cpu running when sketch download
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
             mWakeLock.acquire();
@@ -171,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드를 진행합니다.
+        //fie downloading...
         @Override
         protected Long doInBackground(String... string_url) { //3
             int count;
@@ -186,23 +184,22 @@ public class MainActivity extends AppCompatActivity {
                 connection.connect();
 
 
-                //파일 크기를 가져옴
+                //file size load
                 FileSize = connection.getContentLength();
 
-                //URL 주소로부터 파일다운로드하기 위한 input stream
+                //URL input stream
                 input = new BufferedInputStream(url.openStream(), 8192);
 
                 path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                 outputFile= new File(path, "ArdublocklySketch.ino.hex"); //파일명까지 포함함 경로의 File 객체 생성
 
-                // SD카드에 저장하기 위한 Output stream
+                // for SDcard Output stream
                 output = new FileOutputStream(outputFile);
 
 
                 byte data[] = new byte[1024];
                 long downloadedSize = 0;
                 while ((count = input.read(data)) != -1) {
-                    //사용자가 BACK 버튼 누르면 취소가능
                     if (isCancelled()) {
                         input.close();
                         return Long.valueOf(-1);
@@ -217,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    //파일에 데이터를 기록합니다.
+                    //write data in file
                     output.write(data, 0, count);
                 }
                 // Flush output
@@ -246,7 +243,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드 완료 후
+        //when file down complete
         @Override
         protected void onPostExecute(Long size) { //5
             super.onPostExecute(size);
@@ -260,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
 
             }
-            else
+            else //exception!
                 Toast.makeText(getApplicationContext(), "다운로드 에러", Toast.LENGTH_LONG).show();
         }
 
