@@ -87,6 +87,15 @@ Third, in MainActivity, when you running start.py (It is a server! you can have 
 mWebView.loadUrl("input your url");
 ```
 
+Forth, We use Physicaloid which is [https://github.com/ksksue/PhysicaloidLibrary](https://github.com/ksksue/PhysicaloidLibrary "https://github.com/ksksue/PhysicaloidLibrary") you should check your arduino device's id.
+```xml
+
+<usb-device vendor-id="10755" product-id="67" />
+<usb-device vendor-id="9025" product-id="67" />
+<!-- Like this -->
+
+```
+
 as you see, when you running start.py you can see like....
 
 <img src="https://github.com/Leeheejin/Arduroid/blob/master/app/src/main/res/drawable/executeimage.png?raw=true" width="90%"></img>
