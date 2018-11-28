@@ -87,7 +87,7 @@ Third, in MainActivity, when you running start.py (It is a server! you can have 
 mWebView.loadUrl("input your url");
 ```
 
-Forth, We use Physicaloid which is [https://github.com/ksksue/PhysicaloidLibrary](https://github.com/ksksue/PhysicaloidLibrary "https://github.com/ksksue/PhysicaloidLibrary") you should check your arduino device's id.
+Fourth, We use Physicaloid which is [https://github.com/ksksue/PhysicaloidLibrary](https://github.com/ksksue/PhysicaloidLibrary "https://github.com/ksksue/PhysicaloidLibrary") you should check your arduino device's id.
 ```xml
 
 <usb-device vendor-id="10755" product-id="67" />
