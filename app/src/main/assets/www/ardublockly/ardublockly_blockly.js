@@ -153,10 +153,11 @@ Ardublockly.loadBlocksfromXmlDom = function(blocksXmlDom) {
  * sessionStorage on file:// URLs.
  */
 Ardublockly.saveSessionStorageBlocks = function() {
-  if (window.sessionStorage) {
+  if (window.localStorage) {
     var xml = Blockly.Xml.workspaceToDom(Ardublockly.workspace);
     var text = Blockly.Xml.domToText(xml);
-    window.sessionStorage.loadOnceBlocks = text;
+    window.localStorage.loadOnceBlocks = text;
+    AndroidInterface.showToast(toast);
   }
 };
 

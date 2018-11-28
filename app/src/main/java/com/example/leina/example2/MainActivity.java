@@ -2,10 +2,10 @@ package com.example.leina.example2;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -29,36 +30,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.View;
-import android.widget.Toast;
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-
-import android.Manifest;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.hardware.usb.UsbManager;
-import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.physicaloid.lib.Boards;
 import com.physicaloid.lib.Physicaloid;
@@ -75,42 +53,17 @@ public class MainActivity extends AppCompatActivity {
     private WebViewInterface mWebViewInterface;
     private File outputFile;
     private File path;
-    String[] PERMISSIONS = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO","android.hardware.usb.action.USB_DEVICE_ATTACHED"};
 
-
+    String[] PERMISSIONS = {"android.permission.ACCESS_COARSE_LOCATION","android.permission.ACCESS_FINE_LOCATION","android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE","android.hardware.usb.host","com.google.android.things.permission.USE_PERIPHERAL_IO","android.hardware.usb.action.USB_DEVICE_ATTACHED"};
     static final int PERMISSION_REQUEST_CODE = 1;
+
     //****************************************************************
-    //TODO:HEX UPLOADER
+    //TODO:file opne, save
 
     TextView tvRead;
     Physicaloid mPhysicaloid;
 
     //****************************************************************
-
-    private boolean hasPermissions(String[] permissions) {
-        int res = 0;
-        //스트링 배열에 있는 퍼미션들의 허가 상태 여부 확인
-        for (String perms : permissions){
-            res = checkCallingOrSelfPermission(perms);
-            if (!(res == PackageManager.PERMISSION_GRANTED)){
-                //퍼미션 허가 안된 경우
-                return false;
-            }
-
-        }
-        //퍼미션이 허가된 경우
-        return true;
-    }
-
-
-    private void requestNecessaryPermissions(String[] permissions) {
-        //마시멜로( API 23 )이상에서 런타임 퍼미션(Runtime Permission) 요청
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            requestPermissions(permissions, PERMISSION_REQUEST_CODE);
-        }
-    }
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,17 +71,60 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        if (!hasPermissions(PERMISSIONS)) { //퍼미션 허가를 했었는지 여부를 확인
-            requestNecessaryPermissions(PERMISSIONS);//퍼미션 허가안되어 있다면 사용자에게 요청
-        } else {
-            //이미 사용자에게 퍼미션 허가를 받음.
-        }
+        //  Declare a new thread to do a preference check
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //  Initialize SharedPreferences
+                SharedPreferences getPrefs = PreferenceManager
+                        .getDefaultSharedPreferences(getBaseContext());
+
+                //  Create a new boolean and preference and set it to true
+                boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
+
+                //  If the activity has never started before...
+                if (isFirstStart) {
+
+                    //  Launch app intro
+                    final Intent i = new Intent(MainActivity.this,IntroActivity.class);
+
+                    runOnUiThread(new Runnable() {
+                        @Override public void run() {
+                            startActivity(i);
+                        }
+                    });
+
+                    //  Make a new preferences editor
+                    SharedPreferences.Editor e = getPrefs.edit();
+
+                    //  Edit preference to make it false because we don't want this to run again
+                    e.putBoolean("firstStart", false);
+
+                    //  Apply changes
+                    e.apply();
+                }
+            }
+        });
+
+        // Start the thread
+        t.start();
 
         WebView mWebView = (WebView) findViewById(R.id.WebView);
         mWebView.getSettings().setJavaScriptEnabled(true);
         mWebView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
         mWebView.getSettings().setLoadWithOverviewMode(true);
         mWebView.getSettings().setUseWideViewPort(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
+        mWebView.getSettings().setDatabaseEnabled(true);
+        mWebView.getSettings().setDomStorageEnabled(true);
+        mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+        mWebView.getSettings().setAllowContentAccess(true);
+        mWebView.getSettings().setLoadsImagesAutomatically(true);
+        mWebView.getSettings().setUseWideViewPort(true);
+        mWebView.getSettings().setCacheMode(mWebView.getSettings().LOAD_NO_CACHE);
+        mWebView.getSettings().setAppCacheEnabled(false);
+        mWebView.getSettings().setAllowFileAccess(true);
+        mWebView.getSettings().setSupportMultipleWindows(true);
 
         mWebViewInterface = new WebViewInterface(MainActivity.this, mWebView); //JavascriptInterface obj
         mWebView.addJavascriptInterface(mWebViewInterface, "Android"); // JavascriptInterface를 connect
@@ -136,16 +132,45 @@ public class MainActivity extends AppCompatActivity {
         //mWebView.loadUrl("file:///android_asset/www/ardublockly/index.html#"); // URL
         mWebView.loadUrl("http://175.195.42.157:8000"); // URL
         //mWebView.loadUrl("http://121.168.23.64:8000"); // URL
-        mWebView.setWebChromeClient(new WebChromeClient());
         mWebView.setWebViewClient(new WebViewClientClass());
+        mWebView.setWebChromeClient(new WebChromeClient());
 
+        /*
+        mWebView.addJavascriptInterface(new Object()
+        {
+            @JavascriptInterface
+            public void save_click()
+            {
+                Toast.makeText(getApplicationContext(), "저장클릭", Toast.LENGTH_LONG).show();
+            }
+        }, "one");
+
+        mWebView.addJavascriptInterface(new Object()
+        {
+            @JavascriptInterface
+            public void open_click()
+            {
+                Toast.makeText(getApplicationContext(), "오픈클릭", Toast.LENGTH_LONG).show();
+            }
+        }, "two");
+        */
+
+        mWebView.addJavascriptInterface(new Object()
+        {
+            @JavascriptInterface
+            public void help_click()
+            {
+                //Toast.makeText(getApplicationContext(), "헬프클릭", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(
+                        getApplicationContext(), IntroActivity.class);
+                startActivity(intent);
+            }
+        }, "two");
 
         tvRead  = (TextView) findViewById(R.id.tvRead);
+        tvRead.setVisibility(View.VISIBLE);
         tvRead.setEnabled(false);
         mPhysicaloid = new Physicaloid(this);
-
-
-
 
         //****************************************************************
         //This part is Physicaloid Library
@@ -188,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
             path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
             outputFile= new File(path, "ArdublocklySketch.ino.hex"); //
 
-            if (outputFile.exists()) { //이미 다운로드 되어 있는 경우
+            if (outputFile.exists()) {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                 builder.setTitle("파일 다운로드");
@@ -212,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                 builder.show();
 
-            } else { //새로 다운로드 받는 경우
+            } else { // new download
                 final DownloadFilesTask downloadTask = new DownloadFilesTask(MainActivity.this);
                 downloadTask.execute(fileURL);
             }
@@ -225,6 +250,24 @@ public class MainActivity extends AppCompatActivity {
             onClickUpload();
 
         }
+        /*
+        @JavascriptInterface
+        public void savexmlclick (String blob,String fileName) {
+            Toast.makeText(getApplicationContext(), "저장클릭", Toast.LENGTH_LONG).show();
+
+            String filename = fileName;
+            String fileContents = blob;
+            FileOutputStream outputStream;
+
+            try {
+                outputStream = openFileOutput(filename+".xml", Context.MODE_PRIVATE);
+                outputStream.write(fileContents.getBytes());
+                outputStream.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        */
     }
     private class DownloadFilesTask extends AsyncTask<String, String, Long> {
 
@@ -236,13 +279,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드를 시작하기 전에 프로그레스바를 화면에 보여줍니다.
         @Override
         protected void onPreExecute() { //2
             super.onPreExecute();
 
-            //사용자가 다운로드 중 파워 버튼을 누르더라도 CPU가 잠들지 않도록 해서
-            //다시 파워버튼 누르면 그동안 다운로드가 진행되고 있게 됩니다.
+            // during download, running cpu background
             PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
             mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, getClass().getName());
             mWakeLock.acquire();
@@ -250,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드를 진행합니다.
+        // fil downloading....
         @Override
         protected Long doInBackground(String... string_url) { //3
             int count;
@@ -265,23 +306,22 @@ public class MainActivity extends AppCompatActivity {
                 connection.connect();
 
 
-                //파일 크기를 가져옴
+                // file size calc
                 FileSize = connection.getContentLength();
 
-                //URL 주소로부터 파일다운로드하기 위한 input stream
+                // input stream for url
                 input = new BufferedInputStream(url.openStream(), 8192);
 
                 path= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                outputFile= new File(path, "ArdublocklySketch.ino.hex"); //파일명까지 포함함 경로의 File 객체 생성
+                outputFile= new File(path, "ArdublocklySketch.ino.hex"); //File obj create
 
-                // SD카드에 저장하기 위한 Output stream
+                // Output stream for SDcard
                 output = new FileOutputStream(outputFile);
 
 
                 byte data[] = new byte[1024];
                 long downloadedSize = 0;
                 while ((count = input.read(data)) != -1) {
-                    //사용자가 BACK 버튼 누르면 취소가능
                     if (isCancelled()) {
                         input.close();
                         return Long.valueOf(-1);
@@ -296,7 +336,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
 
-                    //파일에 데이터를 기록합니다.
                     output.write(data, 0, count);
                 }
                 // Flush output
@@ -325,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        //파일 다운로드 완료 후
+        // when file download done
         @Override
         protected void onPostExecute(Long size) { //5
             super.onPostExecute(size);

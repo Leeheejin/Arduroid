@@ -2,12 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.leina.example2">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature android:name="android.hardware.usb.host" />
+
     <uses-permission android:name="com.google.android.things.permission.USE_PERIPHERAL_IO" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,8 +20,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
-            android:launchMode="singleTask" >           //ADD single Task
+        <activity
+            android:name=".MainActivity"
+            android:launchMode="singleTask">
+            //ADD single Task
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,11 +36,11 @@
             </intent-filter>
 
             <!-- TODO : add device filter for usb device being attached -->
-            <meta-data android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
                 android:resource="@xml/device_filter" />
-
-
         </activity>
+        <activity android:name=".IntroActivity"></activity>
     </application>
 
 </manifest>

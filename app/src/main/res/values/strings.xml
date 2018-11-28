@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">example2</string>
+    <string name="app_name">Arduroid</string>
+
+    <string name="next">NEXT</string>
+    <string name="skip">SKIP</string>
+    <string name="start">GOT IT</string>
+
 </resources>

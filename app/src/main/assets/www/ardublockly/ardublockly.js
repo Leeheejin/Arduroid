@@ -56,6 +56,9 @@ Ardublockly.bindActionFunctions = function() {
     Ardublockly.openSettings();
     $('.button-collapse').sideNav('hide');
   });
+   Ardublockly.bindClick_('menu_bug', function() {
+      $('.button-collapse').sideNav('hide');
+    });
   Ardublockly.bindClick_('menu_example_1', function() {
     Ardublockly.loadServerXmlFile('../examples/blink.xml');
     $('.button-collapse').sideNav('hide');
@@ -321,7 +324,16 @@ Ardublockly.saveSketchFile = function() {
  */
 Ardublockly.saveTextFileAs = function(fileName, content) {
   var blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
-  saveAs(blob, fileName);
+
+    //안드로이드로 넘길 값 존재
+    function save_click() {
+    try{
+    Android.savexmlclick(blob, fileName);
+    }
+    catch(e){}
+    }
+
+    saveAs(blob, fileName);
 };
 
 /**
@@ -722,3 +734,4 @@ Ardublockly.bindClick_ = function(el, func) {
   el.addEventListener('ontouchend', propagateOnce);
   el.addEventListener('click', propagateOnce);
 };
+

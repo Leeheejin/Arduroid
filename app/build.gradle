@@ -27,4 +27,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.github.ParkSangGwon:TedPermission:v1.0.11'
     implementation project(':PhysicaloidLibrary')
+    implementation 'com.github.paolorotolo:appintro:v4.1.0'
 }

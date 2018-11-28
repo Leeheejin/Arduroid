@@ -1,8 +1,9 @@
+String _ED_95_AD_EB_AA_A9;
+
 void setup() {
 }
 
 void loop() {
-  for (int count = 0; count < 10; count++) {
-  }
+  _ED_95_AD_EB_AA_A9 += String("");
 
 }
